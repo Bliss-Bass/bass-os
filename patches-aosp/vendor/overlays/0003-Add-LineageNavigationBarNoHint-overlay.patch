@@ -1,0 +1,71 @@
+From c9c9bfaa743ca4ecfd06067b91e368410a380345 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Sun, 10 Dec 2023 16:39:58 -0500
+Subject: [PATCH 3/4] Add LineageNavigationBarNoHint overlay
+
+---
+ customizations/NavigationBarNoHint/Android.mk       | 12 ++++++++++++
+ .../NavigationBarNoHint/AndroidManifest.xml         | 11 +++++++++++
+ .../NavigationBarNoHint/res/values/dimens.xml       | 13 +++++++++++++
+ 3 files changed, 36 insertions(+)
+ create mode 100644 customizations/NavigationBarNoHint/Android.mk
+ create mode 100644 customizations/NavigationBarNoHint/AndroidManifest.xml
+ create mode 100644 customizations/NavigationBarNoHint/res/values/dimens.xml
+
+diff --git a/customizations/NavigationBarNoHint/Android.mk b/customizations/NavigationBarNoHint/Android.mk
+new file mode 100644
+index 0000000..c2891bc
+--- /dev/null
++++ b/customizations/NavigationBarNoHint/Android.mk
+@@ -0,0 +1,12 @@
++LOCAL_PATH:= $(call my-dir)
++include $(CLEAR_VARS)
++
++LOCAL_RRO_THEME := LineageNavigationBarNoHint
++LOCAL_PRODUCT_MODULE := true
++LOCAL_CERTIFICATE := platform
++LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
++LOCAL_PACKAGE_NAME := LineageNavigationBarNoHint
++
++LOCAL_PRIVATE_PLATFORM_APIS := true
++
++include $(BUILD_RRO_PACKAGE)
+diff --git a/customizations/NavigationBarNoHint/AndroidManifest.xml b/customizations/NavigationBarNoHint/AndroidManifest.xml
+new file mode 100644
+index 0000000..11cc290
+--- /dev/null
++++ b/customizations/NavigationBarNoHint/AndroidManifest.xml
+@@ -0,0 +1,11 @@
++<!--
++ * SPDX-License-Identifier: Apache-2.0
++ * Copyright (C) 2020 The LineageOS Project
++-->
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++        package="org.lineageos.overlay.customization.navbar.nohint"
++        android:versionCode="1"
++        android:versionName="1.0">
++    <overlay android:targetPackage="android"
++        android:priority="1"/>
++</manifest>
+diff --git a/customizations/NavigationBarNoHint/res/values/dimens.xml b/customizations/NavigationBarNoHint/res/values/dimens.xml
+new file mode 100644
+index 0000000..f389f83
+--- /dev/null
++++ b/customizations/NavigationBarNoHint/res/values/dimens.xml
+@@ -0,0 +1,13 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++ * SPDX-License-Identifier: Apache-2.0
++ * Copyright (C) 2020 The LineageOS Project
++-->
++<resources>
++    <!-- Height of the bottom navigation / system bar. -->
++    <dimen name="navigation_bar_height">0dp</dimen>
++    <!-- Height of the bottom navigation bar in portrait; often the same as @dimen/navigation_bar_height -->
++    <dimen name="navigation_bar_height_landscape">0dp</dimen>
++    <!-- Width of the navigation bar when it is placed vertically on the screen -->
++    <dimen name="navigation_bar_width">0dp</dimen>
++</resources>
+-- 
+2.34.1
+

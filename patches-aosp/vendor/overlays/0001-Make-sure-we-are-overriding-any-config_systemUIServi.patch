@@ -1,0 +1,29 @@
+From 63c93ff457a5776bcdc1bae165a0632be1e946c5 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Sun, 23 Apr 2023 17:17:52 -0400
+Subject: [PATCH 1/4] Make sure we are overriding any
+ config_systemUIServiceComponent settings
+
+---
+ .../common/frameworks/base/core/res/res/values/config.xml    | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/overlay/common/frameworks/base/core/res/res/values/config.xml b/overlay/common/frameworks/base/core/res/res/values/config.xml
+index 2f60b93..ec5d262 100644
+--- a/overlay/common/frameworks/base/core/res/res/values/config.xml
++++ b/overlay/common/frameworks/base/core/res/res/values/config.xml
+@@ -126,6 +126,11 @@
+           systemui implementation: com.android.systemui/.recents.RecentsActivity -->
+     <string name="config_recentsComponentName">com.android.launcher3/com.android.quickstep.RecentsActivity</string>
+ 
++
++    <!-- SystemUi service component -->
++    <string name="config_systemUIServiceComponent" translatable="false"
++            >com.android.systemui/com.android.systemui.SystemUIService</string>
++
+     <!-- This is the default launcher component to use on secondary displays that support system
+          decorations.
+          This launcher activity must support multiple instances and have corresponding launch mode
+-- 
+2.34.1
+
