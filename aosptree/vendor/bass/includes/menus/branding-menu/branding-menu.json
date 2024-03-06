@@ -1,0 +1,85 @@
+{
+    "project": "Bliss-Bass - Branding Tools",
+    "version": 0.1,
+    "updated": "2023-06-27T00:00:00.000Z",
+    "debug": true,
+    "options": {
+      "menuEntry": [
+        {
+          "name": "Apply Patches",
+          "descr": "",
+          "command": "bash vendor/bass/tools/vcl-apply-patches.sh",
+          "dependencies": [
+            {
+                "dep": "test ! -f vendor/bass/.config/patches_applied.cfg"
+            }
+          ]
+        },
+        {
+          "name": "Update Wallpaper",
+          "descr": "",
+          "command": "bash vendor/bass/tools/vcl-wallpaper.sh",
+          "dependencies": [
+            {
+                "dep": "test -f vendor/bass/.config/patches_applied.cfg"
+            }
+          ]
+        },
+        {
+          "name": "Update Grub Background",
+          "descr": "",
+          "command": "bash vendor/bass/tools/vcl-grub.sh",
+          "dependencies": [
+            {
+                "dep": "test -f vendor/bass/.config/patches_applied.cfg"
+            }
+          ]
+        },
+        {
+          "name": "Package up bootanimation frames",
+          "descr": "",
+          "command": "bash vendor/bass/tools/vcl-bootanimation.sh",
+          "dependencies": [
+            {
+                "dep": "test -f vendor/bass/.config/patches_applied.cfg"
+            }
+          ]
+        },
+        {
+          "name": "Rebrand Project Name",
+          "descr": "",
+          "command": "bash vendor/bass/tools/vcl-project-refactor.sh",
+          "dependencies": [
+            {
+                "dep": "test -f vendor/bass/.config/patches_applied.cfg"
+            }
+          ]
+        },
+        {
+          "name": "Update FOSS apps",
+          "descr": "",
+          "command": "bash vendor/bass/tools/vcl-foss-update.sh",
+          "dependencies": [
+            {
+                "dep": "test -f vendor/bass/.config/patches_applied.cfg"
+            }
+          ]
+        },
+        {
+          "name": "Launch Android-Generic Project menu",
+          "descr": "",
+          "command": "bash vendor/ag/ag-menu-new.sh",
+          "dependencies": [
+            {
+                "dep": "test -f vendor/ag/ag-menu-new.sh"
+            }
+          ]
+        },
+        {
+          "name": "Exit",
+          "descr": "",
+          "command": "exit 0"
+        }
+      ]
+    }
+  }
