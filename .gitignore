@@ -1,7 +1,7 @@
 aosptree/**
 !aosptree/vendor
-!aosptree/vendor/devices-community
-!aosptree/vendor/devices-community/**
+!aosptree/vendor/bass
+!aosptree/vendor/bass/**
 scratchpad/
 
 ._*
