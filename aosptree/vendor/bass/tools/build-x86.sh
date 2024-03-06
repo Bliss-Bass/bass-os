@@ -129,6 +129,12 @@ function displayHelp() {
     exit 0
 }
 
+# if $# -eq 0, exit
+if [ $# -eq 0 ]; then
+    displayHelp
+fi
+
+# Parse arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -h|--help)
