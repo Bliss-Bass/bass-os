@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="bb" fetch="ssh://git@github.com/Bliss-Bass/" />
+  <remote name="sghub" fetch="ssh://git@github.com/" />
+
+  <!-- Remove Projects -->
+  <remove-project name="platform_vendor_gms_old" />
+  <!-- <remove-project name="vendor_gapps" /> -->
+
+  <!-- Public Projects -->
+  <remove-project name="platform_packages_apps_SetupWizard" />
+  <project path="packages/apps/SetupWizard" name="platform_packages_apps_SetupWizard" remote="bb" revision="bass-12.1" />
+  <project path="packages/apps/Seedvault" name="LineageOS/android_packages_apps_Seedvault" remote="ghub" revision="lineage-19.1" />
+
+  <!-- Co-Labs Projects -->
+  <project path="packages/apps/BlissPowerManager" name="platform_packages_apps_BlissPowerManager" remote="bb" revision="arcadia-x86" />
+  <project path="external/blissethernet" name="platform_external_blissethernet" remote="bb" revision="arcadia-x86" />
+  
+  <!-- Replace Projects -->
+  <!-- <remove-project name="platform_build" /> -->
+  <!-- <project path="build/make" name="platform_build" remote="BR-x86" revision="arcadia-bass" >
+    <copyfile src="core/root.mk" dest="Makefile" />
+    <linkfile src="CleanSpec.mk" dest="build/CleanSpec.mk" />
+    <linkfile src="buildspec.mk.default" dest="build/buildspec.mk.default" />
+    <linkfile src="core" dest="build/core" />
+    <linkfile src="envsetup.sh" dest="build/envsetup.sh" />
+    <linkfile src="target" dest="build/target" />
+    <linkfile src="tools" dest="build/tools" />
+  </project> -->
+
+  <!-- <remove-project name="frameworks_native" /> -->
+  <!-- <project path="frameworks/native" name="frameworks_native" remote="BR-x86" revision="arcadia-bass" /> -->
+  <remove-project name="platform_packages_apps_Launcher3" />
+  <project path="packages/apps/Launcher3" name="platform_packages_apps_Launcher3" remote="bb" revision="bass-12.1" />
+  <remove-project name="platform_vendor_bliss" />
+  <project path="vendor/bliss" name="platform_vendor_bliss" remote="bb" revision="bass-12.1-wip" />
+  <remove-project name="packages_apps_Settings" />
+  <project path="packages/apps/Settings" name="platform_packages_apps_Settings" remote="bb" revision="arcadia-bass-12.1" />
+  <remove-project name="platform_packages_apps_Blissify" />
+  <project path="packages/apps/Blissify" name="platform_packages_apps_Blissify" remote="bb" revision="bass-12.1" />
+  <remove-project name="external_alsa-ucm-conf" />
+  <project path="external/alsa-ucm-conf" name="external_alsa-ucm-conf" remote="ag-github" revision="arcadia-bass-20231217" />
+  <remove-project name="platform_vendor_overlays" />
+  <project path="vendor/overlays" name="platform_vendor_overlays" remote="bb" revision="bass-12.1" />
+  <remove-project name="platform_frameworks_base" />
+  <project path="frameworks/base" name="platform_frameworks_base" remote="bb" revision="bass-12.1-wip" />
+  <!-- <remove-project name="platform/frameworks/opt/net/ethernet" /> -->
+  <!-- <project path="frameworks/opt/net/ethernet" name="platform_frameworks_opt_net_ethernet" remote="bb" revision="arcadia-x86-bass" /> -->
+  <remove-project name="device_generic_firmware" />
+  <project path="device/generic/firmware" name="platform_device_generic_firmware" remote="bb" revision="arcadia-bass-20231217" />
+  <!-- <remove-project name="kernel_common" /> -->
+  <!-- <project path="kernel" name="kernel_common" remote="bb" sync-s="true" revision="umbral-20231102-nksu" /> -->
+  <remove-project name="device_generic_common" />
+  <project path="device/generic/common" name="device_generic_common" remote="bb" sync-s="true" revision="bass-12.1-20231218" />
+  <remove-project name="bootable_newinstaller" />
+  <project path="bootable/newinstaller" name="platform_bootable_newinstaller" remote="bb" revision="bass-12.1-231216" />
+  <!-- <remove-project name="platform_external_libxml2" /> -->
+  <remove-project name="android_external_libxml2" />
+  <project path="external/libxml2" name="platform_external_libxml2" remote="bb" revision="bass-12.1" />
+
+  <!-- <remove-project name="external_swiftshader" /> -->
+  <!-- <project path="external/swiftshader" name="external_swiftshader" remote="ag-gitlab" revision="cd437be240fa04765fc4a0a6e5103bf65aa1be0a" groups="pdk" /> -->
+  <!-- <project path="external/swiftshader_egl" name="external_swiftshader" remote="ag-gitlab" revision="f323f9831fe9e518537b16993f7a53119d59536c" groups="pdk" /> -->
+  <!-- <remove-project name="external_mesa" /> -->
+  <!-- <project path="external/mesa" name="external_mesa" remote="ag-github" revision="3a5ed3bbc62e1e68c6cdd01090cf657c5c8aa5fb" /> -->
+  <!-- <remove-project name="external_llvm-project" /> -->
+  <!-- <project path="external/llvm-project" name="external_llvm-project" remote="ag-github" revision="532d9a7b2d259fb2d2a6059ea6d428c55f90ec58" /> -->
+  <!-- <remove-project name="external_kernel-drivers" /> -->
+  <!-- <project path="external/kernel-drivers" name="external_kernel-drivers" sync-s="true" remote="ag-github" revision="05ad9cc1baea6888e9ed9ff471784a6cea30223c" /> -->
+  
+  <!-- Android-Generic -->
+
+  <remove-project name="kernel_common" />
+  <project path="kernel" name="android-generic/kernel_common" remote="sghub" sync-s="true" revision="gloria-20231205" />
+  <remove-project name="external_kernel-drivers" />
+  <project path="external/kernel-drivers" name="android-generic/external_kernel-drivers" sync-s="true" remote="sghub" revision="64848d3ab2bf2e92ec7904acfcb4b87bc10c87fa" />
+  <remove-project name="vendor_intel_hardware_interfaces" />
+  <project path="vendor/intel/hardware/interfaces" name="android-generic/vendor_intel_hardware_interfaces" remote="sghub" revision="12l-x86" sync-s="true" />
+  <remove-project name="glodroid_aospext" />
+  <project path="glodroid/aospext" name="android-generic/glodroid_aospext" remote="sghub" revision="main" sync-s="true" />
+
+  <!-- <remove-project name="platform_packages_services_Telecomm" />
+  <project path="packages/services/Telecomm" name="platform_packages_services_Telecomm" remote="BlissRoms" revision="2e7e6143a17ad6ce8aa7f32a62d6c00af112c0c6"/> -->
+  <!-- <remove-project name="platform_packages_services_Telephony" />
+  <project path="packages/services/Telephony" name="platform_packages_services_Telephony" remote="BlissRoms" revision="fcc894b48b1629c55dcb2e307c7d2dfe0dde542c" /> -->
+
+  <!-- 
+  <remove-project name="manifest" />
+  <project path="manifest" name="platform_manifest" remote="bbp" revision="bass-12.1" /> -->
+
+  <!-- LineageOS -->
+
+  <!-- <remove-project name="platform/frameworks/opt/colorpicker" /> -->
+  <remove-project name="android_frameworks_opt_colorpicker" />
+  <project path="frameworks/opt/colorpicker" name="LineageOS/android_frameworks_opt_colorpicker" remote="ghub" revision="lineage-19.1"/>
+  <remove-project name="android_packages_apps_Etar" />
+  <!-- <project path="packages/apps/Etar" name="android_packages_apps_Etar" sync-s="true" remote="lineage" revision="dca10fe5c540ed75d24bfbe3f3c4e6138ef58f0e" /> -->
+  <project path="packages/apps/Etar" name="LineageOS/android_packages_apps_Etar" sync-s="true" remote="sghub" revision="lineage-19.1" />
+  
+</manifest>

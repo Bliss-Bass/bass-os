@@ -1,0 +1,16 @@
+From ee3b8406f2655707c5daf5285aa186795a052265 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Tue, 1 Aug 2023 22:41:23 -0400
+Subject: [PATCH] bypass patching for BlissBass
+
+---
+ .config/patches_applied.cfg | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 .config/patches_applied.cfg
+
+diff --git a/.config/patches_applied.cfg b/.config/patches_applied.cfg
+new file mode 100644
+index 00000000..e69de29b
+-- 
+2.34.1
+
