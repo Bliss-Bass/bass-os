@@ -2,6 +2,9 @@ aosptree/**
 !aosptree/vendor
 !aosptree/vendor/bass
 !aosptree/vendor/bass/**
+aosptree/vendor/bass/branding
+aosptree/vendor/bass/addons
+
 scratchpad/
 
 ._*
