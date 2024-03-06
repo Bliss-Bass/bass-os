@@ -1,0 +1,3 @@
+[submodule "aosptree/vendor/bass/includes/core-menu"]
+	path = aosptree/vendor/bass/includes/core-menu
+	url = https://github.com/electrikjesus/easy-menu-system.git
