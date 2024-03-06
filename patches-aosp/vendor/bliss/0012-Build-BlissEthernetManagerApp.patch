@@ -1,0 +1,27 @@
+From 281d9f2e58f2de4bfec6fc2616dda43943d6305e Mon Sep 17 00:00:00 2001
+From: hmtheboy154 <buingoc67@gmail.com>
+Date: Fri, 15 Dec 2023 15:24:56 -0500
+Subject: [PATCH 12/20] Build BlissEthernetManagerApp
+
+Giving us a basic but fine Ethernet Manager
+
+Signed-off-by: hmtheboy154 <buingoc67@gmail.com>
+---
+ config/bliss_packages.mk | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/config/bliss_packages.mk b/config/bliss_packages.mk
+index 8ef9db21..0b1be00b 100644
+--- a/config/bliss_packages.mk
++++ b/config/bliss_packages.mk
+@@ -111,3 +111,7 @@ PRODUCT_PACKAGES += \
+     LiveWallpapersPicker \
+     VisualizationWallpapers \
+     librs_jni
++
++# Bliss Ethernet Manager
++PRODUCT_PACKAGES += \
++    BlissEthernetManagerApp
+-- 
+2.34.1
+

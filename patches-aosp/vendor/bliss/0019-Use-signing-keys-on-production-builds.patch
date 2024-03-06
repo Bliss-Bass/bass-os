@@ -1,0 +1,38 @@
+From c5e4800775b661b389469398cb33eaf9a43125cf Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Wed, 6 Mar 2024 15:56:43 -0500
+Subject: [PATCH 19/20] Use signing keys on production builds
+
+requires release/product/test key signatures to be generated
+---
+ config/versions.mk | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/config/versions.mk b/config/versions.mk
+index 9ad3db8e..2a1e87b3 100644
+--- a/config/versions.mk
++++ b/config/versions.mk
+@@ -5,6 +5,20 @@ BLISS_VERSION_MINOR = 9
+ BLISS_CODENAME = Arcadia
+ #BLISS_VERSION_MAINTENANCE = Beta
+ 
++ifeq ($(BLISS_PRODUCTION_BUILD),true)
++# Flavor and signing
++
++PRODUCT_PROPERTY_OVERRIDES += \
++    ro.bliss.releasetype=RELEASE \
++
++SIGNING_KEYS := vendor/bliss/config/signing
++
++PRODUCT_DEFAULT_DEV_CERTIFICATE := vendor/bliss/config/signing/releasekey
++PRODUCT_OTA_PUBLIC_KEYS := vendor/bliss/config/signing/platform
++PRODUCT_EXTRA_RECOVERY_KEYS := vendor/bliss/config/signing/platform
++
++endif
++
+ ifneq ($(SIGNING_KEYS),)
+     PRODUCT_DEFAULT_DEV_CERTIFICATE := $(SIGNING_KEYS)/releasekey
+ endif
+-- 
+2.34.1
+
