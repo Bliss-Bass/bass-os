@@ -1,7 +1,7 @@
-From 2e53f38dc5270bc6ba3e57b1956bb5498969b4b4 Mon Sep 17 00:00:00 2001
+From 96002887e00cbb4bc7110aed9346fb1874bf887c Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 11:36:49 -0500
-Subject: [PATCH 02/19] install: move OEM Install to it's own submenu for efi
+Subject: [PATCH 02/13] install: move OEM Install to it's own submenu for efi
 
 Change-Id: I803fc0660f93fd67e1f9b72c1a41cddbcfce0509
 ---
@@ -9,7 +9,7 @@ Change-Id: I803fc0660f93fd67e1f9b72c1a41cddbcfce0509
  1 file changed, 11 insertions(+), 7 deletions(-)
 
 diff --git a/install/grub2/efi/boot/android.cfg b/install/grub2/efi/boot/android.cfg
-index ef0e1a56..1d519d88 100755
+index 35fc275c..0f2fa68b 100755
 --- a/install/grub2/efi/boot/android.cfg
 +++ b/install/grub2/efi/boot/android.cfg
 @@ -124,13 +124,6 @@ submenu "Debugging -> " --class forward {

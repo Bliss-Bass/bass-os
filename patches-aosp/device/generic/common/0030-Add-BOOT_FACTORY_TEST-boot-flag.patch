@@ -1,0 +1,29 @@
+From 11dc7caae370e86bc052cb109548680813f58623 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Wed, 21 Feb 2024 14:38:13 -0500
+Subject: [PATCH 30/43] Add BOOT_FACTORY_TEST boot flag
+
+---
+ init.sh | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/init.sh b/init.sh
+index 20be94e..d2057b4 100644
+--- a/init.sh
++++ b/init.sh
+@@ -1540,6 +1540,12 @@ for c in `cat /proc/cmdline`; do
+ 						# Force hw timeout multiplier, # X 5s
+ 						# options: (integer)
+ 						set_property ro.hw_timeout_multiplier "$FORCE_HW_TIMEOUT_MULTIPLIER"
++						;;
++					BOOT_FACTORY_TEST=*)
++						# Boot into factory test mode
++						# options: 0, 1
++						set_property ro.factorytest "$BOOT_FACTORY_MODE"
++						;;
+ 				esac
+ 				[ "$SETUPWIZARD" = "0" ] && set_property ro.setupwizard.mode DISABLED
+ 			fi
+-- 
+2.34.1
+

@@ -1,0 +1,40 @@
+From 9595acd3c5f66a4b06d4717350f27a483f17339c Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Wed, 24 Jan 2024 18:08:57 -0500
+Subject: [PATCH 35/43] Set cpu scaling at boot
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Allows using the INTEL_PSTATE_STATUS option to set pstate status. Passive status allows the pstate governor to scale at will.
+
+Operation mode of the driver: “active”, “passive” or “off”.
+
+“active” - The driver is functional and in the active mode.
+“passive” - The driver is functional and in the passive mode.
+“off” - The driver is not functional (it is not registered as a scaling driver with the CPUFreq core).
+
+INTEL_PSTATE_STATUS=passive
+---
+ init.sh | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/init.sh b/init.sh
+index 75a6694..eb3048a 100644
+--- a/init.sh
++++ b/init.sh
+@@ -54,6 +54,11 @@ function init_misc()
+ 
+ 	fi
+ 
++	# Set cpu scaling at boot (ie set pstate status to active/passive at boot)
++	if [ -n "$INTEL_PSTATE_STATUS"  ]; then
++		echo $INTEL_PSTATE_STATUS > /sys/devices/system/cpu/intel_pstate/status
++	fi
++
+ 	# enable sdcardfs if /data is not mounted on tmpfs or 9p
+ 	#mount | grep /data\ | grep -qE 'tmpfs|9p'
+ 	#[ $? -eq 0 ] && set_prop_if_empty ro.sys.sdcardfs false
+-- 
+2.34.1
+

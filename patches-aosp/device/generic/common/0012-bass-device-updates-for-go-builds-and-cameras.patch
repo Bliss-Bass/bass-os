@@ -1,17 +1,17 @@
-From 81af55456bd2b9ce04cd2d0f3369574605a74b9c Mon Sep 17 00:00:00 2001
+From 8a307d682040b9d2c22bfb217b8d446619db9bf9 Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 13:34:23 -0500
-Subject: [PATCH 012/105] bass: device updates for go builds and cameras
+Subject: [PATCH 12/43] bass: device updates for go builds and cameras
 
 ---
  device.mk | 46 ++++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 46 insertions(+)
 
 diff --git a/device.mk b/device.mk
-index cdd93b0..466269b 100644
+index 5f09ebe..1b588b4 100644
 --- a/device.mk
 +++ b/device.mk
-@@ -61,6 +61,36 @@ PRODUCT_PRODUCT_PROPERTIES += \
+@@ -68,6 +68,36 @@ PRODUCT_PRODUCT_PROPERTIES += \
      ro.lmk.use_minfree_levels=true \
      ro.lmk.use_psi=true \
      ro.lmk.use_new_strategy=false
@@ -48,7 +48,7 @@ index cdd93b0..466269b 100644
  endif
  
  PRODUCT_COPY_FILES := \
-@@ -100,6 +130,17 @@ PRODUCT_COPY_FILES += \
+@@ -106,6 +136,17 @@ PRODUCT_COPY_FILES += \
      frameworks/native/data/etc/android.hardware.audio.low_latency.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.audio.low_latency.xml \
      frameworks/native/data/etc/android.hardware.bluetooth.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth.xml \
      frameworks/native/data/etc/android.hardware.bluetooth_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth_le.xml \
@@ -66,16 +66,16 @@ index cdd93b0..466269b 100644
      frameworks/native/data/etc/android.hardware.ethernet.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.ethernet.xml \
      frameworks/native/data/etc/android.hardware.fingerprint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.fingerprint.xml \
      frameworks/native/data/etc/android.hardware.gamepad.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.gamepad.xml \
-@@ -244,6 +285,8 @@ ifeq ($(IS_GO_VERSION),true)
- $(call inherit-product, build/target/product/go_defaults.mk)
+@@ -255,6 +296,8 @@ $(call inherit-product, build/target/product/go_defaults.mk)
+ BLISS_SPECIAL_VARIANT := -Go
  PRODUCT_TYPE := go
  DONT_UNCOMPRESS_PRIV_APPS_DEXS := true
 +MALLOC_SVELTE := true
 +$(call inherit-product-if-exists, frameworks/base/data/sounds/AudioPackageGo.mk)
  endif
  
- # Widevine addons
-@@ -281,6 +324,9 @@ $(call inherit-product-if-exists, vendor/google/proprietary/SettingsIntelligence
+ # Surface specific
+@@ -297,6 +340,9 @@ $(call inherit-product-if-exists, vendor/google/proprietary/SettingsIntelligence
  # Boringdroid
  $(call inherit-product-if-exists, vendor/boringdroid/boringdroid.mk)
  

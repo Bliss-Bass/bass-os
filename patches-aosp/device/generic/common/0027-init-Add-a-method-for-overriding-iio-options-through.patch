@@ -1,0 +1,76 @@
+From 7ec727d3f18fac03dcf7c1eb1b031b52aea74b5e Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Sun, 28 Jan 2024 15:28:34 -0500
+Subject: [PATCH 27/43] init: Add a method for overriding iio options through
+ cmdline
+
+This allows us to set ro.iio.* propertied through the following flags:
+SET_IIO_ORDER
+SET_IIO_ACCEL_QUIRKS
+SET_IIO_ACCEL_X_OPT_SCALE
+SET_IIO_ACCEL_Y_OPT_SCALE
+SET_IIO_ANGLVEL_QUIRKS
+SET_IGNORE_ATKBD
+---
+ init.sh | 38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+
+diff --git a/init.sh b/init.sh
+index bf9e73b..917e1a7 100644
+--- a/init.sh
++++ b/init.sh
+@@ -1264,6 +1264,43 @@ function set_custom_settings()
+ }
+ 
+ 
++# Allow iio options to be passed through cmdline
++function set_iio_options()
++{
++	# Set up usb/adb props when values are detected in /proc/cmdline
++	
++	for c in `cat /proc/cmdline`; do
++		case $c in
++			*=*)
++				eval $c
++				if [ -z "$1" ]; then
++					case $c in
++						SET_IIO_ORDER=*)
++							set_property ro.iio.accel.order "$SET_IIO_ORDER"
++							;;
++						SET_IIO_ACCEL_QUIRKS=*)
++							set_property ro.iio.accel.quirks "$SET_IIO_ACCEL_QUIRKS"
++							;;
++						SET_IIO_ACCEL_X_OPT_SCALE=*)
++							set_property ro.iio.accel.x.opt_scale "$SET_IIO_ACCEL_X_OPT_SCALE"
++							;;
++						SET_IIO_ACCEL_Y_OPT_SCALE=*)
++							set_property ro.iio.accel.y.opt_scale "$SET_IIO_ACCEL_Y_OPT_SCALE"
++							;;
++						SET_IIO_ANGLVEL_QUIRKS=*)
++							set_property ro.iio.anglvel.quirks "$SET_IIO_ANGLVEL_QUIRKS"
++							;;
++						SET_IGNORE_ATKBD=*)
++							# (0,1) 0=off, 1=on
++							set_property ro.ignore_atkbd "$SET_IGNORE_ATKBD"
++							;;
++					esac
++				fi
++				;;
++		esac
++	done
++}
++
+ function do_init()
+ {
+ 	init_misc
+@@ -1285,6 +1322,7 @@ function do_init()
+ 	init_hal_thermal
+ 	init_hal_sensors
+ 	init_hal_surface
++	set_iio_options
+ 	init_tscal
+ 	init_ril
+ 	init_loop_links
+-- 
+2.34.1
+

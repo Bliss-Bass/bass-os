@@ -1,0 +1,42 @@
+From 0be11b45a66ff3c55af046a7ad810def579b0ece Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Sat, 18 Nov 2023 10:55:37 -0500
+Subject: [PATCH 07/11] Add watermarks for non-production builds
+
+Uses the BLISS_PRODUCTION_BUILD env flag.
+---
+ config/common.mk                | 12 ++++++++++++
+ config/watermark/watermark.conf |  1 +
+ 2 files changed, 13 insertions(+)
+ create mode 100644 config/watermark/watermark.conf
+
+diff --git a/config/common.mk b/config/common.mk
+index adc02ccb..fd53ee88 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -228,3 +228,15 @@ ifeq ($(TARGET_SUPPORTS_QUICK_TAP),true)
+ PRODUCT_COPY_FILES += \
+     vendor/bliss/prebuilt/common/etc/sysconfig/quick_tap.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/quick_tap.xml
+ endif
++
++ifneq ($(BLISS_PRODUCTION_BUILD),true)
++# Watermark for Bliss Bass test builds
++# Fields are:
++# text%fontsize%deltax%deltay%shadowcolor%color%shadowradius%shadowdx%shadowdy
++# For more info, see:
++# frameworks/base/services/core/java/com/android/server/wm/Watermark.java
++# and to configure the watermark, see:
++# vendor/bliss/config/watermark/create_watermark/README.md (access required)
++PRODUCT_COPY_FILES += \
++    vendor/bliss/config/watermark/watermark.conf:system/etc/setup.conf
++endif
+diff --git a/config/watermark/watermark.conf b/config/watermark/watermark.conf
+new file mode 100644
+index 00000000..f13c1fd0
+--- /dev/null
++++ b/config/watermark/watermark.conf
+@@ -0,0 +1 @@
++bd93968c8cdfbd9e8c8cdfd2dfab9a8c8bdfbd8a96939bdfd2dfb1908bdf99908ddf8f8d909b8a9c8b969091%40
+-- 
+2.34.1
+

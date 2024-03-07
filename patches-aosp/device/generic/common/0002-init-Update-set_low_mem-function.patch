@@ -1,17 +1,17 @@
-From 6d433eb335184a6cdea2bcee1bf3251f78299572 Mon Sep 17 00:00:00 2001
+From da1ae5b54fed6f663363c826a8a01b63a2ac52fc Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 12:47:50 -0500
-Subject: [PATCH 002/105] init: Update set_low_mem function
+Subject: [PATCH 02/43] init: Update set_low_mem function
 
 ---
  init.sh | 18 +++++++++++++-----
  1 file changed, 13 insertions(+), 5 deletions(-)
 
 diff --git a/init.sh b/init.sh
-index 669cd10..e86ced3 100644
+index 09edac8..cce3ee1 100644
 --- a/init.sh
 +++ b/init.sh
-@@ -590,17 +590,25 @@ function init_cpu_governor()
+@@ -727,17 +727,25 @@ function init_cpu_governor()
  
  function set_lowmem()
  {

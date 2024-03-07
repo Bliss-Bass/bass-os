@@ -1,0 +1,30 @@
+From b7607aff2a83122ab9f7158ef2aeb340ec3df467 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Tue, 27 Feb 2024 19:44:54 -0500
+Subject: [PATCH 38/43] overlay: add lid control overrides
+
+---
+ overlay/frameworks/base/core/res/res/values/config.xml | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/overlay/frameworks/base/core/res/res/values/config.xml b/overlay/frameworks/base/core/res/res/values/config.xml
+index f985010..b27d451 100644
+--- a/overlay/frameworks/base/core/res/res/values/config.xml
++++ b/overlay/frameworks/base/core/res/res/values/config.xml
+@@ -246,4 +246,13 @@
+     <!-- Required to support split screen multiwindow -->
+     <bool name="config_supportsSplitScreenMultiWindow">true</bool>
+ 
++    <!-- Indicate whether closing the lid causes the lockscreen to appear.
++         The default is false. -->
++    <bool name="config_lidControlsScreenLock">true</bool>
++
++    <!-- Indicate whether closing the lid causes the device to go to sleep and opening
++         it causes the device to wake up.
++         The default is false. -->
++    <bool name="config_lidControlsSleep">true</bool>
++
+ </resources>
+-- 
+2.34.1
+

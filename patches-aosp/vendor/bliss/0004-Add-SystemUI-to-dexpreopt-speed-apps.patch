@@ -1,0 +1,27 @@
+From 0a0af4b6d1c78ec4aabae12fc376f485fb6f2d87 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 6 Nov 2023 18:35:32 -0500
+Subject: [PATCH 04/11] Add SystemUI to dexpreopt speed apps
+
+---
+ config/common.mk | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/config/common.mk b/config/common.mk
+index 15c8605a..cf666e73 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -186,6 +186,10 @@ PRODUCT_COPY_FILES += \
+ # Bliss Overlays
+ -include vendor/overlays/bliss_overlays.mk
+ 
++# Dex preopt
++PRODUCT_DEXPREOPT_SPEED_APPS += \
++    SystemUI
++
+ # Gapps
+ ifeq ($(BLISS_BUILD_VARIANT), gapps)
+ # Only support generic x86/x86_64, if you use custom target specify on your own
+-- 
+2.34.1
+

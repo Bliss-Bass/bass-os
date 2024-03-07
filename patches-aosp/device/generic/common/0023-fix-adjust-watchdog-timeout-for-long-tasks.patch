@@ -1,0 +1,28 @@
+From 49b14d1c18eb924677e7a9bfa93ea07b85d0df4b Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Fri, 1 Dec 2023 19:00:24 -0500
+Subject: [PATCH 23/43] fix: adjust watchdog timeout for long tasks
+
+This adds ro.hw_timeout_multiplier property to the device
+---
+ device.mk | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/device.mk b/device.mk
+index 6f27d97..dec79e4 100644
+--- a/device.mk
++++ b/device.mk
+@@ -100,6 +100,10 @@ PRODUCT_DEX_PREOPT_BOOT_IMAGE_PROFILE_LOCATION := frameworks/base/config/boot-im
+ 
+ endif
+ 
++# Watchdog
++PRODUCT_PROPERTY_OVERRIDES += \
++    ro.hw_timeout_multiplier=3
++
+ PRODUCT_COPY_FILES := \
+     $(if $(wildcard $(PRODUCT_DIR)init.rc),$(PRODUCT_DIR)init.rc:root/init.rc) \
+     $(if $(wildcard $(PRODUCT_DIR)init.sh),$(PRODUCT_DIR),$(LOCAL_PATH)/)init.sh:system/etc/init.sh \
+-- 
+2.34.1
+

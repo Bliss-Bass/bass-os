@@ -1,0 +1,36 @@
+From 27d4147611f0d2f88144f76a3960c6e9843b9146 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Fri, 23 Feb 2024 09:18:45 -0500
+Subject: [PATCH 31/43] Use fuse passthrough
+
+---
+ device.mk | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/device.mk b/device.mk
+index dec79e4..b55fc65 100644
+--- a/device.mk
++++ b/device.mk
+@@ -104,6 +104,10 @@ endif
+ PRODUCT_PROPERTY_OVERRIDES += \
+     ro.hw_timeout_multiplier=3
+ 
++# Use FUSE passthrough
++PRODUCT_PRODUCT_PROPERTIES += \
++    persist.sys.fuse.passthrough.enable=true
++
+ PRODUCT_COPY_FILES := \
+     $(if $(wildcard $(PRODUCT_DIR)init.rc),$(PRODUCT_DIR)init.rc:root/init.rc) \
+     $(if $(wildcard $(PRODUCT_DIR)init.sh),$(PRODUCT_DIR),$(LOCAL_PATH)/)init.sh:system/etc/init.sh \
+@@ -223,7 +227,7 @@ $(foreach f,$(wildcard $(LOCAL_PATH)/permissions_product/*.xml),\
+     $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/$(notdir $f)))
+ 
+ # Get emulated storage settings
+-#$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
++$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
+ 
+ # Get Android 8.0 HIDL HALs
+ $(call inherit-product,$(LOCAL_PATH)/treble.mk)
+-- 
+2.34.1
+

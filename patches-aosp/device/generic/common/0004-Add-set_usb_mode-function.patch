@@ -1,7 +1,7 @@
-From 282c28d4bca9ca47dbfd2f442670a03d7e71b643 Mon Sep 17 00:00:00 2001
+From 6e542e9d110008845e47552d597829ecbb69e905 Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 12:54:58 -0500
-Subject: [PATCH 004/105] Add set_usb_mode function
+Subject: [PATCH 04/43] Add set_usb_mode function
 
 This function handles 2 evnets initially: - FORCE_USE_ADB_CLIENT_MODE: Forces client mode adb settings - FORCE_USE_ADB_MASS_STORAGE - Forces USB mass_storage mode
 ---
@@ -9,10 +9,10 @@ This function handles 2 evnets initially: - FORCE_USE_ADB_CLIENT_MODE: Forces cl
  1 file changed, 66 insertions(+)
 
 diff --git a/init.sh b/init.sh
-index 3a9c8b0..a73ee35 100644
+index 5d3dc0c..70aa52c 100644
 --- a/init.sh
 +++ b/init.sh
-@@ -891,11 +891,77 @@ function set_custom_package_perms()
+@@ -1028,11 +1028,77 @@ function set_custom_package_perms()
  	
  }
  

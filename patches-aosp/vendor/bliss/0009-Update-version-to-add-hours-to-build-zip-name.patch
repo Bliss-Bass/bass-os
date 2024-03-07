@@ -1,0 +1,34 @@
+From 2f86f99c3859f989d777ca6d539dddd54a09b202 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Wed, 3 Jan 2024 09:48:24 -0500
+Subject: [PATCH 09/11] Update version to add hours to build zip name
+
+---
+ config/versions.mk | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/config/versions.mk b/config/versions.mk
+index 9d5ed213..9ad3db8e 100644
+--- a/config/versions.mk
++++ b/config/versions.mk
+@@ -10,7 +10,7 @@ ifneq ($(SIGNING_KEYS),)
+ endif
+ 
+ # Bliss Android version
+-BLISS_VERSION_STATIC = 12.0
++BLISS_VERSION_STATIC = 12.1
+ 
+ # Set Bliss Build Variant
+ BLISS_BUILD_VARIANT ?= vanilla
+@@ -52,7 +52,7 @@ BLISS_TYPE_NAME := $(RELEASE_OS_TITLE)$(BLISS_SPECIAL_VARIANT)
+ ifdef BLISS_RELEASE
+     BLISS_BUILD_ZIP := $(BLISS_TYPE_NAME)-v$(VERSION)
+ else
+-    BLISS_BUILD_ZIP := $(BLISS_TYPE_NAME)-v$(VERSION)-$(BLISS_BUILD)-$(BLISS_BUILDTYPE)-$(BLISS_BUILD_VARIANT)-$(shell date +%Y%m%d)
++    BLISS_BUILD_ZIP := $(BLISS_TYPE_NAME)-v$(VERSION)-$(BLISS_BUILD)-$(BLISS_BUILDTYPE)-$(BLISS_BUILD_VARIANT)-$(shell date +%Y%m%d%H)
+ endif
+ 
+ # Set Security Patch Level
+-- 
+2.34.1
+

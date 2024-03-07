@@ -1,0 +1,41 @@
+From 5fe5e0d1400c03f9ba3b6c0e6dff08f1691ef9b0 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 6 Nov 2023 18:36:22 -0500
+Subject: [PATCH 06/11] Do not enable one-handed mode by default
+
+---
+ config/common.mk            | 4 ----
+ config/common_full_phone.mk | 4 ----
+ 2 files changed, 8 deletions(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index b5c26de2..adc02ccb 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -21,10 +21,6 @@ else
+ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=1
+ endif
+ 
+-# Enable one-handed mode
+-PRODUCT_PRODUCT_PROPERTIES += \
+-    ro.support_one_handed_mode=true
+-
+ # Backup Tool
+ PRODUCT_COPY_FILES += \
+     vendor/bliss/prebuilt/common/bin/backuptool.sh:install/bin/backuptool.sh \
+diff --git a/config/common_full_phone.mk b/config/common_full_phone.mk
+index 25a0cea2..2ec5dfa1 100644
+--- a/config/common_full_phone.mk
++++ b/config/common_full_phone.mk
+@@ -8,8 +8,4 @@ PRODUCT_PACKAGES += \
+ # Include bliss LatinIME dictionaries
+ PRODUCT_PACKAGE_OVERLAYS += vendor/bliss/overlay/dictionaries
+ 
+-# Enable support of one-handed mode
+-PRODUCT_PRODUCT_PROPERTIES += \
+-    ro.support_one_handed_mode=true
+-
+ $(call inherit-product, vendor/bliss/config/telephony.mk)
+-- 
+2.34.1
+

@@ -1,0 +1,1851 @@
+From 0de830af5884a21b984badb8c04e4e4e2b0bfade Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Thu, 7 Mar 2024 09:01:57 -0500
+Subject: [PATCH 01/13] [v14] install: Move to using OEM Install
+
+This change will replace the AUTO_INSTALL boot option from Live USB.
+
+This change will also add a new boot option to force OEM install:
+This will create the required EFI/MBR grub entries depending on disk partition scheme
+
+installer: update fdisk binaries to latest i386 from Ubuntu sources
+
+Bypass try_upgrade when using forced OEM_INSTALL
+Add missing libhistory8
+prepare for OEM install
+
+Change-Id: Idd3c3314b5f13c810a45295496649c8af5f52401
+---
+ boot/isolinux/isolinux.cfg         |  27 +-
+ initrd/init                        |  14 +-
+ install/grub2/efi/boot/android.cfg |  11 +-
+ install/lib/libhistory.so.8        | Bin 0 -> 50756 bytes
+ install/scripts/1-install          | 966 ++++++++---------------------
+ 5 files changed, 302 insertions(+), 716 deletions(-)
+ create mode 100644 install/lib/libhistory.so.8
+
+diff --git a/boot/isolinux/isolinux.cfg b/boot/isolinux/isolinux.cfg
+index f8a17f26..34279b5d 100644
+--- a/boot/isolinux/isolinux.cfg
++++ b/boot/isolinux/isolinux.cfg
+@@ -111,15 +111,30 @@ label vesa
+ 
+ menu separator
+ 
+-label auto_install
+-	menu label Auto_^Installation - Auto Install to specified harddisk
++label oem_install
++	menu label OEM_^Installation - OEM Install to specified harddisk
+ 	kernel /kernel
+-	append initrd=/initrd.img CMDLINE AUTO_INSTALL=0 DEBUG= noexec=off
++	append initrd=/initrd.img CMDLINE OEM_INSTALL=0 DEBUG= noexec=off
+ 
+-label auto_update
+-	menu label Auto_^Update - Auto update OS_TITLE
++label force_oem_install
++	menu label Force_OEM_^Installation MBR- Force OEM Install to detected harddisk
+ 	kernel /kernel
+-	append initrd=/initrd.img CMDLINE AUTO_INSTALL=update DEBUG= noexec=off
++	append initrd=/initrd.img CMDLINE OEM_INSTALL=mbr DEBUG= noexec=off
++
++label force_oem_install_mbr
++	menu label Force_OEM_^Installation EFI - Force OEM Install to detected harddisk
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE OEM_INSTALL=efi DEBUG= noexec=off
++
++label force_oem_install_efi
++	menu label Force_OEM_^Installation - Force OEM Install to detected harddisk
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE OEM_INSTALL=force DEBUG= noexec=off
++
++label oem_update
++	menu label OEM_^Update - OEM update OS_TITLE
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE OEM_INSTALL=update DEBUG= noexec=off
+ 
+ menu separator
+ 
+diff --git a/initrd/init b/initrd/init
+index c5494243..5bd1aa9a 100755
+--- a/initrd/init
++++ b/initrd/init
+@@ -110,16 +110,10 @@ device_information()
+ 	mount --bind /tmp/device.prop system/vendor/etc/device.prop
+ }
+ 
+-# auto installation
+-if [ -n "$AUTO_INSTALL" ]; then
+-	echo -n "This will replace all operating-systems on this device with a read-only version of this OS. Are you sure you want to continue (y/n)? "
+-	read answer
+-	if [ "$answer" != "${answer#[Yy]}" ] ;then
+-		echo "Booting in Live Mode instead"
+-	else
+-		echo "Starting Installer"
+-		INSTALL=1
+-	fi
++# OEM installation
++if [ -n "$OEM_INSTALL" ]; then
++	echo "Starting Installer"
++	INSTALL=1
+ fi
+ 
+ # configure debugging output
+diff --git a/install/grub2/efi/boot/android.cfg b/install/grub2/efi/boot/android.cfg
+index a48714f9..35fc275c 100755
+--- a/install/grub2/efi/boot/android.cfg
++++ b/install/grub2/efi/boot/android.cfg
+@@ -124,12 +124,15 @@ submenu "Debugging -> " --class forward {
+ }
+ 
+ submenu "Advanced options -> " --class forward {
+-	add_entry "$live - No Setup Wizard" quiet SETUPWIZARD=0
+-	add_entry "$live - No Hardware Acceleration" quiet nomodeset HWACCEL=0
+ 	if [ -s ($android)$kdir/install.img ]; then
+-		add_entry "Auto Install to specified harddisk" AUTO_INSTALL=0
+-		add_entry "Auto Update" AUTO_INSTALL=update
++		add_entry "OEM Install to specified harddisk" OEM_INSTALL=0
++		add_entry "Force OEM Install to detected harddisk" OEM_INSTALL=force
++		add_entry "Force MBR OEM Install to detected harddisk" OEM_INSTALL=mbr
++		add_entry "Force EFI OEM Install to detected harddisk" OEM_INSTALL=efi
++		add_entry "OEM Update" OEM_INSTALL=update
+ 	fi
++	add_entry "$live - No Setup Wizard" quiet SETUPWIZARD=0
++	add_entry "$live - No Hardware Acceleration" quiet nomodeset HWACCEL=0
+ 	add_os_if_exists /EFI/BOOT/$bootefi "UEFI OS" os
+ 	add_os_if_exists /EFI/BOOT/fallback.efi "UEFI Fallback" os
+ 	add_os_if_exists /EFI/BOOT/fallback_x64.efi "UEFI Fallback" os
+diff --git a/install/lib/libhistory.so.8 b/install/lib/libhistory.so.8
+new file mode 100644
+index 0000000000000000000000000000000000000000..43627e76a0567492477379d4b5a8e02fa67e41c6
+GIT binary patch
+literal 50756
+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
+VMw=7-@w|;XU0xb{zlC_-#y_>A?`r@6
+
+literal 0
+HcmV?d00001
+
+diff --git a/install/scripts/1-install b/install/scripts/1-install
+index c84a0b27..1b11863e 100644
+--- a/install/scripts/1-install
++++ b/install/scripts/1-install
+@@ -1,8 +1,6 @@
+ #
+ # By Chih-Wei Huang <cwhuang@linux.org.tw>
+ #
+-# Modified by BlissLabs & Contributors
+-#
+ # License: GNU Public License
+ # We explicitely grant the right to use the scripts
+ # with Android-x86 project.
+@@ -13,23 +11,15 @@ menufile=/tmp/menu-$$
+ 
+ CPIO=cpio
+ OS_TITLE=${OS_TITLE:-Android-x86}
+-BACK_TITLE="Made by Android-x86 Project, Modified by BlissLabs & Contributors"
+-EFI_LABEL="BlissOS"
+-INSTALL_LABEL="BlissOS"
+ 
+ rebooting()
+ {
+-	dialog --backtitle "$BACK_TITLE" --title " Rebooting... " --nocancel --pause "" 8 41 1
++	dialog --title " Rebooting... " --nocancel --pause "" 8 41 1
+ 	sync
+ 	umount -a
+ 	reboot -f
+ }
+ 
+-restart_installer()
+-{
+-	dialog --backtitle "$BACK_TITLE" --title " Please Wait " --nocancel --pause "\n Restarting the installer..... " 10 41 1
+-}
+-
+ auto_answer()
+ {
+ 	echo "$answer" > $tempfile
+@@ -39,7 +29,7 @@ auto_answer()
+ 
+ set_answer_if_auto()
+ {
+-	[ -n "$AUTO_INSTALL" ] && answer="$1"
++	[ -n "$OEM_INSTALL" ] && answer="$1"
+ }
+ 
+ adialog()
+@@ -47,7 +37,7 @@ adialog()
+ 	if [ -n "$answer" ]; then
+ 		auto_answer
+ 	else
+-		dialog --backtitle "$BACK_TITLE" "$@" 2> $tempfile
++		dialog "$@" 2> $tempfile
+ 	fi
+ }
+ 
+@@ -59,30 +49,6 @@ choose()
+ 	choice=`cat $tempfile`
+ }
+ 
+-choose_partmenu()
+-{
+-	adialog --clear --title " $1 " --cancel-label "Reboot" --menu "$2" 21 79 13 --file $menufile
+-
+-	retval=$?
+-	choice=`cat $tempfile`
+-}
+-
+-choose_formatfs()
+-{
+-	adialog --clear --title " $1 " --nocancel --menu "$2" 21 79 13 --file $menufile
+-
+-	retval=$?
+-	choice=`cat $tempfile`
+-}
+-
+-choose_efiboot()
+-{
+-	adialog --clear --title " $1 " --cancel-label "Skip" --menu "$2" 14 60 13 --file /tmp/efioptions
+-
+-	retval=$?
+-	choice=`cat $tempfile`
+-}
+-
+ size_gb()
+ {
+ 	size=`cat $1/size`
+@@ -101,52 +67,30 @@ list_disks()
+ 	done
+ }
+ 
+-list_partitions()
+-{
+-	blkid | grep -v -E "^/dev/block/|^/dev/loop" | cut -b6- | sort | awk '{
+-		l=""
+-		t="unknown"
+-		sub(/:/, "", $1)
+-		for (i = NF; i > 1; --i)
+-			if (match($i, "^TYPE")) {
+-				t=$i
+-				gsub(/TYPE=|"/, "", t)
+-			} else if (match($i, "^LABEL")) {
+-				l=$i
+-				gsub(/LABEL=|"/, "", l)
+-			}
+-		printf("%-11s%-12s%-18s\n", $1, t, l)
+-	}' > $tempfile
+-
+-	for d in `ls /sys/block`; do
+-		for i in /sys/block/$d/$d*; do
+-			[ -d $i ] || continue
+-			echo $i | grep -qE "loop|ram|sr|boot|rpmb" && continue
+-			f=$(grep "`basename $i`" $tempfile || printf "%-11s%-30s" `basename $i` unknown)
+-			sz=$(size_gb $i)
+-			[ "$sz" = "0.00GB" ] || printf "$f%10s\n" $sz
+-		done
+-	done | awk -v b=$booted_from '{
+-		if (!match($1, b)) {
+-			printf("\"%s\" \"", $0)
+-			system("cd /sys/block/*/"$1"; for f in ../device/model ../device/name; do [ -e $f ] && printf %-17s \"`cat $f`\" && break; done")
+-			printf("\"\n")
+-		}
+-	}'
+-}
+-
+ auto_partition()
+ {
+-	[ "$AUTO_INSTALL" = "force" ] || dialog --backtitle "$BACK_TITLE" --title " Auto Installer " --defaultno --yesno \
+-		"\nYou have chosen the AUTO installation.\n\nThe installer will erase the whole /dev/$1 and install $OS_TITLE to it.\n\nThis is the last confirmation. Are you sure to do so?" 12 61
++	[ "$OEM_INSTALL" = "force" ] || [ "$OEM_INSTALL" = "mbr" ] || [ "$OEM_INSTALL" = "efi" ] || dialog --title " OEM Installer " --defaultno --yesno \
++		"\nYou have chosen the OEM installation.\n\nThe installer will erase the whole /dev/$1 and install $OS_TITLE to it.\n\nThis is the last confirmation. Are you sure to do so?" 12 61
+ 	[ $? -ne 0 ] && rebooting
+ 
+-	if [ -z "$efi" ]; then
+-		echo -e "o\nn\np\n1\n\n\nw\n" | fdisk /dev/$1
+-		p=1
++	if [ -z "$efi" ] || [ "$OEM_INSTALL" = "mbr" ]; then
++		if echo -e "o\nn\np\n1\n\n\nw\n" | fdisk /dev/$1; then
++			echo 'FDISK: Partition created with fdisk'
++			p=1
++		elif sfdisk --delete /dev/$1; sfdisk -a -X linux /dev/$1; then # TRY
++			echo 'SFDISK: Partition created with sfdisk'
++			p=1
++		else # CATCH
++			echo 'SGDISK: Using sgdisk to create and convert to mbr instead'
++			sgdisk --zap-all /dev/$1; sgdisk --new=1::+500M --typecode=1:EF00 --largest-new=2 --typecode=2:8300 /dev/$1; plist=$(sgdisk --print /dev/$disk | awk '/^  / { printf "%s:", $1 }' | sed 's/:$//'); sgdisk --gpttombr=$plist /dev/$disk > /dev/tty6; p=2; until try_mount rw /dev/$1 /hd; do sleep 1; done
++		fi
++	elif [ "$OEM_INSTALL" = "efi" ]; then
++		sgdisk --zap-all /dev/$1
++		sgdisk --new=1::+500M --typecode=1:EF00 --largest-new=2 --typecode=2:8300 /dev/$1
++		p=2
+ 	else
+ 		sgdisk --zap-all /dev/$1
+-		sgdisk --new=1::+260M --typecode=1:EF00 --largest-new=2 --typecode=2:8300 /dev/$1
++		sgdisk --new=1::+500M --typecode=1:EF00 --largest-new=2 --typecode=2:8300 /dev/$1
+ 		p=2
+ 	fi > /dev/tty6
+ 
+@@ -154,7 +98,9 @@ auto_partition()
+ 		answer=`find_partition $1 $p`
+ 		[ -n "$answer" ] && break
+ 	done
+-	[ -n "$efi" ] && mkdosfs -n EFI /dev/`find_partition $1 1`
++	if [ -n "$efi" ] || [ "$OEM_INSTALL" = "efi" ]; then
++	    mkdosfs -n EFI /dev/`find_partition $1 1`
++	fi
+ }
+ 
+ partition_drive()
+@@ -180,15 +126,15 @@ partition_drive()
+ 	done
+ 	count=`wc -l < $menufile`
+ 	if [ $count -eq 0 ]; then
+-		dialog --backtitle "$BACK_TITLE" --title " Error " --msgbox \
++		dialog --title " Error " --msgbox \
+ 			"\nOK. There is no hard drive to edit partitions." 8 49
+ 		return 255
+ 	fi
+ 
+-	if [ $count -eq 1 -o "$AUTO_INSTALL" = "force" ]; then
++	if [ $count -eq 1 -o "$OEM_INSTALL" = "force" -o "$OEM_INSTALL" = "mbr" -o "$OEM_INSTALL" = "efi" ]; then
+ 		drive=1
+ 	else
+-		drive=`basename $AUTO_INSTALL`
++		drive=`basename $OEM_INSTALL`
+ 	fi
+ 	choice=`awk -v n=$drive '{ if (n == NR || n == $1) print $1 }' $menufile`
+ 	if [ -b /dev/$choice ]; then
+@@ -197,12 +143,14 @@ partition_drive()
+ 		choose "Choose Drive" "Please select a drive to edit partitions:\n\n* - Installer source"
+ 	fi
+ 	if [ $retval -eq 0 ]; then
+-		if [ -n "$AUTO_INSTALL" ]; then
++		if [ -n "$OEM_INSTALL" ]; then
+ 			auto_partition $choice
+ 			return 1
+ 		fi
+-
+-		dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yes-label "Yes, switch to cgdisk" --no-label "No, continue to cfdisk" --yesno \
++		if fdisk -l /dev/$choice | grep -q GPT; then
++			part_tool=cgdisk
++		elif fdisk -l /dev/$choice | grep -q "doesn't"; then
++			dialog --title " Confirm " --defaultno --yesno \
+ "\n The setup will now redirect to the cfdisk program on drive /dev/$choice. \
+ However, would you prefer to use the cgdisk program instead? \
+ \n cgdisk is designed exclusively for GPT disks, while cfdisk can handle both MBR and GPT. \
+@@ -210,7 +158,10 @@ This is merely a preference; if you wish, we can redirect to cgdisk instead. \
+ Select 'Yes' to switch to cgdisk, or 'No' to remain with cfdisk. \
+ \n \
+ \n Tips : If you install on a VM or on a fresh new drive, on cfdisk 'dos' is for MBR, 'gpt' is for GPT" 16 60
+-		[ $? -eq 0 ] && part_tool=cgdisk || part_tool=cfdisk
++			[ $? -eq 0 ] && part_tool=cgdisk || part_tool=cfdisk
++		else
++			part_tool=cfdisk
++		fi
+ 		$part_tool /dev/$choice
+ 		if [ $? -eq 0 ]; then
+ 			retval=1
+@@ -223,32 +174,45 @@ Select 'Yes' to switch to cgdisk, or 'No' to remain with cfdisk. \
+ 
+ select_dev()
+ {
+-	list_partitions > $menufile
+-	printf "\"\" \"\"\n\"Create/Modify partitions\" 
+-\"\"\n\"Setup userdata partition\" 
+-\"\"\n\"Restart the installer\" 
+-\"\"\n\"Open command-line shell\" \"\"\n" >> $menufile
+-	choose_partmenu "Choose Partition" "Please select a partition to install $OS_TITLE:\n\nRecommended minimum free space - 12GB  |  
+-Optimum free space >= 32GB\n\nPartition | Filesystem | Label            | Size     | Drive name/model"
+-	return $retval
+-}
++	blkid | grep -v -E "^/dev/block/|^/dev/loop" | cut -b6- | sort | awk '{
++		l=""
++		t="unknown"
++		sub(/:/, "", $1)
++		for (i = NF; i > 1; --i)
++			if (match($i, "^TYPE")) {
++				t=$i
++				gsub(/TYPE=|"/, "", t)
++			} else if (match($i, "^LABEL")) {
++				l=$i
++				gsub(/LABEL=|"/, "", l)
++			}
++		printf("%-11s%-12s%-18s\n", $1, t, l)
++	}' > $tempfile
+ 
+-select_dev_esp()
+-{
+-	list_partitions > $menufile
+-	printf "\"\" \"\"\n\"Create/Modify partitions\" 
+-\"\"\n\"Restart the installer\" 
+-\"\"\n\"Open command-line shell\" 
+-\"\"\n\"Skip (Not Recommended)\" \"\"\n" >> $menufile
+-	choose_partmenu "Choose Partition" "UEFI System detected ! Please select a partition as EFI System Partition (ESP)
+-\n\nHint: If you chose ESP already but got restarted to this stage, please choose ESP again, no need to format if you already did.
+-\n\nPartition | Filesystem | Label            | Size     | Drive name/model"
++	for d in `ls /sys/block`; do
++		for i in /sys/block/$d/$d*; do
++			[ -d $i ] || continue
++			echo $i | grep -qE "loop|ram|sr|boot|rpmb" && continue
++			f=$(grep "`basename $i`" $tempfile || printf "%-11s%-30s" `basename $i` unknown)
++			sz=$(size_gb $i)
++			[ "$sz" = "0.00GB" ] || printf "$f%10s\n" $sz
++		done
++	done | awk -v b=$booted_from '{
++		if (!match($1, b)) {
++			printf("\"%s\" \"", $0)
++			system("cd /sys/block/*/"$1"; for f in ../device/model ../device/name; do [ -e $f ] && printf %-17s \"`cat $f`\" && break; done")
++			printf("\"\n")
++		}
++	} END {
++		printf("\"\" \"\"\n\"Create/Modify partitions\" \"\"\n\"Detect devices\" \"\"\n\"Open command-line shell\" \"\"")
++	}' > $menufile
++	choose "Choose Partition" "Please select a partition to install $OS_TITLE:\n\nRecommended minimum free space - 8GB  |  Optimum free space >= 16GB\n\nPartition | Filesystem | Label            | Size     | Drive name/model"
+ 	return $retval
+ }
+ 
+ progress_bar()
+ {
+-	dialog --backtitle "$BACK_TITLE" --clear --title " $1 " --gauge "\n $2" 8 70
++	dialog --clear --title " $1 " --gauge "\n $2" 8 70
+ }
+ 
+ convert_fs()
+@@ -263,12 +227,12 @@ convert_fs()
+ 	fi
+ }
+ 
+-format_fs()
++format_fs_old()
+ {
+ 	local cmd
+ 	echo -e '"Do not re-format" ""\next4 ""\nntfs ""\nfat32 ""\nexfat ""\nf2fs ""' > $menufile
+ 	set_answer_if_auto $FORCE_FORMAT
+-	choose_formatfs "Choose filesystem" "Please select a filesystem to format $1:"
++	choose "Choose filesystem" "Please select a filesystem to format $1:"
+ 	case "$choice" in
+ 		ext4)
+ 			cmd="mkfs.ext3 -L"
+@@ -289,178 +253,78 @@ format_fs()
+ 			;;
+ 	esac
+ 	if [ -n "$cmd" ]; then
+-		if [ "$choice" = ntfs ]; then
+-			dialog --backtitle "$BACK_TITLE" --title " Warning " --defaultno --yesno \
+-				"OTA Update is not available on NTFS partition, are you sure you want to format to NTFS ?" 6 59
+-			[ $? -ne 0 ] && cancel_format=1 && return 1
+-		fi
+-
+-		dialog --backtitle "$BACK_TITLE" --title " Question " --nook --nocancel --inputbox \
+-			"\nWould you like to customize the formatted drive name ? 
+-\n\nYou can change it here or press Enter to skip:" 10 63 "$INSTALL_LABEL" 2> /tmp/install_drive_name
+-
+-		[ -n "$AUTO_INSTALL" ] || dialog --colors --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-			"\nYou chose to format $1 to $choice.\n\Z1THE FORMAT PROCESS WILL START IMMEDIATELY. 
+-ALL DATA IN THIS PARTITION WILL BE LOST.\Zn\n\nAre you sure to format the partition $1?" 10 59
+-		[ $? -ne 0 ] && cancel_format=1 && return 1
+-		$cmd `cat /tmp/install_drive_name` /dev/$1 | awk '{
++		[ -n "$OEM_INSTALL" ] || dialog --title " Confirm " --defaultno --yesno \
++			"\n You chose to format $1 to $choice.\n All data in that partition will be LOST.\n\n Are you sure to format the partition $1?" 10 59
++		[ $? -ne 0 ] && return 1
++		$cmd Android-x86 /dev/$1 | awk '{
+ 			# FIXME: very imprecise progress
+ 			if (match($0, "done"))
+ 				printf("%d\n", i+=33)
+ 		}' | progress_bar "Formatting" "Formatting partition $1..."
+-		cancel_format=0
+ 		convert_fs $1
+ 	elif blkid /dev/$1 | grep -q ext[23]; then
+-		dialog --backtitle "$BACK_TITLE" --clear --title " Warning " --yesno \
++		dialog --clear --title " Warning " --yesno \
+ 			"\nYou chose to install android-x86 to an ext2/3 filesystem. We suggest you convert it to ext4 for better reliability and performance." 9 62
+ 		[ $? -eq 0 ] && convert_fs $1
+-	else
+-		[ "$(blkid /dev/$1 | grep "ntfs")" ] && dialog --backtitle "$BACK_TITLE" --title " Warning " --defaultno --yesno \
+-				"OTA Update is not available on NTFS partition, are you sure you want to choose this drive ?" 6 59
+-		[ $? -ne 0 ] && cancel_format=1 || cancel_format=0
+-
+-		[ -n "$AUTO_INSTALL" ] || dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-			"\n Are you sure you want to install on $1 ?" 8 48
+-		[ $? -ne 0 ] && cancel_format=1 || cancel_format=0
+-	fi
+-}
+-
+-create_winitem_bios()
+-{
+-# If Windows is detected, check to see if bootmgr file is exist, or else searching for 
+-# System Reserved partition
+-#
+-# Only check System Reserved for the disk that contain Windows, the Windows installer 
+-# ain't gonna create SR in another disk. Also if you dual-boot 2 Windows and having
+-# 2 System Reserved, either remove one or seek therapy.
+-
+-	mkdir /win
+-	for i in `blkid | grep -v -E "^/dev/block/|^/dev/loop" | grep 'TYPE="ntfs"' | awk -F: '{print substr($1, 6)}'`; do
+-		try_mount ro /dev/$i /win
+-		if [ -d "/win/Program Files" ] && [ -d "/win/Windows/System32" ]; then
+-			if [ -f "/win/bootmgr" ]; then
+-				dialog --backtitle "$BACK_TITLE" --title " Confirm " --yesno \
+-					"\nThe installer found a Windows partition in /dev/$i.\n\nDo you want to create a boot item for Windows?" 9 59
+-				[ $? -ne 0 ] && continue
+-				export windows_part=$i
+-			else
+-				mkdir /sys_ser
+-				winpart=$(basename `dirname /sys/block/*/$i`)
+-				for srv in `blkid /dev/"$winpart"* | grep -v -E "^/dev/block/|^/dev/loop" | grep 'TYPE="ntfs"' | awk -F: '{print substr($1, 6)}'`; do
+-					try_mount ro /dev/$srv /sys_ser
+-					if [ "$(blkid /dev/$srv | grep 'TYPE="ntfs"' | grep 'LABEL="System Reserved"')" ]; then
+-						if [ -f "/sys_ser/bootmgr" ]; then
+-							dialog --backtitle "$BACK_TITLE" --title " Confirm " --yesno \
+-								"\nThe installer found a System Reserved partition in /dev/$srv. This partition might contain boot files for Windows\n\nDo you want to create a boot item for it?" 10 62
+-							[ $? -ne 0 ] && continue
+-							export windows_part=$srv
+-						fi
+-					fi
+-				done
+-			fi
+-		fi
+-		get_part_info $windows_part
+-		result_01=$d
+-		result_02=$p
+-		umount /win
+-		if [ -d "/sys_ser" ]; then
+-			umount /sys_ser
+-		fi
+-	done
+-
+-}
+-
+-# The name is kinda misleading, just check if a Windows drive exist
+-# and then warn about the limitation of UEFI Windows detection on our 
+-# grub
+-create_winitem_uefi()
+-{
+-	mkdir /win
+-	for i in `blkid | grep -v -E "^/dev/block/|^/dev/loop" | grep 'TYPE="ntfs"' | awk -F: '{print substr($1, 6)}'`; do
+-		try_mount ro /dev/$i /win
+-		if [ -d "/win/Program Files" ] && [ -d "/win/Windows/System32" ]; then
+-			export windows_part=$i
+-		fi
+-		umount /win
+-	done
+-	
+-	if [ -n "${windows_part}" ]; then
+-		dialog --backtitle "$BACK_TITLE" --clear --title " Notice " --msgbox \
+-			"\nDetected a Windows installation on your machine. On UEFI, our Grub2 may not be
+-able to detect your Windows installation due to some limitation.\n\nIf you want to know more, check BlissOS Documentation for more info." 11 58
+ 	fi
+ }
+ 
+-make_userdata_part()
++format_fs()
+ {
+ 	local cmd
+-	echo -e '"Do not re-format" ""\next4 ""\nf2fs ""' > $menufile
+-#	set_answer_if_auto $FORCE_FORMAT
+-	choose_formatfs "Choose filesystem" "Please select a filesystem to format $1:"
++	echo -e '"Do not re-format" ""\next4 ""\nexfat ""\nf2fs ""' > $menufile
++	set_answer_if_auto $FORCE_FORMAT
++	choose "Choose filesystem" "Please select a filesystem to format $1:"
+ 	case "$choice" in
+ 		ext4)
+ 			cmd="mkfs.ext3 -L"
+ 			;;
++		exfat)
++			cmd="mkfs.exfat -L"
++			;;
+ 		f2fs)
+ 			cmd="make_f2fs -l"
+ 			;;
+ 		*)
+ 			;;
+ 	esac
+-	if [ -n "$cmd" ]; then		
+-	dialog --backtitle "$BACK_TITLE" --title " Question " --nook --nocancel --inputbox \
+-		"\nWould you like to customize the formatted drive name ? 
+-\n\nYou can change it here or press Enter to skip:" 10 63 "userdata" 2> /tmp/userdata_drive_name
+-
+-	dialog --colors --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-		"\nYou chose to format $1 to $choice.\n\Z1THE FORMAT PROCESS WILL START IMMEDIATELY. \
+-ALL DATA IN THIS PARTITION WILL BE LOST.\Zn\n\nAre you sure to format the partition $1?" 10 59
+-	[ $? -ne 0 ] && return 1
+-	$cmd `cat /tmp/userdata_drive_name` /dev/$1 | awk '{
+-		# FIXME: very imprecise progress
+-		if (match($0, "done"))
+-			printf("%d\n", i+=33)
+-	}' | progress_bar "Formatting" "Formatting partition $1..."
+-	convert_fs $1
+-	export userdata_partition=$1
+-	else
+-	dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-		"\n Are you sure you want to pick $1 as userdata partition ? \n\n You can always pick again if you choose 'Restart the installer'" 10 75
+-	[ $? -ne 0 ] && return 1
+-	export userdata_partition=$1
++	if [ -n "$cmd" ]; then
++		[ -n "$OEM_INSTALL" ] || dialog --title " Confirm " --defaultno --yesno \
++			"\n You chose to format $1 to $choice.\n All data in that partition will be LOST.\n\n Are you sure to format the partition $1?" 10 59
++		[ $? -ne 0 ] && return 1
++		$cmd Android-x86 /dev/$1 | awk '{
++			# FIXME: very imprecise progress
++			if (match($0, "done"))
++				printf("%d\n", i+=33)
++		}' | progress_bar "Formatting" "Formatting partition $1..."
++		convert_fs $1
++	elif blkid /dev/$1 | grep -q ext[23]; then
++		dialog --clear --title " Warning " --yesno \
++			"\nYou chose to install android-x86 to an ext2/3 filesystem. We suggest you convert it to ext4 for better reliability and performance." 9 62
++		[ $? -eq 0 ] && convert_fs $1
+ 	fi
+ }
+ 
+-setup_userdata_part()
++create_winitem()
+ {
+-	list_partitions > $menufile
+-	printf "\"\" \"\"\n\"Create/Modify partitions\" 
+-\"\"\n\"Restart the installer\" 
+-\"\"\n\"Open command-line shell\" \"\"\n" >> $menufile
+-	choose_partmenu "Choose Partition" "Here you can choose a separate partition dedicated to only store your userdata.
+-\n\nRecommended minimum free space - 12GB  |  Optimum free space >= 32GB\n\nPartition | Filesystem | Label            | Size     | Drive name/model"
+-	case "$choice" in
+-		Create*)
+-			partition_drive
+-			;;
+-		Restart*the*installer*)
+-			;;
+-		*shell*)
+-			dialog --backtitle "$BACK_TITLE" --clear --title " WARNING " --nocancel --pause "You are going to use AOSP's shell, if you want to go back to the installer please type exit" 12 41 8
+-			/system/bin/sh 2>&1
+-			;;
+-		*)
+-			make_userdata_part $choice
+-			dialog --backtitle "$BACK_TITLE" --clear --title " WARNING " --nocancel --pause "The installer will now restart but the userdata option will remain. You'll be asked one more time later on to confirm your partition choice." 12 50 8
+-			;;
+-	esac
++	win=`fdisk -l /dev/$(echo $1 | cut -b-3) | grep ^/dev | cut -b6-12,55- | awk '{
++		if (match($2, "NTFS"))
++			print $1
++	}' | head -1`
++	if [ -n "$win" ]; then
++		dialog --title " Confirm " --yesno \
++			"\nThe installer found a Windows partition in /dev/$win.\n\nDo you want to create a boot item for Windows?" 9 59
++		[ $? -ne 0 ] && return 1
++		wp=$((`echo $win | cut -b4-`-1))
++		sed -i "s|#WINDOWS_ENTRY|add_winboot_entry $d $wp|" /hd/boot/grub/android.cfg
++	fi
+ }
+ 
+ check_data_img()
+ {
+ 	losetup /dev/loop7 data.img
+ 	if blkid /dev/loop7 | grep -q ext[23]; then
+-		dialog --backtitle "$BACK_TITLE" --clear --title " Warning " --yesno \
++		dialog --clear --title " Warning " --yesno \
+ 			"\nYour data.img is an ext2/3 filesystem. We suggest you convert it to ext4 for better reliability." 8 58
+ 		[ $? -eq 0 ] && convert_fs loop7
+ 	fi
+@@ -520,12 +384,12 @@ create_img()
+ {
+ 	bname=`basename $2`
+ 	if [ -e $2 ]; then
+-		dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
++		dialog --title " Confirm " --defaultno --yesno \
+ 			"\n $bname exists. Overwrite it?" 7 38
+ 		[ $? -ne 0 ] && return 255
+ 		rm -f $2
+ 	fi
+-	dialog --backtitle "$BACK_TITLE" --title " Question " --nook --nocancel --inputbox \
++	dialog --title " Question " --nook --nocancel --inputbox \
+ 		"\nPlease input the size of the $bname in MB:" 8 63 $1 2> $tempfile
+ 	size=`cat $tempfile`
+ 	[ 0$size -le 0 ] && size=2048
+@@ -534,24 +398,24 @@ create_img()
+ 
+ create_data_img()
+ {
+-	dialog --backtitle "$BACK_TITLE" --title " Confirm " --yesno \
+-		"\nThe installer is going to create a disk image to save the user data. At least 4000MB free disk space is recommended.\n\nAre you sure to create the image?" 11 62
++	dialog --title " Confirm " --yesno \
++		"\nThe installer is going to create a disk image to save the user data. At least 2048MB free disk space is recommended.\n\nAre you sure to create the image?" 11 62
+ 
+ 	if [ $? -eq 0 ]; then
+ 		if create_img 2048 data.img; then
+ 			losetup /dev/loop6 data.img
+ 			mkfs.ext4 -L /data /dev/loop6 > /dev/tty6
+ 		fi
+-		[ $? -ne 0 ] && dialog --backtitle "$BACK_TITLE" --msgbox "\n Failed to create data.img." 7 33
++		[ $? -ne 0 ] && dialog --msgbox "\n Failed to create data.img." 7 33
+ 	else
+-		dialog --backtitle "$BACK_TITLE" --title " Warning " --msgbox \
++		dialog --title " Warning " --msgbox \
+ 			"\nOK. So data will be save to a RAMDISK(tmpfs), and lose after power off." 8 49
+ 	fi
+ }
+ 
+ try_upgrade()
+ {
+-	[ -d $1 ] && dialog --backtitle "$BACK_TITLE" --title "No install found to upgrade at: $1" --nocancel --pause "" 8 41 1 && return
++	[ -d $1 ] && dialog --title "No install found to upgrade at: $1" --nocancel --pause "" 8 54 1 && return
+ 
+ 	for d in hd/*; do
+ 		[ -n "`ls "$d"/system* 2> /dev/null`" ] && echo \"`basename $d`\" \"\"
+@@ -615,315 +479,134 @@ install_to()
+ 	while [ 1 ]; do
+ 		format_fs $1
+ 		try_mount rw /dev/$1 /hd && break
+-		dialog --backtitle "$BACK_TITLE" --clear --title " Error " --defaultno --yesno \
+-			"\n Cannot mount /dev/$1\n Do you want to force format it to ext4 ?" 8 45
++		dialog --clear --title " Error " --defaultno --yesno \
++			"\n Cannot mount /dev/$1\n Do you want to format it?" 8 37
+ 		[ $? -ne 0 ] && return 255
+ 		FORCE_FORMAT=ext4
+ 	done
+-	
+-	if [ "$cancel_format" = 1 ]; then
+-		return 1
+-	else
+-		install_process $1
+-	fi
+-
+-}
+-
+-install_grub_bios()
+-{
+-	get_part_info $1
+-	if fdisk -l /dev/$disk | grep -q GPT; then
+-		umount /hd
+-		dialog --backtitle "$BACK_TITLE" --title " Warning " --defaultno --yesno \
+-			"\nFound GPT on /dev/$disk. Grub2 in Legacy can't be installed to GPT. Do you want to convert it to MBR?\n\nWARNING: This is a dangerous operation. You should backup your data first." 11 63
+-		[ $? -eq 1 ] && rebooting
+-		plist=$(sgdisk --print /dev/$disk | awk '/^  / { printf "%s:", $1 }' | sed 's/:$//')
+-		sgdisk --gpttombr=$plist /dev/$disk > /dev/tty6
+-		until try_mount rw /dev/$1 /hd; do
+-			sleep 1
+-		done
+-	fi
+-	grub-install --directory=/lib/grub/i386-pc --modules="all_video video png gfxmenu gfxterm" --root-directory=/hd /dev/$disk
+-	[ $? -ne 0 ] && return 255
+-
+-	cp /grub2/efi/boot/android.cfg /hd/boot/grub/
+-	if [ -d src/boot/grub/theme ]; then
+-		cp -R src/boot/grub/[ft]* /hd/boot/grub
+-		find /hd/boot/grub -name TRANS.TBL -delete
+-	fi
+-	if [ "$skip_ota_prepare" -eq 0 ]; then
+-		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|; s|/kernel|/kernel_a|; s|/initrd.img|/initrd_a.img|" /hd/boot/grub/android.cfg
+-	else
+-		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|" /hd/boot/grub/android.cfg
+-	fi
+-	sed -i "/fwsetup/d" /hd/boot/grub/android.cfg
+-	grubcfg=/hd/boot/grub/grub.cfg
+-	echo -e 'set timeout=5\nset debug_mode="(DEBUG mode)"' > $grubcfg
+-	echo -e "set kdir=/$asrc" >> $grubcfg
+-	echo -e '\nsource /boot/grub/android.cfg' >> $grubcfg
+-}
+ 
+-install_grub_efi()
+-{
+-	# Instead of copying EFI bootloader & config like a layout of a Linux image
+-	# with /boot/grub and /efi, we do like what linux installer did by copy
+-	# all the .efi to /EFI/$EFI_LABEL and create grub.cfg. Theme and andorid.cfg
+-	# will put on /boot of the installation drive.
+-	efidir=/EFI/"$EFI_LABEL"
+-	grubcfg=efi$efidir/grub.cfg
+-
+-	if [ `dirname $efidir` ]; then
+-	mkdir -p /efi/EFI
+-	fi
+-
+-	if [ "$efi" = "32" ]; then
+-		bootefi=bootia32.efi
+-		grubefi=grubia32.efi
+-		efimod=i386-efi
+-	else
+-		bootefi=BOOTx64.EFI
+-		grubefi=grubx64.efi
+-		efimod=x86_64-efi
+-	fi
+-	
+-	source /grub2/scripts/grub_modules
+-	
+-	mkdir -p efi$efidir
+-	cp -af grub2/efi/boot/bootia32.efi efi$efidir
+-	cp -af grub2/efi/boot/BOOTx64.EFI efi$efidir
+-	cp -af grub2/efi/boot/mmia32.efi efi$efidir
+-	cp -af grub2/efi/boot/mmx64.efi efi$efidir
+-	# Don't copy android.cfg to /EFI/$EFI_LABEL, make grub.cfg instead
+-	find efi$efidir -name android.cfg -delete
+-	mkdir -p /hd/boot/grub
+-	cp /grub2/efi/boot/android.cfg /hd/boot/grub/
+-#		cmdline="$cmdline androidboot.efidir=$efidir androidboot.efidisk=$boot"
+-	if [ "$skip_ota_prepare" -eq 0 ]; then
+-		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|; s|/kernel|/kernel_a|; s|/initrd.img|/initrd_a.img|" /hd/boot/grub/android.cfg
+-	else
+-		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|" /hd/boot/grub/android.cfg
+-	fi
+-	[ -s /hd/boot/grub/grubenv ] || ( printf %-1024s "# GRUB Environment Block%" | sed 's/k%/k\n/; s/   /###/g' > /hd/boot/grub/grubenv )
+-
+-	echo -e "search.fs_uuid $fs_uuid root" > $grubcfg
+-	echo -e 'set timeout=5\nset debug_mode="(DEBUG mode)"' >> $grubcfg
+-	echo -e "set prefix=(\$root)'/boot/grub'" >> $grubcfg
+-	echo -e "set kdir=/$asrc" >> $grubcfg
+-	echo -e '\nsource $prefix/android.cfg' >> $grubcfg
+-	if [ -d src/boot/grub/theme ]; then
+-		cp -R src/boot/grub/[ft]* /hd/boot/grub
+-		find /hd/boot/grub -name TRANS.TBL -delete
+-	fi
+-
+-	# Checking for old EFI entries, removing them and adding new depending on bitness
+-	efibootmgr | grep -Eo ".{0,6}Android-x86" | cut -c1-4 > /tmp/efientries
+-	if [ -s /tmp/efientries ]; then
+-		set_answer_if_auto 1
+-		adialog --title " Question " --yesno "\nEFI boot entries for legacy Android-x86 installations were found.\n\nDo you wish to delete them?" 10 61
+-		[ $? -eq 0 ] && while read entry; do efibootmgr -Bb "$entry" > /dev/tty4 2>&1; done < /tmp/efientries
+-	fi
+-
+-	efibootmgr | grep -Eo ".{0,6}$EFI_LABEL" | cut -c1-4 > /tmp/efientries
+-	if [ -s /tmp/efientries ]; then
+-		set_answer_if_auto 1
+-		adialog --title " Question " --yesno "\nEFI boot entries for previous $EFI_LABEL installations were found.\n\nDo you wish to delete them?" 10 61
+-		[ $? -eq 0 ] && while read entry; do efibootmgr -Bb "$entry" > /dev/tty4 2>&1; done < /tmp/efientries
+-	fi
+-	
+-	# We do exactly like what Debian did
+-	touch /tmp/tmpgrubconf
+-	echo 'normal (memdisk)/grub.cfg' > /tmp/tmpgrubconf
+-
+-	source /grub2/scripts/memdisk_gen
+-	# Create a monolithic Grub2 efi
+-	grub-mkimage --format="$efimod" \
+-					--output=efi$efidir/$grubefi \
+-					--config=/tmp/tmpgrubconf \
+-					--directory="lib/grub/$efimod" \
+-					--memdisk=/tmp/memdisk.squashfs \
+-					--prefix="$efidir" \
+-					$GRUB_MODULES
+-
+-	# Create boot entry for shim in nvram
+-	# Check if the entry has been created, if not, it may due to the efivar got full
+-	# Remove all /sys/firmware/efi/efivars/dump-* and run the command again
+-	efibootmgr -u -v -c -d /dev/$disk -p $esp -L "$EFI_LABEL" -l $efidir/$bootefi > /dev/tty4 2>&1
+-	if [ $? -eq 1 ] || [ ! $(efibootmgr | grep "$EFI_LABEL") ]; then 
+-		rm -rf /sys/firmware/efi/efivars/dump-*
+-		efibootmgr -u -v -c -d /dev/$disk -p $esp -L "$EFI_LABEL" -l $efidir/$bootefi > /dev/tty4 2>&1
+-	fi
+-}
+-
+-install_refind()
+-{
+-	# Current we will only install refind without SB
+-	# Also install where rEFInd usually being installed
+-	efidir=/EFI/refind
+-
+-	if [ `dirname $efidir` ]; then
+-	mkdir -p /efi/EFI
+-	fi
+-	mkdir -p efi$efidir
+-
+-	# Defining files & dir name
+-	if [ "$efi" = "32" ]; then
+-		refinddrv=drivers_ia32
+-		refindefi=refind_ia32.efi
+-		refindtools=tools_ia32
+-	else
+-		refinddrv=drivers_x64
+-		refindefi=refind_x64.efi
+-		refindtools=tools_x64
+-	fi
+-	# Define config file
+-	refindcfg=efi$efidir/refind.conf
+-
+-	# Start copying files to /efi/EFI/refind
+-	cp -R /refind/refind/$refinddrv efi$efidir
+-	cp -R /refind/refind/$refindtools efi$efidir
+-	cp -R /refind/refind/$refindefi efi$efidir
+-	
+-	cp -af /refind/refind/refind.conf-sample $refindcfg
+-
+-	if [ -d /refind/themes ]; then
+-		cp -R /refind/themes efi$efidir
+-		echo -e '# Load rEFInd theme Regular\ninclude themes/refind-theme-regular/theme.conf' >> $refindcfg
+-	fi
+-	
+-	# Start copying or configuring BlissOS boot options on rEFInd
+-	cp -R /refind/android.cfg efi$efidir
+-	echo -e '\ninclude android.cfg' >> $refindcfg
+-	
+-	if [ "$skip_ota_prepare" -eq 0 ]; then
+-		sed -i "s|FS_UUID|$fs_partuuid|; s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|; s|/kernel|/kernel_a|; s|/initrd.img|/initrd_a.img|" efi$efidir/android.cfg
+-	else
+-		sed -i "s|FS_UUID|$fs_partuuid|; s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|" efi$efidir/android.cfg
+-	fi
+-
+-	# Checking for old EFI entries, removing them and adding new depending on bitness
+-	efibootmgr | grep -Eo ".{0,6}rEFInd Boot Manager" | cut -c1-4 > /tmp/efientries
+-	if [ -s /tmp/efientries ]; then
+-		set_answer_if_auto 1
+-		adialog --title " Question " --yesno "\nEFI boot entries of an old rEFInd version were found.\n\nDo you wish to delete them?" 10 61
+-		[ $? -eq 0 ] && while read entry; do efibootmgr -Bb "$entry" > /dev/tty4 2>&1; done < /tmp/efientries
+-	fi
+-
+-	# Create BOOT.CSV
+-#	echo -e "$refinddrv,rEFInd Boot Manager,,This is the boot entry for rEFInd" > /tmp/refindboot.csv
+-#	iconv -t UCS-2 /tmp/refindboot.csv > efi$efidir/BOOT.CSV
+-
+-	echo "$refinddrv,rEFInd Boot Manager,,This is the boot entry for rEFInd" | \
+-		iconv -t UCS-2 > "efi$efidir/BOOT.CSV"
+-
+-	# Create boot entry for refind in nvram
+-	# Check if the entry has been created, if not, it may due to the efivar got full
+-	# Remove all /sys/firmware/efi/efivars/dump-* and run the command again
+-	efibootmgr -u -v -c -d /dev/$disk -p $esp -L "rEFInd Boot Manager" -l $efidir/$refindefi > /dev/tty4 2>&1
+-	if [ $? -eq 1 ] || [ ! $(efibootmgr | grep "rEFInd Boot Manager") ]; then 
+-		rm -rf /sys/firmware/efi/efivars/dump-*
+-		efibootmgr -u -v -c -d /dev/$disk -p $esp -L "rEFInd Boot Manager" -l $efidir/$refindefi > /dev/tty4 2>&1
+-	fi
+-}
+-
+-install_process()
+-{
+ 	fs=`cat /proc/mounts | grep /dev/$1 | awk '{ print $3 }'`
+-	fs_uuid=`blkid /dev/$1 | awk -F '\"' '{print $4}'`
+-	fs_partuuid=`fdisk -x | grep /dev/$1 | awk '{ print $6 }'`
+-	cmdline=`sed "s|\(initrd.*img\s*\)||; s|quiet\s*||; s|\(vga=\w\+\?\s*\)||; s|\(DPI=\w\+\?\s*\)||; s|\(AUTO_INSTALL=\w\+\?\s*\)||; s|\(INSTALL=\w\+\?\s*\)||; s|\(SRC=\S\+\?\s*\)||; s|\(DEBUG=\w\+\?\s*\)||; s|\(BOOT_IMAGE=\S\+\?\s*\)||; s|\(iso-scan/filename=\S\+\?\s*\)||; s|[[:space:]]*$||" /proc/cmdline`
++	cmdline=`sed "s|\(initrd.*img\s*\)||; s|quiet\s*||; s|\(vga=\w\+\?\s*\)||; s|\(DPI=\w\+\?\s*\)||; s|\(OEM_INSTALL=\w\+\?\s*\)||; s|\(INSTALL=\w\+\?\s*\)||; s|\(SRC=\S\+\?\s*\)||; s|\(DEBUG=\w\+\?\s*\)||; s|\(BOOT_IMAGE=\S\+\?\s*\)||; s|\(iso-scan/filename=\S\+\?\s*\)||; s|[[:space:]]*$||" /proc/cmdline`
++	cmdline="$cmdline androidboot.slot_suffix=_a"
+ 
+ 	[ -n "$INSTALL_PREFIX" ] && asrc=$INSTALL_PREFIX || asrc=android-$VER
+ 	set_answer_if_auto 1
+-
+-	datapart_cancel=1
+-	if [ -n "$userdata_partition" ]; then
+-		dialog --backtitle "$BACK_TITLE" --title " Confirm " --yesno \
+-			"\nYou have chosen $userdata_partition as the userdata partition, are you sure you want to store data here ?
+-\n\nThis is the final confirmation ! If you press 'No', setup will cancel this choice and start putting data next to system instead." 10 75
+-		if [ $? -eq 0 ]; then
+-			datapart_cancel=0
+-			cmdline="$cmdline DATA=/dev/$userdata_partition"
+-		fi
+-	fi
+-
+-	## Ask if user want to prepare for delta update
+-	## If NTFS is chosen, automatically choose no
+-	if [ "$(blkid /dev/$1 | grep "ntfs")" ]; then
+-		skip_ota_prepare=1
+-	else
+-		dialog --backtitle "$BACK_TITLE" --clear --title " Confirm " --yesno \
+-			"\nWould you like the installer to prepare for OTA update ?
+-	\n\nThis operation will double the system size ! We only recommend it if you have more storage than the recommended size !" 11 55
+-		[ $? -eq 0 ] && skip_ota_prepare=0 || skip_ota_prepare=1
+-	fi
+-
+-	if [ "$skip_ota_prepare" -eq 0 ]; then
+-		cmdline="$cmdline androidboot.slot_suffix=_a"
+-	fi
+-
+-	## Legacy/BIOS installation
+ 	[ -z "$efi" ] && adialog --title " Confirm " --no-label Skip --defaultno --yesno \
+-		"\n Do you want to install Grub2 bootloader ?" 7 47
++		"\n Do you want to install boot loader GRUB?" 7 47
+ 	if [ $? -eq 0 ]; then
+-		install_grub_bios $1
+-		create_winitem_bios
+-		#HACK: Somehow when putting this sed under create_winitem_bios() it will not allow
+-		#$2 into add_winboot_entry, making the line now look like
+-		#add_winboot_entry $1
+-		#So we have to put it here
+-		if [ $windows_part ] && [ -f /hd/boot/grub/android.cfg ]; then
+-			sed -i "s|#WINDOWS_BIOS_ENTRY|add_winboot_entry Windows $result_01 $result_02|" /hd/boot/grub/android.cfg
++		get_part_info $1
++		if fdisk -l /dev/$disk | grep -q GPT; then
++			umount /hd
++			dialog --title " Warning " --defaultno --yesno \
++				"\nFound GPT on /dev/$disk. The legacy GRUB can't be installed to GPT. Do you want to convert it to MBR?\n\nWARNING: This is a dangerous operation. You should backup your data first." 11 63
++			[ $? -eq 1 ] && rebooting
++			plist=$(sgdisk --print /dev/$disk | awk '/^  / { printf "%s:", $1 }' | sed 's/:$//')
++			sgdisk --gpttombr=$plist /dev/$disk > /dev/tty6
++			until try_mount rw /dev/$1 /hd; do
++				sleep 1
++			done
+ 		fi
++		grub-install --directory=/lib/grub/i386-pc --root-directory=/hd /dev/$disk
++		[ $? -ne 0 ] && return 255
++
++		cp /grub2/efi/boot/android.cfg /hd/boot/grub/
++		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|; s|/kernel|/kernel_a|; s|/initrd.img|/initrd_a.img|" /hd/boot/grub/android.cfg
++		sed -i "/fwsetup/d" /hd/boot/grub/android.cfg
++		grubcfg=/hd/boot/grub/grub.cfg
++		echo -e 'set timeout_style=hidden\nset timeout=1\nset debug_mode="(DEBUG mode)"' > $grubcfg
++		echo -e "set kdir=/$asrc" >> $grubcfg
++		echo -e '\nsource /boot/grub/android.cfg' >> $grubcfg
++		create_winitem
+ 	fi
+ 
+-	## UEFI installation
+-	## Prepare ESP before asking bootloader options
+-	if [ -n "$efi" ]; then
+-		if [ "$esp_manual_done" = "1" ]; then
+-			boot=$boot_esp
+-			esp=$esp_chosen
+-			get_part_info $boot
+-		else
+-			[ -z "$AUTO_INSTALL" -o -n "$AUTO_UPDATE" ] && for i in `list_disks`; do
+-				disk=`basename $i`
+-				esp=`sgdisk --print /dev/$disk 2> /dev/null | grep EF00 | awk '{print $1}'`
+-				[ -n "$esp" ] && boot=`find_partition $disk $esp` && break
+-			done
+-			if [ -z "$esp" ]; then
+-				get_part_info $1
+-				boot=$(blkid /dev/$disk* | grep -v $disk: | grep vfat | cut -d: -f1 | head -1)
+-				[ -z "$boot" ] && boot=`find_partition $disk 1` || boot=`basename $boot`
+-				esp=`cat /sys/block/$disk/$boot/partition`
+-			fi
++	[ -n "$efi" ] && adialog --title " Confirm " --no-label Skip --yesno \
++		"\n Do you want to install EFI GRUB2?" 7 39
++	if [ $? -eq 0 ]; then
++		[ -z "$OEM_INSTALL" -o -n "$AUTO_UPDATE" ] && for i in `list_disks`; do
++			disk=`basename $i`
++			esp=`sgdisk --print /dev/$disk 2> /dev/null | grep EF00 | awk '{print $1}'`
++			[ -n "$esp" ] && boot=`find_partition $disk $esp` && break
++		done
++		if [ -z "$esp" ]; then
++			get_part_info $1
++			boot=$(blkid /dev/$disk* | grep -v $disk: | grep vfat | cut -d: -f1 | head -1)
++			[ -z "$boot" ] && boot=`find_partition $disk 1` || boot=`basename $boot`
++			esp=`cat /sys/block/$disk/$boot/partition`
+ 		fi
+ 		mkdir -p efi
+ 		mountpoint -q efi && umount efi
+ 		wait_for_device $boot
+ 		until try_mount rw /dev/$boot efi; do
+-			dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno "\n Cannot mount /dev/$boot.\n Do you want to format it?" 8 37
++			dialog --title " Confirm " --defaultno --yesno "\n Cannot mount /dev/$boot.\n Do you want to format it?" 8 37
+ 			[ $? -eq 0 ] && mkdosfs -n EFI /dev/$boot
+ 		done
++		if [ "$efi" = "32" ]; then
++			grubcfg=efi/boot/grub/i386-efi/grub.cfg
++			bootefi=bootia32.efi
++		else
++			grubcfg=efi/boot/grub/x86_64-efi/grub.cfg
++			bootefi=BOOTx64.EFI
++		fi
++		if [ -d efi/efi/boot -a ! -s efi/efi/boot/android.cfg ]; then
++			efidir=/efi/Android
++		else
++			efidir=/efi/boot
++			rm -rf efi/efi/Android
++		fi
++		mkdir -p `dirname $grubcfg` efi$efidir
++		cp -af grub2/efi/boot/* efi$efidir
++
++		cmdline="$cmdline androidboot.efidir=$efidir androidboot.efidisk=$boot"
++		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|; s|/kernel|/kernel_a|; s|/initrd.img|/initrd_a.img|" efi$efidir/android.cfg
++		[ -s efi/boot/grub/grubenv ] || ( printf %-1024s "# GRUB Environment Block%" | sed 's/k%/k\n/; s/   /###/g' > efi/boot/grub/grubenv )
++
++		echo -e 'set timeout_style=hidden\nset timeout=1\nset debug_mode="(DEBUG mode)"' > $grubcfg
++		# Our grub-efi doesn't support ntfs directly.
++		# Copy boot files to ESP so grub-efi could read them
++		if [ "$fs" = "fuseblk" ]; then
++			#FIXME: No OTA suuport for kernel and initrd of fuseblk
++			dialog --infobox "\n OTA updates is not supported for fuseblk. \n Please use extfs if you need OTA updates..." 5 27
++			cp -f src/kernel efi$efidir/kernel_a
++			cp -f src/kernel efi$efidir/kernel_b
++			cp -f src/initrd.img efi$efidir/initrd_a.img
++			cp -f src/initrd.img efi$efidir/initrd_b.img
++			echo -e "set kdir=$efidir\nset src=SRC=/$asrc" >> $grubcfg
++		else
++			echo -e "set kdir=/$asrc" >> $grubcfg
++		fi
++		echo -e '\nsource $cmdpath/android.cfg' >> $grubcfg
++		if [ -d src/boot/grub/theme ]; then
++			cp -R src/boot/grub/[ft]* efi/boot/grub
++			find efi/boot/grub -name TRANS.TBL -delete
++		fi
+ 
+-		printf "\n\"Grub2 EFI Bootloader\"
+-\"\"\n\"rEFInd Boot Manager\" \"\"\n" >> /tmp/efioptions
+-		choose_efiboot "Choose EFI Boot" "Since you are using UEFI, we offer two boot options for the OS: \
+-rEFInd Boot Manager or Grub2 EFI Bootloader.\n\nPlease select the one you prefer, or opt for 'Skip' \
+-if you already have a boot solution in place."
+-		case "$choice" in
+-			*Grub2*)
+-				install_grub_efi $1
+-				;;
+-			*rEFInd*)
+-				install_refind $1
+-				;;
+-			*)
+-				;;
+-		esac
+-		# Check if a Windows drive exist, warn about UEFI Windows limitation
+-		create_winitem_uefi
++		# Checking for old EFI entries, removing them and adding new depending on bitness
++		efibootmgr | grep -Eo ".{0,6}Android-x86" | cut -c1-4 > /tmp/efientries
++		if [ -s /tmp/efientries ]; then
++			set_answer_if_auto 1
++			adialog --title " Question " --yesno "\nEFI boot entries for previous Android-x86 installations were found.\n\nDo you wish to delete them?" 10 61
++			[ $? -eq 0 ] && while read entry; do efibootmgr -Bb "$entry" > /dev/tty4 2>&1; done < /tmp/efientries
++		fi
++		# Check if the entry has been created, if not, it may due to the efivar got full
++		# Remove all /sys/firmware/efi/efivars/dump-* and run the command again
++		efibootmgr -u -v -c -d /dev/$disk -p $esp -L "Android-x86 $VER" -l $efidir/$bootefi > /dev/tty4 2>&1
++		if [ $? -eq 1 ] || [ ! $(efibootmgr | grep "Android-x86 $VER") ]; then 
++			rm -rf /sys/firmware/efi/efivars/dump-*
++			efibootmgr -u -v -c -d /dev/$disk -p $esp -L "Android-x86 $VER" -l $efidir/$bootefi > /dev/tty4 2>&1
++		fi
++
++		if [ -s efi/startup.nsh ]; then
++			sed -i "s|\\\\efi\\\\Android|$efidir|; s|/|\\\\|g" efi/startup.nsh
++		else
++			echo $efidir/$bootefi | sed 's|/|\\|g' > efi/startup.nsh
++		fi
+ 	fi
+ 
+-	try_upgrade hd/$asrc
++	if [ "$OEM_INSTALL" = "force" ] || [ "$OEM_INSTALL" = "mbr" ] || [ "$OEM_INSTALL" = "efi" ]; then
++		echo "OEM install forcing is enabled, skipping upgrade..."
++	else
++		try_upgrade hd/$asrc
++	fi
+ 
+ 	! test -f hd/$asrc/system.img -o -d hd/$asrc/system
+ 	sysimg="mnt/$SRC/system.img"
+@@ -937,7 +620,7 @@ if you already have a boot solution in place."
+ 		sysimg="sfs/system.img"
+ 	fi
+ 
+-	files="/mnt/$SRC/kernel /mnt/$SRC/initrd.img /$sysimg"
++	files="mnt/$SRC/kernel mnt/$SRC/initrd.img $sysimg"
+ 	size=0
+ 	for s in `du -sk $files | awk '{print $1}'`; do
+ 		size=$(($size+$s))
+@@ -946,158 +629,76 @@ if you already have a boot solution in place."
+ 	mkdir -p hd/$asrc
+ 	cd hd/$asrc
+ 	rm -rf system* *.img
+-
+-#	( ( cd /; find $files | $CPIO -H newc -o ) | pv -ns ${size}k | ( $CPIO -iud > /dev/null; echo $? > /tmp/result )) 2>&1 \
+-#		| progress_bar "Installing $OS_TITLE to $1" "Expect to write $size KB..."
+-
+-	## New way to copy files with rsync
+-	(LD_LIBRARY_PATH=/system/system_ext/lib64 rsync -a --info=progress2 $files .; echo $? > /tmp/result) \
+-	| stdbuf -oL awk 'BEGIN { RS="\r" } /%/ { print $2 }' \
+-	| sed --unbuffered 's/%//g' \
+-	| progress_bar "Installing $OS_TITLE to $1" "Expect to write $size KB..."
+-
++	( ( cd /; find $files | $CPIO -H newc -o ) | pv -ns ${size}k | ( $CPIO -iud > /dev/null; echo $? > /tmp/result )) 2>&1 \
++		| progress_bar "Installing $OS_TITLE to $1" "Expect to write $size KB..."
+ 	result=$((`cat /tmp/result`*255))
+ 
+ 	if [ $result -eq 0 ]; then
+ 		for d in android mnt sfs ./$SRC; do
+-			[ -d $d ] && mv $d/* . && rmdir "$d"
++			[ -d $d ] && mv $d/* . && rmdir $d
+ 		done
+ 		chown 0.0 *
+ 		for f in *; do
+ 			[ -d $f ] || chmod 644 $f
+ 		done
+-
+-		if [ "$skip_ota_prepare" -eq 0 ]; then
+-			dialog --backtitle "$BACK_TITLE" --infobox "\n Preparing install for OTA updates..." 6 41
+-
+-			mv kernel kernel_a
+-			mv initrd.img initrd_a.img
+-			mv system.img system_a.img
+-			gen_img 40 kernel_b
+-			gen_img 40 initrd_b.img
+-			gen_img 4096 system_b.img
+-			gen_img 10 misc.img
+-			resize_img kernel_a kernel_b
+-			resize_img initrd_a.img initrd_b.img
+-			resize_img system_a.img system_b.img
+-		fi
+-
+-		if [ "$datapart_cancel" = 1 ]; then
+-			case "$fs" in
+-				vfat|fuseblk|exfat)
+-					[ -e data.img ] && check_data_img || create_data_img
+-					;;
+-				*)
+-					mkdir -p data
+-					;;
+-			esac
+-		fi
+-	fi
+-
+-	dialog --backtitle "$BACK_TITLE" --infobox "\n Syncing to disk..." 5 27
+-	sync
+-	cd /
+-
+-	return $result
+-}
+-
+-make_esp()
+-{
+-	ESP_CHECK_GPT=$( fdisk -l | grep "EFI System" | grep "/dev/$1" | awk '{ print $1 }' )
+-	ESP_CHECK_MBR=$( fdisk -l | grep "EFI (FAT-12/16/32)" | grep "/dev/$1" | awk '{ print $1 }' )
+-
+-	if [ "$ESP_CHECK_GPT" == "/dev/$1" ] || [ "$ESP_CHECK_MBR" == "/dev/$1" ]; then
+-		local cmd
+-		echo -e '"Do not re-format" ""\n"fat32 (CAREFUL)" ""' > $menufile
+-		choose_formatfs  "Choose filesystem" "Please select a filesystem to format $1:"
+-		case "$choice" in
+-			*fat32*)
+-				cmd="mkdosfs -n"
++		
++		dialog --infobox "\n Preparing install for A/B updates..." 5 42
++
++		mv kernel kernel_a
++		mv initrd.img initrd_a.img
++		mv system.img system_a.img
++		gen_img 40 kernel_b
++		gen_img 40 initrd_b.img
++		gen_img 4096 system_b.img
++		gen_img 10 misc.img
++		resize_img kernel_a kernel_b
++		resize_img initrd_a.img initrd_b.img
++		resize_img system_a.img system_b.img
++
++		case "$fs" in
++			vfat|fuseblk|exfat)
++				[ -e data.img ] && check_data_img || create_data_img
+ 				;;
+ 			*)
++				mkdir -p data
+ 				;;
+ 		esac
+-		if [ -n "$cmd" ]; then		
+-			dialog --backtitle "$BACK_TITLE" --title " Question " --nook --nocancel --inputbox \
+-			"\nWould you like to customize the formatted drive name ? 
+-\n\nYou can change it here or press Enter to skip:" 10 63 "ESP" 2> /tmp/esp_drive_name
+-
+-			[ -n "$AUTO_INSTALL" ] || dialog --colors --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-			"\nYou chose to format $1 to $choice.\n\Z1THE FORMAT PROCESS WILL START IMMEDIATELY. 
+-ALL DATA IN THIS PARTITION WILL BE LOST.\Zn\n\nAre you sure to format the partition $1?" 10 59
+-			[ $? -ne 0 ] && return 1
+-			$cmd `cat /tmp/esp_drive_name` /dev/$1 | awk '{
+-				# FIXME: very imprecise progress
+-				if (match($0, "done"))
+-					printf("%d\n", i+=33)
+-			}' | progress_bar "Formatting" "Formatting partition $1..."
+-		else
+-			[ -n "$AUTO_INSTALL" ] || dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-				"\n Are you sure you want to pick $1 as ESP ? \n\n You can always pick again if you choose 'Restart the installer'" 10 75
+-			[ $? -ne 0 ] && return 1
+-		fi
+-
+-		export boot_esp=$1
+-		export esp_chosen=`cat /sys/block/*/$boot_esp/partition`
+-		export esp_manual_done=1
+-	else
+-		dialog --backtitle "$BACK_TITLE" --title " Error " --nocancel --pause \
+-		"This is not an EFI System Partition, please check again" 10 41 4
+-		return 1
+ 	fi
+ 
+-}
++	dialog --infobox "\n Syncing to disk..." 5 27
++	sync
++	cd /
+ 
+-warn_esp()
+-{
+-	dialog --backtitle "$BACK_TITLE" --title " WARNING " --nocancel --pause \
+-"UEFI System detected ! Please select a partition as an \
+-EFI System Partition (ESP). \n \
+-\nIf you don't know what this is, visit BlissOS Documentation \
+-for more info." 14 45 7
++	return $result
+ }
+ 
+-initialize_esp()
++install_hd()
+ {
+-	case "$choice" in
+-		Create*)
+-			partition_drive
+-			;;
+-		Restart*the*installer*)
+-			;;
+-		*shell*)
+-			dialog --backtitle "$BACK_TITLE" --clear --title " WARNING " --nocancel --pause "You are going to use AOSP's shell, if you want to go back to the installer please type exit" 12 41 8
+-			/system/bin/sh 2>&1
+-			;;
+-		Skip*)
+-			dialog --backtitle "$BACK_TITLE" --clear --title " WARNING " --defaultno --yes-label "Yes, skip it" --no-label "No, I changed my mind" \
+-			--yesno "No ESP is selected, setup will use the old detection method to automatically choose ESP instead which
+-is not recommended. Do you still want to skip it ?" 9 55
+-			[ $? -eq 0 ] && export esp_manual_done=0 && retval=0
++	case "$OEM_INSTALL" in
++		[Uu]*)
++			answer=${AUTO_UPDATE:-$(blkid | grep -v loop | grep -v iso9660 | sort | grep Android-x86 | cut -d: -f1 | head -1)}
++			answer=${answer:-$(blkid | grep -v loop | sort | grep ext4 | cut -d: -f1 | head -1)}
++			[ -b "$answer" -o -b /dev/$answer ] && answer=`basename $answer` || answer=
++			AUTO_UPDATE=${answer:-$AUTO_UPDATE}
++			[ -z "$AUTO_UPDATE" ] && OEM_INSTALL=
+ 			;;
+ 		*)
+-			make_esp $choice
+-			retval=$?
++			[ -z "$answer" ] && set_answer_if_auto Create
+ 			;;
+ 	esac
+-	return $retval
+-
+-}
+ 
+-initialize_hd()
+-{
++	select_dev || rebooting
++	retval=1
+ 	case "$choice" in
+ 		Create*)
+ 			partition_drive
++			retval=$?
+ 			;;
+-		*Setup*userdata*partition*)
+-			setup_userdata_part
+-			return 1
+-			;;
+-		Restart*the*installer*)
++		Detect*)
++			dialog --title " Detecting... " --nocancel --pause "" 8 41 1
+ 			;;
+ 		*shell*)
+-			dialog --backtitle "$BACK_TITLE" --clear --title " WARNING " --nocancel --pause "You are going to use AOSP's shell, if you want to go back to the installer please type exit" 12 41 8
++			dialog --clear --title " WARNING " --nocancel --pause "You are going to use AOSP's shell, if you want to go back to the installer please type exit" 12 41 8
+ 			/system/bin/sh 2>&1
+ 			;;
+ 		*)
+@@ -1108,54 +709,27 @@ initialize_hd()
+ 	return $retval
+ }
+ 
+-install_hd()
+-{
+-	case "$AUTO_INSTALL" in
+-		[Uu]*)
+-			answer=${AUTO_UPDATE:-$(blkid | grep -v loop | grep -v iso9660 | sort | grep Android-x86 | cut -d: -f1 | head -1)}
+-			answer=${answer:-$(blkid | grep -v loop | sort | grep ext4 | cut -d: -f1 | head -1)}
+-			[ -b "$answer" -o -b /dev/$answer ] && answer=`basename $answer` || answer=
+-			AUTO_UPDATE=${answer:-$AUTO_UPDATE}
+-			[ -z "$AUTO_UPDATE" ] && AUTO_INSTALL=
+-			;;
+-		*)
+-			[ -z "$answer" ] && set_answer_if_auto Create
+-			;;
+-	esac
+-
+-	# If UEFI is detected, tell user to pick ESP partition
+-	if [ -n "$efi" ]; then
+-	warn_esp
+-	select_dev_esp || rebooting
+-	retval=1
+-	initialize_esp || return $?
+-	fi
+-
+-	select_dev || rebooting
+-	retval=1
+-	initialize_hd || return $?
+-	return $retval
+-}
+-
+ do_install()
+ {
+-	chmod 755 /sbin/*
+ 	booted_from=`basename $dev`
+ 	efi=$(cat /sys/firmware/efi/fw_platform_size 2> /dev/null)
+ 	[ -n "$efi" ] && mount -t efivarfs none /sys/firmware/efi/efivars
++	
++	chmod 755 /sbin/grub-install
++	chmod 755 /sbin/mkntfs
++	chmod 755 /sbin/efibootmgr
++	chmod 755 /bin/sfdisk
+ 
+ 	until install_hd; do
+-		restart_installer
+-
+ 		if [ $retval -eq 255 ]; then
+-			dialog --backtitle "$BACK_TITLE" --title ' Error! ' --yes-label Retry --no-label Reboot \
++			dialog --title ' Error! ' --yes-label Retry --no-label Reboot \
+ 				--yesno "\nInstallation failed! Either there's no more free space or something is wrong with the installer !" 8 51
+ 			[ $? -eq 1 ] && rebooting
+ 		fi
+ 	done
+ 
+ 	[ -n "$VESA" ] || runit="Run $OS_TITLE"
+-	dialog --backtitle "$BACK_TITLE" --clear --title ' Congratulations! ' \
++	dialog --clear --title ' Congratulations! ' \
+ 		--menu "\n $OS_TITLE is installed successfully.\n " 11 51 13 \
+ 		"$runit" "" "Reboot" "" 2> $tempfile
+ 	case "`cat $tempfile`" in
+-- 
+2.34.1
+

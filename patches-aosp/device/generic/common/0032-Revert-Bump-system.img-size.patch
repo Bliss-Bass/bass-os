@@ -1,0 +1,26 @@
+From 6c6d1ed6c1aafffb33a517ae33881f04cd5d41e3 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Fri, 23 Feb 2024 20:27:32 -0500
+Subject: [PATCH 32/43] Revert "Bump system.img size"
+
+This reverts commit 32e9113e0d668c2e60867aa11ce6cf5c6330d497.
+---
+ BoardConfig.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index dbb7724..032076d 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -165,7 +165,7 @@ DEVICE_MANIFEST_FILE := device/generic/common/manifest.xml
+ BOARD_PLAT_PRIVATE_SEPOLICY_DIR := device/generic/common/sepolicy/plat_private
+ 
+ BOARD_BUILD_SYSTEM_ROOT_IMAGE := true
+-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 4394967290
++BOARD_SYSTEMIMAGE_PARTITION_SIZE := 4294967290
+ TARGET_USERIMAGES_SPARSE_EXT_DISABLED := true
+ BOARD_USES_OEMIMAGE := true
+ BUILD_BROKEN_USES_NETWORK := true
+-- 
+2.34.1
+

@@ -1,0 +1,46 @@
+From 96f420a2f7d0c32779f7c069b775ceccb2a1a125 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Sat, 16 Dec 2023 11:38:33 -0500
+Subject: [PATCH 05/13] Update boot header wording
+
+Replace header tabs with spaces
+---
+ initrd/init | 22 +++++++---------------
+ 1 file changed, 7 insertions(+), 15 deletions(-)
+
+diff --git a/initrd/init b/initrd/init
+index 5bd1aa9a..71adb454 100755
+--- a/initrd/init
++++ b/initrd/init
+@@ -16,21 +16,13 @@ PATH=/sbin:/bin:/system/bin:/system/xbin:/vendor/bin:/system_ext/bin:/system/ven
+ text_art()
+ {
+ cat << "EOF"
+-      ___           ___                   ___           ___
+-     /\  \         /\__\      ___        /\  \         /\  \
+-    /::\  \       /:/  /     /\  \      /::\  \       /::\  \
+-   /:/\:\  \     /:/  /      \:\  \    /:/\ \  \     /:/\ \  \
+-  /::\~\:\__\   /:/  /       /::\__\  _\:\~\ \  \   _\:\~\ \  \
+- /:/\:\ \:\__\ /:/__/     __/:/\/__/ /\ \:\ \ \__\ /\ \:\ \ \__\
+- \:\~\:\/:/  / \:\  \    /\/:/  /    \:\ \:\ \/__/ \:\ \:\ \/__/
+-  \:\ \::/  /   \:\  \   \::/__/      \:\ \:\__\    \:\ \:\__\
+-   \:\/:/  /     \:\  \   \:\__\       \:\/:/  /     \:\/:/  /
+-    \::/__/       \:\__\   \/__/        \::/  /       \::/  /
+-     ~~            \/__/                 \/__/         \/__/
+-
+-===================================================
+-         Have A Truly Blissful Experience
+-===================================================
++================================================
++
++  BLISS-BASS   -   KIOSK OS 
++
++================================================
++  This product was created using Bliss-Bass	
++================================================
+ EOF
+ }
+ 
+-- 
+2.34.1
+

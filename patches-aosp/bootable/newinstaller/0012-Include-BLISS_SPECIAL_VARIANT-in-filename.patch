@@ -1,0 +1,25 @@
+From 035d0dba5fe89d79863d858873dd9253128ed72e Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Sat, 30 Dec 2023 19:58:00 -0500
+Subject: [PATCH 12/13] Include BLISS_SPECIAL_VARIANT in filename
+
+---
+ Android.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Android.mk b/Android.mk
+index 1e257dce..711b3f47 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -185,7 +185,7 @@ ROM_VENDOR_VERSION := $(RELEASE_OS_TITLE)-$(TARGET_ARCH)-$(shell date +%Y%m%d%H%
+ endif
+ 
+ BUILD_NAME_VARIANT := $(ROM_VENDOR_VERSION)
+-ROM_VENDOR_VERSION := $(RELEASE_OS_TITLE)-$(TARGET_ARCH)-$(shell date +%Y%m%d%H)
++ROM_VENDOR_VERSION := $(RELEASE_OS_TITLE)$(BLISS_SPECIAL_VARIANT)-$(TARGET_ARCH)-$(shell date +%Y%m%d%H)
+ 
+ ISO_IMAGE := $(PRODUCT_OUT)/$(ROM_VENDOR_VERSION).iso
+ $(ISO_IMAGE): $(boot_dir) $(BUILT_IMG)
+-- 
+2.34.1
+

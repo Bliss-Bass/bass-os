@@ -1,20 +1,20 @@
-From 219ed33cf6e022defd6e650ac278bf6548b01b1b Mon Sep 17 00:00:00 2001
-From: Jon West <electrikjesus@gmail.com>
-Date: Sat, 16 Dec 2023 13:22:07 -0500
-Subject: [PATCH 011/105] bass: updates packages.mk
+From b79becf67ba437985e2f80bcdebfba6beb6d3e31 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Thu, 7 Mar 2024 09:24:17 -0500
+Subject: [PATCH 11/43] bass: updates packages.mk
 
 ---
  packages.mk | 40 ++++++++++++++++++++++++++++++++++++++++
  1 file changed, 40 insertions(+)
 
 diff --git a/packages.mk b/packages.mk
-index cf75bc8..b770f19 100644
+index efcee7a..e3a6db7 100644
 --- a/packages.mk
 +++ b/packages.mk
-@@ -157,3 +157,43 @@ endif
- 
- # Some additional CLI programs
- PRODUCT_PACKAGES += tput dialog alsa-info.sh tree lspci dmidecode
+@@ -166,3 +166,43 @@ PRODUCT_PACKAGES += iptsd_runner iptsd \
+                     iptsd-dump \
+                     iptsd-perf
+ endif
 +
 +# SeedVault
 +PRODUCT_PACKAGES += \

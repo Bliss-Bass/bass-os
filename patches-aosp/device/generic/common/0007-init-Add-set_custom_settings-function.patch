@@ -1,7 +1,7 @@
-From c027229c51c4bfe545f27188b3d39c5ebb0783d1 Mon Sep 17 00:00:00 2001
+From b1951a36be4ff14005d6f771cd498dac05b29636 Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 13:03:46 -0500
-Subject: [PATCH 007/105] init: Add set_custom_settings function
+Subject: [PATCH 07/43] init: Add set_custom_settings function
 
 Comes with the following settings overrides: - SET_SCREEN_OFF_TIMEOUT - SET_SLEEP_TIMEOUT - SET_POWER_ALWAYS_ON - SET_STAY_ON_WHILE_PLUGGED_IN - FORCE_BLUETOOTH_SERVICE (enable,disable) - FORCE_DISABLE_ALL_RADIOS (forces airplane mode, removing all radios from being toggled, also removing all QS tiles for radios)
 ---
@@ -9,10 +9,10 @@ Comes with the following settings overrides: - SET_SCREEN_OFF_TIMEOUT - SET_SLEE
  1 file changed, 54 insertions(+)
 
 diff --git a/init.sh b/init.sh
-index ea83077..8db1426 100644
+index b1d8d68..b70e906 100644
 --- a/init.sh
 +++ b/init.sh
-@@ -1040,6 +1040,59 @@ function set_package_opts()
+@@ -1177,6 +1177,59 @@ function set_package_opts()
  	
  }
  
@@ -72,8 +72,8 @@ index ea83077..8db1426 100644
  
  
  function do_init()
-@@ -1154,6 +1207,7 @@ function do_bootcomplete()
- 		pm disable org.lineageos.updater
+@@ -1272,6 +1325,7 @@ function do_bootcomplete()
+ 		pm disable com.blissos.updater
  	fi
  
 +	set_custom_settings

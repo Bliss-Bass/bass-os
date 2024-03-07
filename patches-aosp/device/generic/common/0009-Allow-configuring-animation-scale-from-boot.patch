@@ -1,7 +1,7 @@
-From 838375971d7fa610e79f0a0127c2ac8269ff79b2 Mon Sep 17 00:00:00 2001
+From dfcab7e0283a88329cc4042cae6f3c1596e93cc0 Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 13:10:57 -0500
-Subject: [PATCH 009/105] Allow configuring animation scale from boot
+Subject: [PATCH 09/43] Allow configuring animation scale from boot
 
 This uses the property: ro.boot.bliss.animation.scale= Or from kernel cmdline: androidboot.bliss.animation.scale=
 ---
@@ -9,10 +9,10 @@ This uses the property: ro.boot.bliss.animation.scale= Or from kernel cmdline: a
  1 file changed, 6 insertions(+)
 
 diff --git a/init.x86.rc b/init.x86.rc
-index 80862b0..49f49f3 100644
+index 7c67f96..ec001e1 100644
 --- a/init.x86.rc
 +++ b/init.x86.rc
-@@ -88,6 +88,12 @@ on boot
+@@ -89,6 +89,12 @@ on boot
      chown system system /system/vendor/etc/thermal-daemon/thermal-conf.xml
      restorecon_recursive /sys/class/powercap
  

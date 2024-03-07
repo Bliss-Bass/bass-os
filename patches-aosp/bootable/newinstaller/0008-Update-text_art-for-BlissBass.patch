@@ -1,0 +1,34 @@
+From bac65d8c610da8451f7b4d44863d75569ecc8ee5 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Mon, 31 Jul 2023 22:47:04 -0400
+Subject: [PATCH 08/13] Update text_art for BlissBass
+
+---
+ initrd/init | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/initrd/init b/initrd/init
+index 71adb454..4c3d0e6a 100755
+--- a/initrd/init
++++ b/initrd/init
+@@ -16,13 +16,13 @@ PATH=/sbin:/bin:/system/bin:/system/xbin:/vendor/bin:/system_ext/bin:/system/ven
+ text_art()
+ {
+ cat << "EOF"
+-================================================
++==========================================================
+ 
+-  BLISS-BASS   -   KIOSK OS 
++  BLISS-BASS   -   Customizable Android Subsystem for PC
+ 
+-================================================
++==========================================================
+   This product was created using Bliss-Bass	
+-================================================
++==========================================================
+ EOF
+ }
+ 
+-- 
+2.34.1
+

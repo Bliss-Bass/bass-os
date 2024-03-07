@@ -1,19 +1,19 @@
-From 04cfdecd4698651ee6bddd0b38a6cb2014e7ca2f Mon Sep 17 00:00:00 2001
+From cd79c73d462b60c7fd0bc43a0e344a28ec00de9f Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 12:45:33 -0500
-Subject: [PATCH 001/105] init: Use early suspend for taifa elimu-tab
+Subject: [PATCH 01/43] init: Use early suspend for taifa elimu-tab
 
 ---
  init.sh | 3 +++
  1 file changed, 3 insertions(+)
 
 diff --git a/init.sh b/init.sh
-index 3bb4f66..669cd10 100644
+index b99eab8..09edac8 100644
 --- a/init.sh
 +++ b/init.sh
-@@ -412,6 +412,9 @@ function init_hal_power()
+@@ -530,6 +530,9 @@ function init_hal_power()
  		e-tab*Pro)
- 			set_prop_if_empty sleep.state force
+ 			SLEEP_STATE=force
  			;;
 +		*TAIFAElimuTab*)
 +			set_property sleep.earlysuspend 1

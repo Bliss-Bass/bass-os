@@ -1,0 +1,29 @@
+From 2307232d6cf98b228729aa84298b38db0ec91d9a Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Wed, 6 Mar 2024 15:55:13 -0500
+Subject: [PATCH 10/11] Allow using minimal FOSS apps on vanilla builds
+
+---
+ config/common.mk | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/config/common.mk b/config/common.mk
+index fd53ee88..e51a9c90 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -211,6 +211,12 @@ endif
+ ifeq ($(BLISS_BUILD_VARIANT), foss)
+ $(call inherit-product, vendor/foss/foss.mk)
+ endif
++# We also make a minimal FOSS apps variant that only includes Neo-Store
++ifeq ($(BLISS_BUILD_VARIANT), vanilla)
++ifeq ("$(USE_FOSSAPPS)","true")
++$(call inherit-product, vendor/foss/foss.mk)
++endif
++endif
+ 
+ # Go-gapps
+ ifeq ($(BLISS_BUILD_VARIANT), goapps)
+-- 
+2.34.1
+

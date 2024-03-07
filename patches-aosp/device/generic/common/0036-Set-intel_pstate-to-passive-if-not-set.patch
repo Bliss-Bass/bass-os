@@ -1,0 +1,25 @@
+From 949ef7a4322af6bf2ccc0f421f070412d3ca2aa2 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Sat, 3 Feb 2024 16:06:04 -0500
+Subject: [PATCH 36/43] Set intel_pstate to passive if not set
+
+---
+ init.sh | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/init.sh b/init.sh
+index eb3048a..6b92695 100644
+--- a/init.sh
++++ b/init.sh
+@@ -57,6 +57,8 @@ function init_misc()
+ 	# Set cpu scaling at boot (ie set pstate status to active/passive at boot)
+ 	if [ -n "$INTEL_PSTATE_STATUS"  ]; then
+ 		echo $INTEL_PSTATE_STATUS > /sys/devices/system/cpu/intel_pstate/status
++	else
++		echo passive > /sys/devices/system/cpu/intel_pstate/status
+ 	fi
+ 
+ 	# enable sdcardfs if /data is not mounted on tmpfs or 9p
+-- 
+2.34.1
+

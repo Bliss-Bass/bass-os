@@ -1,0 +1,38 @@
+From aab5b82467974c6dfc1b552cad1a877b93e5c8d7 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Fri, 26 Jan 2024 20:13:39 -0500
+Subject: [PATCH 25/43] Add FORCE_DESKTOP_ON_EXTERNAL
+
+---
+ init.sh | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/init.sh b/init.sh
+index 41b6395..bf9e73b 100644
+--- a/init.sh
++++ b/init.sh
+@@ -1053,7 +1053,7 @@ function set_custom_package_perms()
+ 			appops set com.google.android.vending android.permission.FAKE_PACKAGE_SIGNATURE
+ 		fi
+ 	fi
+-	
++
+ }
+ 
+ function set_usb_mode()
+@@ -1250,7 +1250,11 @@ function set_custom_settings()
+ 							settings put secure sysui_qs_tiles "rotation,caffeine,$(settings get secure sysui_qs_tiles)"
+ 							cmd connectivity airplane-mode enable
+ 							;;
+-						
++						FORCE_DESKTOP_ON_EXTERNAL=*)
++							# Enable desktop mode on external display (required for MultiDisplay Input)
++							settings put global force_desktop_mode_on_external_displays "$FORCE_DESKTOP_ON_EXTERNAL"
++							settings put global force_allow_on_external "$FORCE_DESKTOP_ON_EXTERNAL"
++							;;
+                     esac
+                 fi
+                 ;;
+-- 
+2.34.1
+

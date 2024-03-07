@@ -1,7 +1,7 @@
-From 4eab2aad3abb0c12c97078f08534eeea7b7eccbf Mon Sep 17 00:00:00 2001
+From 4f5ce7063b0a0f65580d6da8841b77fc3aaeb430 Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 13:15:07 -0500
-Subject: [PATCH 010/105] bass: update user_app functions
+Subject: [PATCH 10/43] bass: update user_app functions
 
 This adds the following flags:
 - BLISS_VIA_BROWSER

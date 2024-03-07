@@ -1,17 +1,17 @@
-From 4dda0ba28924e9d9f86596593f6d578994d52160 Mon Sep 17 00:00:00 2001
+From 4c422340c368e41e8f0e5648b3f9b0612a9097d4 Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 12:50:49 -0500
-Subject: [PATCH 003/105] init: Add set_custom_package_perms
+Subject: [PATCH 03/43] init: Add set_custom_package_perms
 
 ---
  init.sh | 214 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 214 insertions(+)
 
 diff --git a/init.sh b/init.sh
-index e86ced3..3a9c8b0 100644
+index cce3ee1..5d3dc0c 100644
 --- a/init.sh
 +++ b/init.sh
-@@ -680,6 +680,218 @@ function set_custom_timezone()
+@@ -817,6 +817,218 @@ function set_custom_timezone()
  	
  }
  
@@ -230,8 +230,8 @@ index e86ced3..3a9c8b0 100644
  function do_init()
  {
  	init_misc
-@@ -790,6 +1002,8 @@ function do_bootcomplete()
- 		pm disable org.lineageos.updater
+@@ -908,6 +1120,8 @@ function do_bootcomplete()
+ 		pm disable com.blissos.updater
  	fi
  
 +	set_custom_package_perms

@@ -1,0 +1,23 @@
+From 8db517b549bfb3f98a55e94d6bff64b51638b598 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Thu, 7 Mar 2024 09:37:19 -0500
+Subject: [PATCH 01/11] Update .gitignore for bass additions
+
+---
+ .gitignore | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/.gitignore b/.gitignore
+index 931ce07a..1188a8e0 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,2 +1,5 @@
+ proprietary/*
+ prebuilt/archive
++blissethernet/*
++config/watermark/*
++config/signing/*
+\ No newline at end of file
+-- 
+2.34.1
+

@@ -1,0 +1,70 @@
+From 6ba60d21907082dcd850d01b7c3fce991bf42fc4 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Fri, 23 Feb 2024 09:28:24 -0500
+Subject: [PATCH 29/43] Update sleep state override
+
+Override auto-detected power suspend type
+options: (https://www.kernel.org/doc/Documentation/power/interface.txt)
+'freeze' (Suspend-to-Idle)
+'standby' (Power-On Suspend)
+'mem' (Suspend-to-RAM)
+'disk' (Suspend-to-Disk)
+
+Auto-configure sleep.state based on supported functionality
+
+rework deep sleep detection
+
+Detect deep sleep compatibility differently
+---
+ init.sh | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
+
+diff --git a/init.sh b/init.sh
+index 14da146..20be94e 100644
+--- a/init.sh
++++ b/init.sh
+@@ -531,13 +531,24 @@ function init_hal_power()
+ 			SLEEP_STATE=force
+ 			;;
+ 		*TAIFAElimuTab*)
+-			set_property sleep.earlysuspend 1
++			setprop sleep.earlysuspend 1
+ 			;;
+ 		*)
+ 			;;
+ 	esac
+ 
+-	set_property sleep.state ${SLEEP_STATE}
++	# Detect is deep sleep is supported and auto set sleep.state parameter
++	mem_sleep_default=$(cat /sys/power/mem_sleep)
++	if [[ "$mem_sleep_default" == *deep* ]]; then
++		setprop sleep.state ${SLEEP_STATE:-mem}
++	else
++		setprop sleep.state ${SLEEP_STATE:-s2idle}
++	fi
++
++	current_sleep_state=$(getprop sleep.state)
++	if [ "${current_sleep_state}" = "mem" ]; then
++		echo "deep" > /sys/power/mem_sleep
++	fi
+ }
+ 
+ function init_hal_thermal()
+@@ -1436,8 +1447,12 @@ for c in `cat /proc/cmdline`; do
+ 						set_property ro.sf.lcd_density "$DPI"
+ 						;;
+ 					SUSPEND_TYPE=*)
+-						# set suspend type
+-						# options: mem, disk, freeze mem, freeze disk
++						# Override auto-detected power suspend type
++						# options: (https://www.kernel.org/doc/Documentation/power/interface.txt)
++						# 	'freeze' (Suspend-to-Idle)
++						# 	'standby' (Power-On Suspend)
++						# 	'mem' (Suspend-to-RAM)
++						# 	'disk' (Suspend-to-Disk)
+ 						set_property sleep.state "$SUSPEND_TYPE"
+ 						;;
+ 					PWR_OFF_DBLCLK=*)
+-- 
+2.34.1
+

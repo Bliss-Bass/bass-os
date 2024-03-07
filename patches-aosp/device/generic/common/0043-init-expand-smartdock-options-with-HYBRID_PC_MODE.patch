@@ -1,0 +1,25 @@
+From 2ac49c7e8acc720ca20f49113e6892f52dbfd414 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 4 Mar 2024 17:47:46 -0500
+Subject: [PATCH 43/43] init: expand smartdock options with HYBRID_PC_MODE
+
+---
+ init.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/init.sh b/init.sh
+index 4ef8090..ac3ad64 100644
+--- a/init.sh
++++ b/init.sh
+@@ -1028,7 +1028,7 @@ function set_custom_package_perms()
+ 		settings put system alert_window_bypass_low_ram 1
+ 
+ 		# Only if PC_MODE is 1
+-		if [ $PC_MODE -eq 1 ]; then
++		if [[ $PC_MODE -eq 1 || $HYBRID_PC_MODE -eq 1 ]]; then
+ 			
+ 			if [ ! -f /data/misc/sdconfig/accessibility ] && ! pm list packages | grep -q "com.blissos.setupwizard"; then
+ 				# set accessibility services
+-- 
+2.34.1
+

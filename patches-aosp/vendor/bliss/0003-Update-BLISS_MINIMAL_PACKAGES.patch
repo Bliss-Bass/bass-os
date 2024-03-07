@@ -1,0 +1,61 @@
+From ed1c52239126ed3a53914eb15580f3ab3ee471bb Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Fri, 3 Nov 2023 10:45:04 -0400
+Subject: [PATCH 03/11] Update BLISS_MINIMAL_PACKAGES
+
+---
+ config/bliss_packages.mk | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
+
+diff --git a/config/bliss_packages.mk b/config/bliss_packages.mk
+index 3867e744..fe55e95d 100644
+--- a/config/bliss_packages.mk
++++ b/config/bliss_packages.mk
+@@ -17,12 +17,23 @@ PRODUCT_PACKAGES += \
+     Exchange2
+ endif
+ 
+-# END Minimal added packages
+-endif
++else
++
++ifneq ($(BLISS_MINIMAL_PACKAGES), true)
++PRODUCT_PACKAGES += \
++    SimpleGalleryPro
+ 
+ # Bliss Packages
+ PRODUCT_PACKAGES += \
+     DeskClock \
++    WallpaperPicker2
++
++endif # BLISS_MINIMAL_PACKAGES
++
++endif # BLISS_SUPER_VANILLA
++
++# Bliss Packages
++PRODUCT_PACKAGES += \
+     LatinIME \
+     Recorder \
+     LineageParts \
+@@ -30,7 +41,6 @@ PRODUCT_PACKAGES += \
+     Profiles \
+     BlissUpdater \
+     Seedvault \
+-    WallpaperPicker2 \
+     OmniStyle \
+     GameSpace \
+     OmniJaws
+@@ -92,6 +102,8 @@ PRODUCT_PACKAGES += \
+     VisualizationWallpapers \
+     librs_jni
+ 
+-# Bliss Ethernet Manager
++# Customizations
+ PRODUCT_PACKAGES += \
+-    BlissEthernetManagerApp
++    LineageNavigationBarNoHint \
++    NavigationBarMode2ButtonOverlay \
++    NavigationBarMode3ButtonOverlay
+-- 
+2.34.1
+

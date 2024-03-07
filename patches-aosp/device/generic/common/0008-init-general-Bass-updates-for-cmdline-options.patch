@@ -1,7 +1,7 @@
-From b6bc5596dcc16301ed30dfc4643988e867f008b9 Mon Sep 17 00:00:00 2001
+From 866833b4230cc7a404a943e7107bd7905636b385 Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 13:08:16 -0500
-Subject: [PATCH 008/105] init: general Bass updates for cmdline  options
+Subject: [PATCH 08/43] init: general Bass updates for cmdline  options
 
 This change adds the following options:
 - SET_LOGCAT_DEBUG
@@ -15,10 +15,10 @@ This change adds the following options:
  1 file changed, 40 insertions(+)
 
 diff --git a/init.sh b/init.sh
-index 8db1426..d948879 100644
+index b70e906..c903286 100644
 --- a/init.sh
 +++ b/init.sh
-@@ -1237,9 +1237,22 @@ for c in `cat /proc/cmdline`; do
+@@ -1356,9 +1356,22 @@ for c in `cat /proc/cmdline`; do
  						[ -n "$DEBUG" ] && set_property debug.logcat 1
  						[ "$DEBUG" = "0" ] || SETUPWIZARD=${SETUPWIZARD:-0}
  						;;
@@ -41,7 +41,7 @@ index 8db1426..d948879 100644
  					SET_SF_ROTATION=*)
  						set_property ro.sf.hwrotation "$SET_SF_ROTATION"
  						;;
-@@ -1264,6 +1277,28 @@ for c in `cat /proc/cmdline`; do
+@@ -1383,6 +1396,28 @@ for c in `cat /proc/cmdline`; do
  						# Off: 0  On: 1
  						dumpsys battery set ac "$SET_FAKE_CHARGING_STATUS"
  						;;
@@ -70,7 +70,7 @@ index 8db1426..d948879 100644
  					FORCE_DISABLE_NAVIGATION=*)
  						# Force disable navigation bar
  						# options: true, false
-@@ -1289,6 +1324,11 @@ for c in `cat /proc/cmdline`; do
+@@ -1408,6 +1443,11 @@ for c in `cat /proc/cmdline`; do
  						# options: true, false
  						set_property persist.bliss.disable_recents "$FORCE_DISABLE_RECENTS"
  						;;

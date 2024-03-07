@@ -1,0 +1,25 @@
+From ac5db1b7045575419de851556a836728891cf926 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Tue, 27 Feb 2024 19:43:40 -0500
+Subject: [PATCH 37/43] init: sleep.state defaults to freeze instead of s2idle
+
+---
+ init.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/init.sh b/init.sh
+index 6b92695..2e87a01 100644
+--- a/init.sh
++++ b/init.sh
+@@ -573,7 +573,7 @@ function init_hal_power()
+ 	if [[ "$mem_sleep_default" == *deep* ]]; then
+ 		setprop sleep.state ${SLEEP_STATE:-mem}
+ 	else
+-		setprop sleep.state ${SLEEP_STATE:-s2idle}
++		setprop sleep.state ${SLEEP_STATE:-freeze}
+ 	fi
+ 
+ 	current_sleep_state=$(getprop sleep.state)
+-- 
+2.34.1
+

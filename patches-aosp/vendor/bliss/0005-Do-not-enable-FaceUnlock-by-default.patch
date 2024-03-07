@@ -1,0 +1,25 @@
+From 757f8e92de43897e280dc7015d9cebce093f72af Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 6 Nov 2023 18:35:55 -0500
+Subject: [PATCH 05/11] Do not enable FaceUnlock by default
+
+---
+ config/common.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index cf666e73..b5c26de2 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -153,7 +153,7 @@ PRODUCT_PACKAGES += \
+     StitchImage
+ 
+ # Face Unlock
+-TARGET_FACE_UNLOCK_SUPPORTED ?= true
++# TARGET_FACE_UNLOCK_SUPPORTED ?= true
+ ifeq ($(TARGET_FACE_UNLOCK_SUPPORTED),true)
+ PRODUCT_PACKAGES += \
+     FaceUnlockService
+-- 
+2.34.1
+

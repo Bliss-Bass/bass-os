@@ -1,7 +1,7 @@
-From 29b85db81c3df444c069bf71a9f132cd8c3dd5a0 Mon Sep 17 00:00:00 2001
+From ff5255aa1792e91826f69b359dad43068fcc7a9e Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 13:01:47 -0500
-Subject: [PATCH 006/105] init: Set generic package options
+Subject: [PATCH 06/43] init: Set generic package options
 
 This change allows a generic way to set package options Example: HIDE_APPS="com.android.settings,com.aurora.services,com.termux,com.android.vending" RESTORE_APPS="com.android.settings,com.aurora.services,com.termux,com.android.vending"  Note: Be careful about what apps you disable, enable or hide. Some apps are required for other functions, like org.zeroxlab.util.tscal while others can not be disabled and only hidden, like com.android.settings  init: update generic package opts to take 1 or more packages  init: create arrays a different way for genpackopts  genpackopts: enable app then unhide  genpackopts: only hide and restore apps  Switching to using RESTORE_APPS  genopts: rever some of the last changes to allow pm command through  Only hide/unhide what we need  Do not add newlines to a single entry in the list
 ---
@@ -9,10 +9,10 @@ This change allows a generic way to set package options Example: HIDE_APPS="com.
  1 file changed, 52 insertions(+)
 
 diff --git a/init.sh b/init.sh
-index 0d56c34..ea83077 100644
+index 8708984..b1d8d68 100644
 --- a/init.sh
 +++ b/init.sh
-@@ -990,6 +990,57 @@ function set_max_logd()
+@@ -1127,6 +1127,57 @@ function set_max_logd()
  	
  }
  
@@ -70,7 +70,7 @@ index 0d56c34..ea83077 100644
  
  function do_init()
  {
-@@ -1104,6 +1155,7 @@ function do_bootcomplete()
+@@ -1222,6 +1273,7 @@ function do_bootcomplete()
  	fi
  
  	set_custom_package_perms

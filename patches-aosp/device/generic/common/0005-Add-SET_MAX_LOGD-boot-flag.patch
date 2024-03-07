@@ -1,7 +1,7 @@
-From dd3690e3bad6245e414dd6501784c4fd0f57911c Mon Sep 17 00:00:00 2001
+From a9986de074770d1146d9d38c2e7e31d2dbe4bf83 Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Sat, 16 Dec 2023 12:58:14 -0500
-Subject: [PATCH 005/105] Add SET_MAX_LOGD boot flag
+Subject: [PATCH 05/43] Add SET_MAX_LOGD boot flag
 
 SET_MAX_LOGD=1 will force 8GB logging buffer
 ---
@@ -9,10 +9,10 @@ SET_MAX_LOGD=1 will force 8GB logging buffer
  1 file changed, 35 insertions(+)
 
 diff --git a/init.sh b/init.sh
-index a73ee35..0d56c34 100644
+index 70aa52c..8708984 100644
 --- a/init.sh
 +++ b/init.sh
-@@ -956,6 +956,40 @@ function set_usb_mode()
+@@ -1093,6 +1093,40 @@ function set_usb_mode()
  	done
  }
  
@@ -53,7 +53,7 @@ index a73ee35..0d56c34 100644
  
  function do_init()
  {
-@@ -965,6 +999,7 @@ function do_init()
+@@ -1102,6 +1136,7 @@ function do_init()
  	set_custom_timezone
  	init_hal_audio
  	set_custom_ota

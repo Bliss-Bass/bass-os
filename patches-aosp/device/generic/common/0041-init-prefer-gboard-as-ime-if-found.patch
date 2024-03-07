@@ -1,0 +1,39 @@
+From 05d12e27f992a860f42a733c931b6ade8c142ce8 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 4 Mar 2024 17:45:44 -0500
+Subject: [PATCH 41/43] init: prefer gboard as ime if found
+
+---
+ init.sh | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/init.sh b/init.sh
+index 2e87a01..9bb15cb 100644
+--- a/init.sh
++++ b/init.sh
+@@ -886,6 +886,22 @@ function set_custom_package_perms()
+ 		settings put global force_desktop_mode_on_external_displays 1
+ 	fi
+ 
++	# GBoard 
++	exists_gboard=$(pm list packages com.google.android.inputmethod.latin | grep -c com.google.android.inputmethod.latin)
++	if [ $exists_gboard -eq 1 ]; then
++		if [ ! -f /data/misc/gboard/default ]; then
++			# set default input method
++			ime enable com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME
++			ime set com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME
++			# Set config marker
++			mkdir -p /data/misc/gboard
++			touch /data/misc/gboard/default
++			chown 1000.1000 /data/misc/gboard /data/misc/gboard/*
++			chmod 775 /data/misc/gboard
++			chmod 664 /data/misc/gboard/default
++		fi
++	fi
++
+ 	# BlissRestrictedLauncher
+ 	exists_restlauncher=$(pm list packages com.bliss.restrictedlauncher | grep -c com.bliss.restrictedlauncher)
+ 	if [ $exists_restlauncher -eq 1 ]; then
+-- 
+2.34.1
+
