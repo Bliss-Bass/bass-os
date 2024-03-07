@@ -1,0 +1,46 @@
+From f07a1f46135fb290d37c5f1ea7052782ba175997 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Wed, 6 Mar 2024 19:09:55 -0500
+Subject: [PATCH 2/2] inputflinger: Move to letting us override win key with a
+ property
+
+This requires a commit in frameworks/base to be removed: 5bc2c3d520e958493c9b4d5624457403267c9689
+
+We can use ro.boot.force.win_as_home=1 or androidboot.force.win_as_home=1 to trigger the legacy behavior of Win hey being HOME action
+---
+ services/inputflinger/dispatcher/InputDispatcher.cpp | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/services/inputflinger/dispatcher/InputDispatcher.cpp b/services/inputflinger/dispatcher/InputDispatcher.cpp
+index 93bae30d10..b533d700c9 100644
+--- a/services/inputflinger/dispatcher/InputDispatcher.cpp
++++ b/services/inputflinger/dispatcher/InputDispatcher.cpp
+@@ -62,6 +62,7 @@ static constexpr bool DEBUG_TOUCH_OCCLUSION = true;
+ #include <powermanager/PowerManager.h>
+ #include <unistd.h>
+ #include <utils/Trace.h>
++#include <cutils/properties.h>
+ 
+ #include <cerrno>
+ #include <cinttypes>
+@@ -3760,12 +3761,17 @@ void InputDispatcher::notifyConfigurationChanged(const NotifyConfigurationChange
+  */
+ void InputDispatcher::accelerateMetaShortcuts(const int32_t deviceId, const int32_t action,
+                                               int32_t& keyCode, int32_t& metaState) {
++    // Allow overriding win key with home key
++    char mWinAsHome[PROPERTY_VALUE_MAX] = {0};
++    property_get("ro.boot.force.win_as_home", mWinAsHome, "0");
+     if (metaState & AMETA_META_ON && action == AKEY_EVENT_ACTION_DOWN) {
+         int32_t newKeyCode = AKEYCODE_UNKNOWN;
+         if (keyCode == AKEYCODE_DEL) {
+             newKeyCode = AKEYCODE_BACK;
+         } else if (keyCode == AKEYCODE_ENTER) {
+             newKeyCode = AKEYCODE_HOME;
++        } else if (strcmp(mWinAsHome, "1") == 0) {
++            newKeyCode = AKEYCODE_HOME;
+         }
+         if (newKeyCode != AKEYCODE_UNKNOWN) {
+             std::scoped_lock _l(mLock);
+-- 
+2.34.1
+
