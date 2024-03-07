@@ -4,6 +4,7 @@
   <remote name="sghub" fetch="ssh://git@github.com/" />
   <remote name="bb-gl" fetch="ssh://git@gitlab.com/Bliss-Bass/" />
   <remote name="sglab" fetch="ssh://git@gitlab.com/" />
+  <remote name="hglab" fetch="https://gitlab.com/" />
 
   <!-- Public Projects -->
   <remove-project name="platform_packages_apps_SetupWizard" />
@@ -16,7 +17,7 @@
   <remove-project name="android_external_libxml2" />
   <project path="external/libxml2" name="platform_external_libxml2" remote="bb" revision="bass-12.1" />
   <remove-project name="android-generic/vendor_prebuilts_agp-apps" />
-  <project name="Bliss-Bass/public_vendor_prebuilts_agp-apps" path="vendor/agp-apps" remote="sglab" revision="bass-12.1" />
+  <project name="Bliss-Bass/public_vendor_prebuilts_agp-apps" path="vendor/agp-apps" remote="hglab" revision="bass-12.1" />
 
   <!-- Android-Generic -->
   <remove-project name="kerNel_common" />
