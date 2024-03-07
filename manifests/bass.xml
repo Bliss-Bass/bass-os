@@ -3,9 +3,10 @@
   <remote name="bb" fetch="ssh://git@github.com/Bliss-Bass/" />
   <remote name="sghub" fetch="ssh://git@github.com/" />
   <remote name="bb-gl" fetch="ssh://git@gitlab.com/Bliss-Bass/" />
+  <remote name="sglab" fetch="ssh://git@gitlab.com/" />
 
   <!-- Public Projects -->
-  <!-- <remove-project name="platform_packages_apps_SetupWizard" /> -->
+  <remove-project name="platform_packages_apps_SetupWizard" />
   <project path="packages/apps/SetupWizard" name="platform_packages_apps_SetupWizard" remote="bb" revision="bass-12.1" />
   <project path="packages/apps/Seedvault" name="LineageOS/android_packages_apps_Seedvault" remote="ghub" revision="lineage-19.1" />
 
@@ -14,11 +15,12 @@
   <project path="external/blissethernet" name="platform_external_blissethernet" remote="bb" revision="arcadia-x86" />
   <remove-project name="android_external_libxml2" />
   <project path="external/libxml2" name="platform_external_libxml2" remote="bb" revision="bass-12.1" />
-  <project name="public_vendor_prebuilts_agp-apps" path="vendor/agp-apps" remote="bb-gl" revision="master" />
+  <remove-project name="android-generic/vendor_prebuilts_agp-apps" />
+  <project name="Bliss-Bass/public_vendor_prebuilts_agp-apps" path="vendor/agp-apps" remote="sglab" revision="bass-12.1" />
 
   <!-- Android-Generic -->
-  <remove-project name="kernel_common" />
-  <project path="kernel" name="kernel_common" remote="bb" sync-s="true" revision="gloria-20240227-fw" />
+  <remove-project name="kerNel_common" />
+  <project path="kernel" name="Bliss-Bass/kernel_common" remote="sghub" sync-s="true" revision="gloria-20240227-fw" />
 
   <!-- LineageOS -->
   <remove-project name="android_frameworks_opt_colorpicker" />
