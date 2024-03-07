@@ -16,126 +16,6 @@ Bass OS does have a number of options, features, applications, etc. that can be 
 
 Bass OS is an open-source initiative maintained by Bliss Co-Labs. It is provided "as is" without any warranties or guarantees.
 
-## Booting into lockdown/admin builds
-
-### Restricted Launcher & POS Builds
-
-**!!WARNING!! - THESE BUILDS ARE MEANT TO REPLACE YOUR EXISTING OPERATING SYSTEM OR BE INSTALLED ON NEW HARDWARE. THESE ARE NOT INTENDED FOR DUAL-BOOTING**
-
-**!!Notice!!**: These builds come with A/B OTA Update support, and might not work in Live mode. Only supported installer is the Bootable USB install method we include in the .iso.
-
-### Bootable USB Install
-
-We will need to use the bootable USB install method. Similar to this guide: 
-https://docs.blissos.org/installation/install-from-bootable-usb/#install-efi-from-bootable-usb 
-
-#### Install Steps:
-
- 1) We will want to start by booting into the installer by selecting the top Install option
-
- 2) From here we will want to change the drive partition scheme to be A) EFI (VFAT) B) Android (ext4). This means that we need to delete all partitions except for the top EFI partition, and create a single new partition with the remaining space. Select Write when complete, then Quit. The end result should look like the image below.
-
- 3) We can now select the 2nd partition (ext4) to install the OS on. Once selected, it will prompt to select a filesystem type. Select EXT4 and confirm that we do want to reformat
-
- 4) It will then reformat the drive, then it will ask if we want to install Grub EFI. Select Yes. 
-
- 5) If you have a previous install, you will also get a prompt asking if you want to replace the Grub EFI boot entry. Select Yes as well. 
-
- 6) The installer will/ then write the system to the drive, and afterwards, it will setup the install for A/B updates
-
- 7) Once that is complete, the installer will give you a choice to Run or Reboot. We want to select Reboot here, making sure to remove the USB drive after the device reboots. 
-
-
-#### Booting into the OS
-
-(**!!NOTICE FOR BUILDS THAT HIDE GRUB!!**) When the device reboots, it will not show the grub menu by default, and automatically boot into the last known boot mode. In order to show the grub menu, tap shift multiple times while the initial BIOS boot logo is displayed. If done correctly, you will be presented with the Grub menu. If no keys are pressed, the bios boot menu will show a black screen afterwards while Grub is loading the configuration in the background.
-
-(**!!PLEASE NOTE!!**): Only Admin mode will have access to the Android notification stack, navigation options, status bar, etc. In some builds, lockdown mode removes all these functions at the system level for redundancy and added security.
-The options used to configure those restrictions can be overridden with the following options:
-
- - Navigation: 
-	Disables the system navigation gestures
-    options: true, false
-    
-    ```FORCE_DISABLE_NAVIGATION=*```
-
- - Navigation Gesture Handle:
-	Disables the gestural navigation handle
-    options: true, false
-    
-    ```FORCE_DISABLE_NAV_HANDLE=*```
-
- - Navigation Taskbar (only on large-screen devices):
-    Disables SystemUI Taskbar (not Launcher3)
-    options: true, false
-    
-    ```FORCE_DISABLE_NAV_TASKBAR=*```
-
- - Statusbar:
-	Disabled the statusbar at the top of the screen (does not disable Launcher3s gesture to show notification drawer)
-    options: true, false
-    
-    ```FORCE_DISABLE_STATUSBAR=*```
-
-###Restricted Launcher Setup
-
-(**!!NOTICE FOR INITIAL SETUP!!**) We recommend disconnecting all but the primary display when starting up the OS. Once setup is complete, you can connect any displays and continue testing and operation.
-
-Once the device boots into Grub, the top option or two will be our locked down mode (**Intel Default** or **AMD Default**)
-
-While the Admin modes can be found in the **Other Options** section of the boot menu. 
-
-The **Restricted Launcher & POS builds** will initially require setup through Admin mode. So after install, you will want to reboot, the tap the shift key until the Grub menu shows. From there, select **Other Options** > and select one of the Admin options from there. 
-
-Once booted, you should setup the devices wifi/network. Afterwards, you will want to tap on the Sprocket icon at the top right, and navigate to the Security tab, and tap on **Change Password**. 
-
-After setting the admin password, we can select the default features we want available in Lockdown mode, and navigate back to the Restricted Launcher page, and configure your Appearance, Apps and System options. 
-
-**Appearance**: Allows you to set the default positions/placement of the on-screen logo overlay and settings button overlay
-
-**Apps**: Allows you to set your whitelisted apps up, you can also set what whitelisted apps you want to auto-launch per-display. 
-
-**System**: Allows you to change options for default screen timeout and on-screen keyboard display
-
-Once setup is complete, we can then back out and test our lockdown settings by hitting the Lock icon at the top right of the home screen, or reboot the device, and select the **Intel Default** or **AMD Default** boot modes to enter Lockdown mode. 
-
-## Booting into Tablet/PC/IOT/IIOT/Game Mode builds
-
-**!!WARNING!! - THESE BUILDS ARE MEANT TO REPLACE YOUR EXISTING OPERATING SYSTEM OR BE INSTALLED ON NEW HARDWARE. THESE ARE NOT INTENDED FOR DUAL-BOOTING**
-
-**!!Notice!!**: These builds come with A/B OTA Update support, and will not work in Live mode, and will not install properly if using anything except the Bootable USB install method we include in the .iso.
-
-### Bootable USB Install
-
-We will need to use the bootable USB install method. Similar to this guide: 
-https://docs.blissos.org/installation/install-from-bootable-usb/#install-efi-from-bootable-usb 
-
-#### Install Steps:
-
- 1) We will want to start by booting into the installer by selecting the top Install option
-
- 2) From here we will want to change the drive partition scheme to be A) EFI (VFAT) B) Android (ext4). This means that we need to delete all partitions except for the top EFI partition, and create a single new partition with the remaining space. Select Write when complete, then Quit. The end result should look like the image below.
-
- 3) We can now select the 2nd partition (ext4) to install the OS on. Once selected, it will prompt to select a filesystem type. Select EXT4 and confirm that we do want to reformat
-
- 4) It will then reformat the drive, then it will ask if we want to install Grub EFI. Select Yes. 
-
- 5) If you have a previous install, you will also get a prompt asking if you want to replace the Grub EFI boot entry. Select Yes as well. 
-
- 6) The installer will/ then write the system to the drive, and afterwards, it will setup the install for A/B updates
-
- 7) Once that is complete, the installer will give you a choice to Run or Reboot. We want to select Reboot here, making sure to remove the USB drive after the device reboots. 
-
-
-#### Booting into the OS
-
-(**!!NOTICE FOR BUILDS THAT HIDE GRUB!!**) When the device reboots, it will not show the grub menu by default, and automatically boot into the last known boot mode. In order to show the grub menu, tap shift multiple times while the initial BIOS boot logo is displayed. If done correctly, you will be presented with the Grub menu. If no keys are pressed, the bios boot menu will show a black screen afterwards while Grub is loading the configuration in the background.
-
-Once the device boots into Grub, the top option or two will be our default mode (**Intel Default** or **AMD Default**) boot options.
-
-While the Debugging modes can be found in the **Other Options** section of the boot menu. 
-
-
 ## Building from sources
 
 Before building, ensure your system has at least 32GB of RAM, a swap file is at least 8GB, and 500GB-700GB of free disk space available.
@@ -153,7 +33,7 @@ sudo apt-get install git-core gnupg flex bison gperf build-essential zip curl zl
 
 - Install additional packages
 ```bash
-sudo apt-get install -y swig libssl-dev device-tree-compiler mtools libncurses5 libgmp-dev libmpc-dev cpio rsync dosfstools kmod gdisk lz4 cmake libglib2.0-dev git-lfs
+sudo apt-get install -y swig device-tree-compiler mtools libgmp-dev libmpc-dev cpio rsync dosfstools kmod gdisk lz4 cmake libglib2.0-dev
 ```
 
 <br/>
@@ -306,3 +186,123 @@ Below are a few combinations of the various command options put together in the 
 
 - Depending on your hardware and internet connection, downloading and building may take 8h or more.  
 - After the successful build, find the fastboot images at `iso/` under the folder name based on your build name generated by the build system.
+ 
+## Booting into lockdown/admin builds
+
+### Restricted Launcher & POS Builds
+
+**!!WARNING!! - THESE BUILDS ARE MEANT TO REPLACE YOUR EXISTING OPERATING SYSTEM OR BE INSTALLED ON NEW HARDWARE. THESE ARE NOT INTENDED FOR DUAL-BOOTING**
+
+**!!Notice!!**: These builds come with A/B OTA Update support, and might not work in Live mode. Only supported installer is the Bootable USB install method we include in the .iso.
+
+### Bootable USB Install
+
+We will need to use the bootable USB install method. Similar to this guide: 
+https://docs.blissos.org/installation/install-from-bootable-usb/#install-efi-from-bootable-usb 
+
+#### Install Steps:
+
+ 1) We will want to start by booting into the installer by selecting the top Install option
+
+ 2) From here we will want to change the drive partition scheme to be A) EFI (VFAT) B) Android (ext4). This means that we need to delete all partitions except for the top EFI partition, and create a single new partition with the remaining space. Select Write when complete, then Quit. The end result should look like the image below.
+
+ 3) We can now select the 2nd partition (ext4) to install the OS on. Once selected, it will prompt to select a filesystem type. Select EXT4 and confirm that we do want to reformat
+
+ 4) It will then reformat the drive, then it will ask if we want to install Grub EFI. Select Yes. 
+
+ 5) If you have a previous install, you will also get a prompt asking if you want to replace the Grub EFI boot entry. Select Yes as well. 
+
+ 6) The installer will/ then write the system to the drive, and afterwards, it will setup the install for A/B updates
+
+ 7) Once that is complete, the installer will give you a choice to Run or Reboot. We want to select Reboot here, making sure to remove the USB drive after the device reboots. 
+
+
+#### Booting into the OS
+
+(**!!NOTICE FOR BUILDS THAT HIDE GRUB!!**) When the device reboots, it will not show the grub menu by default, and automatically boot into the last known boot mode. In order to show the grub menu, tap shift multiple times while the initial BIOS boot logo is displayed. If done correctly, you will be presented with the Grub menu. If no keys are pressed, the bios boot menu will show a black screen afterwards while Grub is loading the configuration in the background.
+
+(**!!PLEASE NOTE!!**): Only Admin mode will have access to the Android notification stack, navigation options, status bar, etc. In some builds, lockdown mode removes all these functions at the system level for redundancy and added security.
+The options used to configure those restrictions can be overridden with the following options:
+
+ - Navigation: 
+	Disables the system navigation gestures
+    options: true, false
+    
+    ```FORCE_DISABLE_NAVIGATION=*```
+
+ - Navigation Gesture Handle:
+	Disables the gestural navigation handle
+    options: true, false
+    
+    ```FORCE_DISABLE_NAV_HANDLE=*```
+
+ - Navigation Taskbar (only on large-screen devices):
+    Disables SystemUI Taskbar (not Launcher3)
+    options: true, false
+    
+    ```FORCE_DISABLE_NAV_TASKBAR=*```
+
+ - Statusbar:
+	Disabled the statusbar at the top of the screen (does not disable Launcher3s gesture to show notification drawer)
+    options: true, false
+    
+    ```FORCE_DISABLE_STATUSBAR=*```
+
+###Restricted Launcher Setup
+
+(**!!NOTICE FOR INITIAL SETUP!!**) We recommend disconnecting all but the primary display when starting up the OS. Once setup is complete, you can connect any displays and continue testing and operation.
+
+Once the device boots into Grub, the top option or two will be our locked down mode (**Intel Default** or **AMD Default**)
+
+While the Admin modes can be found in the **Other Options** section of the boot menu. 
+
+The **Restricted Launcher & POS builds** will initially require setup through Admin mode. So after install, you will want to reboot, the tap the shift key until the Grub menu shows. From there, select **Other Options** > and select one of the Admin options from there. 
+
+Once booted, you should setup the devices wifi/network. Afterwards, you will want to tap on the Sprocket icon at the top right, and navigate to the Security tab, and tap on **Change Password**. 
+
+After setting the admin password, we can select the default features we want available in Lockdown mode, and navigate back to the Restricted Launcher page, and configure your Appearance, Apps and System options. 
+
+**Appearance**: Allows you to set the default positions/placement of the on-screen logo overlay and settings button overlay
+
+**Apps**: Allows you to set your whitelisted apps up, you can also set what whitelisted apps you want to auto-launch per-display. 
+
+**System**: Allows you to change options for default screen timeout and on-screen keyboard display
+
+Once setup is complete, we can then back out and test our lockdown settings by hitting the Lock icon at the top right of the home screen, or reboot the device, and select the **Intel Default** or **AMD Default** boot modes to enter Lockdown mode. 
+
+## Booting into Tablet/PC/IOT/IIOT/Game Mode builds
+
+**!!WARNING!! - THESE BUILDS ARE MEANT TO REPLACE YOUR EXISTING OPERATING SYSTEM OR BE INSTALLED ON NEW HARDWARE. THESE ARE NOT INTENDED FOR DUAL-BOOTING**
+
+**!!Notice!!**: These builds come with A/B OTA Update support, and will not work in Live mode, and will not install properly if using anything except the Bootable USB install method we include in the .iso.
+
+### Bootable USB Install
+
+We will need to use the bootable USB install method. Similar to this guide: 
+https://docs.blissos.org/installation/install-from-bootable-usb/#install-efi-from-bootable-usb 
+
+#### Install Steps:
+
+ 1) We will want to start by booting into the installer by selecting the top Install option
+
+ 2) From here we will want to change the drive partition scheme to be A) EFI (VFAT) B) Android (ext4). This means that we need to delete all partitions except for the top EFI partition, and create a single new partition with the remaining space. Select Write when complete, then Quit. The end result should look like the image below.
+
+ 3) We can now select the 2nd partition (ext4) to install the OS on. Once selected, it will prompt to select a filesystem type. Select EXT4 and confirm that we do want to reformat
+
+ 4) It will then reformat the drive, then it will ask if we want to install Grub EFI. Select Yes. 
+
+ 5) If you have a previous install, you will also get a prompt asking if you want to replace the Grub EFI boot entry. Select Yes as well. 
+
+ 6) The installer will/ then write the system to the drive, and afterwards, it will setup the install for A/B updates
+
+ 7) Once that is complete, the installer will give you a choice to Run or Reboot. We want to select Reboot here, making sure to remove the USB drive after the device reboots. 
+
+
+#### Booting into the OS
+
+(**!!NOTICE FOR BUILDS THAT HIDE GRUB!!**) When the device reboots, it will not show the grub menu by default, and automatically boot into the last known boot mode. In order to show the grub menu, tap shift multiple times while the initial BIOS boot logo is displayed. If done correctly, you will be presented with the Grub menu. If no keys are pressed, the bios boot menu will show a black screen afterwards while Grub is loading the configuration in the background.
+
+Once the device boots into Grub, the top option or two will be our default mode (**Intel Default** or **AMD Default**) boot options.
+
+While the Debugging modes can be found in the **Other Options** section of the boot menu. 
+
