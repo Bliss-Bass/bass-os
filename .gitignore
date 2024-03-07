@@ -4,6 +4,7 @@ aosptree/**
 !aosptree/vendor/bass/**
 aosptree/vendor/bass/branding
 aosptree/vendor/bass/addons
+manifests/private.xml
 
 scratchpad/
 
