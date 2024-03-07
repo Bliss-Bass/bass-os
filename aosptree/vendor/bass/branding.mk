@@ -19,6 +19,10 @@ TARGET_SCREEN_HEIGHT ?= 800
 PRODUCT_PACKAGES += \
     bootanimation.zip
 
+# packages we like
+PRODUCT_PACKAGES += \
+    nano
+
 ifeq ($(USE_PER_DISPLAY_FOCUS),true)
 
 PRODUCT_PACKAGES += \
