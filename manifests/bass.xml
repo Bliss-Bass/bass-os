@@ -12,7 +12,7 @@
 
   <!-- Co-Labs Projects -->
   <project path="packages/apps/BlissPowerManager" name="platform_packages_apps_BlissPowerManager" remote="bb" revision="arcadia-x86" />
-  <project path="external/blissethernet" name="platform_external_blissethernet" remote="bb" revision="arcadia-x86" />
+  <!-- <project path="external/blissethernet" name="platform_external_blissethernet" remote="bb" revision="arcadia-x86" /> -->
   <remove-project name="android_external_libxml2" />
   <project path="external/libxml2" name="platform_external_libxml2" remote="bb" revision="bass-12.1" />
   <remove-project name="android-generic/vendor_prebuilts_agp-apps" />
