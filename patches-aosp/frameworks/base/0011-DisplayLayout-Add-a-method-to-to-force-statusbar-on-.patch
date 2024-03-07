@@ -1,0 +1,38 @@
+From a42b848ebcfdd4e7d963573d565970170be0f02c Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Fri, 26 Jan 2024 13:15:47 -0500
+Subject: [PATCH 11/16] DisplayLayout: Add a method to to force statusbar on
+ secondary displays
+
+Allow a system property to override this for desktop mode navigation to work on secondary displays.
+
+ro.boot.force.statusbar_on_secondary_displays
+---
+ .../com/android/wm/shell/common/DisplayLayout.java    | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java b/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java
+index 7c55c56be92c..d10063a3003b 100644
+--- a/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java
++++ b/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java
+@@ -518,7 +518,16 @@ public class DisplayLayout {
+     }
+ 
+     static boolean hasStatusBar(int displayId) {
+-        return displayId == Display.DEFAULT_DISPLAY;
++        if (displayId == Display.DEFAULT_DISPLAY) {
++            return displayId == Display.DEFAULT_DISPLAY;
++        } else {
++            // Allow a system property to override this for desktop mode navigation to work on secondary displays.
++            final String statusBarOnSecondaryDisplaysOverride = SystemProperties.get("ro.boot.force.statusbar_on_secondary_displays");
++            if ("1".equals(statusBarOnSecondaryDisplaysOverride)) {
++                return true;
++            }
++            return false;
++        }
+     }
+ 
+     /** Retrieve navigation bar position from resources based on rotation and size. */
+-- 
+2.34.1
+

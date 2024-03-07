@@ -1,0 +1,45 @@
+From 86972b2d2e8f01ada7106997bc9f79bb018bbed8 Mon Sep 17 00:00:00 2001
+From: Arthur Hung <arthurhung@google.com>
+Date: Tue, 31 May 2022 07:43:44 +0000
+Subject: [PATCH 04/16] Fix drag and drop and resize freeform window broken on
+ secondary display
+
+Set the input surface's parent to the display overlay so it could set
+the corresponding layer stack.
+
+Test: enabled simulate display and freeform, move or resize the window,
+Test: drag and drop content on second display
+Bug: 234405646
+Change-Id: I6720a077dededc13d674ba1f80ce9b6b5169f613
+---
+ services/core/java/com/android/server/wm/DragState.java          | 1 +
+ .../java/com/android/server/wm/TaskPositioningController.java    | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/services/core/java/com/android/server/wm/DragState.java b/services/core/java/com/android/server/wm/DragState.java
+index 4fc123d3f68a..1b3c60e68d13 100644
+--- a/services/core/java/com/android/server/wm/DragState.java
++++ b/services/core/java/com/android/server/wm/DragState.java
+@@ -165,6 +165,7 @@ class DragState {
+                     .setContainerLayer()
+                     .setName("Drag and Drop Input Consumer")
+                     .setCallsite("DragState.showInputSurface")
++                    .setParent(mDisplayContent.getOverlayLayer())
+                     .build();
+         }
+         final InputWindowHandle h = getInputWindowHandle();
+diff --git a/services/core/java/com/android/server/wm/TaskPositioningController.java b/services/core/java/com/android/server/wm/TaskPositioningController.java
+index 525420e045b5..abc5a1ee1ff6 100644
+--- a/services/core/java/com/android/server/wm/TaskPositioningController.java
++++ b/services/core/java/com/android/server/wm/TaskPositioningController.java
+@@ -88,6 +88,7 @@ class TaskPositioningController {
+                     .setContainerLayer()
+                     .setName("Drag and Drop Input Consumer")
+                     .setCallsite("TaskPositioningController.showInputSurface")
++                    .setParent(dc.getOverlayLayer())
+                     .build();
+         }
+ 
+-- 
+2.34.1
+

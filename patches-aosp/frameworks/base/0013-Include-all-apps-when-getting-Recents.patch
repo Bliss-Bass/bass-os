@@ -1,0 +1,42 @@
+From 8a000fd6ecae40f18c45cd6d34ddbadbfb4f345b Mon Sep 17 00:00:00 2001
+From: Adam Bookatz <bookatz@google.com>
+Date: Thu, 27 Jan 2022 11:03:30 -0800
+Subject: [PATCH 13/16] Include all apps when getting Recents
+
+The current RecentTasks fetches the recents app (based on
+config_recentsComponentName). However, it does so for user 0. In some
+cases, the recents app might not be installed in user 0 (even though it
+is installed in other users). We need to fetch it even in that case, so
+that recents can work on those other users. (Otherwise, the attempting
+app will not only not do recents, it'll probably crash.)
+
+Bug: 216636343
+Test: manual confirmation on a headless user 0 device where launcher is
+uninstalled on user 0
+
+Change-Id: Ib2b536e997d58f8fb34c75e92a1cdd843b4b04fa
+---
+ services/core/java/com/android/server/wm/RecentTasks.java | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/services/core/java/com/android/server/wm/RecentTasks.java b/services/core/java/com/android/server/wm/RecentTasks.java
+index 1a3d621794d3..212ec978739a 100644
+--- a/services/core/java/com/android/server/wm/RecentTasks.java
++++ b/services/core/java/com/android/server/wm/RecentTasks.java
+@@ -381,8 +381,11 @@ class RecentTasks {
+         final ComponentName cn = ComponentName.unflattenFromString(rawRecentsComponent);
+         if (cn != null) {
+             try {
+-                final ApplicationInfo appInfo = AppGlobals.getPackageManager()
+-                        .getApplicationInfo(cn.getPackageName(), 0, mService.mContext.getUserId());
++                final ApplicationInfo appInfo = AppGlobals.getPackageManager().getApplicationInfo(
++                        cn.getPackageName(),
++                        PackageManager.MATCH_UNINSTALLED_PACKAGES
++                                | PackageManager.MATCH_DISABLED_COMPONENTS,
++                        mService.mContext.getUserId());
+                 if (appInfo != null) {
+                     mRecentsUid = appInfo.uid;
+                     mRecentsComponent = cn;
+-- 
+2.34.1
+

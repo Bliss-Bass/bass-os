@@ -1,0 +1,37 @@
+From 24d28753e08cf0ca45279464d71b0e160619460e Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Sat, 20 Jan 2024 14:43:24 -0500
+Subject: [PATCH 09/16] Allow forcing rotation on external display
+
+Check if the property ro.boot.android.force_rotation_on_external_displays is set and use that for external displays
+0=0
+1=90
+2=180
+3-270
+---
+ .../android/server/display/DisplayManagerService.java    | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/services/core/java/com/android/server/display/DisplayManagerService.java b/services/core/java/com/android/server/display/DisplayManagerService.java
+index b394d6b49d65..bc65dead408a 100644
+--- a/services/core/java/com/android/server/display/DisplayManagerService.java
++++ b/services/core/java/com/android/server/display/DisplayManagerService.java
+@@ -1530,6 +1530,15 @@ public final class DisplayManagerService extends SystemService {
+         // Configure each display device.
+         mLogicalDisplayMapper.forEachLocked((LogicalDisplay display) -> {
+             final DisplayDevice device = display.getPrimaryDisplayDeviceLocked();
++
++            // Check if the property ro.boot.android.force_rotation_on_external_displays is set and use that for external displays
++            String forceRotationOnExternalDisplays = SystemProperties.get("ro.boot.android.force_rotation_on_external_displays","0");
++            if (device.getDisplayDeviceInfoLocked().type==Display.TYPE_EXTERNAL) {
++                if (forceRotationOnExternalDisplays != "0") {
++                    device.getDisplayDeviceInfoLocked().rotation=Integer.valueOf(forceRotationOnExternalDisplays);
++                }
++            }
++            
+             if (device != null) {
+                 configureDisplayLocked(t, device);
+                 device.performTraversalLocked(t);
+-- 
+2.34.1
+

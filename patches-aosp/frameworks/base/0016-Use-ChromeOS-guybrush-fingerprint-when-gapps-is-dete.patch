@@ -1,0 +1,55 @@
+From 0da67beb4988c9ddf07cc6200bcc043ab4109c6a Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 4 Mar 2024 15:09:45 -0500
+Subject: [PATCH 16/16] Use ChromeOS guybrush fingerprint when gapps is
+ detected
+
+This is not for SafetyNet, but so that Google Play Store reports the device as a valid x86_64 device
+---
+ .../internal/util/bliss/PixelPropsUtils.java  | 24 +++++++++----------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/core/java/com/android/internal/util/bliss/PixelPropsUtils.java b/core/java/com/android/internal/util/bliss/PixelPropsUtils.java
+index be1848205889..f0444a56a1d9 100644
+--- a/core/java/com/android/internal/util/bliss/PixelPropsUtils.java
++++ b/core/java/com/android/internal/util/bliss/PixelPropsUtils.java
+@@ -158,24 +158,24 @@ public class PixelPropsUtils {
+         propsToChangePixel6 = new HashMap<>();
+         propsToChangePixel6.put("BRAND", "google");
+         propsToChangePixel6.put("MANUFACTURER", "Google");
+-        propsToChangePixel6.put("DEVICE", "raven");
+-        propsToChangePixel6.put("PRODUCT", "raven");
+-        propsToChangePixel6.put("MODEL", "Pixel 6 Pro");
+-        propsToChangePixel6.put("FINGERPRINT", "google/raven/raven:12/SQ3A.220705.004/8836240:user/release-keys");
++        propsToChangePixel6.put("DEVICE", "guybrush_cheets");
++        propsToChangePixel6.put("PRODUCT", "guybrush");
++        propsToChangePixel6.put("MODEL", "guybrush");
++        propsToChangePixel6.put("FINGERPRINT", "google/guybrush/guybrush_cheets:11/R119-15633.69.0/11189745:user/release-keys");
+         propsToChangePixel5 = new HashMap<>();
+         propsToChangePixel5.put("BRAND", "google");
+         propsToChangePixel5.put("MANUFACTURER", "Google");
+-        propsToChangePixel5.put("DEVICE", "redfin");
+-        propsToChangePixel5.put("PRODUCT", "redfin");
+-        propsToChangePixel5.put("MODEL", "Pixel 5");
+-        propsToChangePixel5.put("FINGERPRINT", "google/redfin/redfin:12/SQ3A.220705.003.A1/8672226:user/release-keys");
++        propsToChangePixel5.put("DEVICE", "guybrush_cheets");
++        propsToChangePixel5.put("PRODUCT", "guybrush");
++        propsToChangePixel5.put("MODEL", "guybrush");
++        propsToChangePixel5.put("FINGERPRINT", "google/guybrush/guybrush_cheets:11/R119-15633.69.0/11189745:user/release-keys");
+         propsToChangePixelXL = new HashMap<>();
+         propsToChangePixelXL.put("BRAND", "google");
+         propsToChangePixelXL.put("MANUFACTURER", "Google");
+-        propsToChangePixelXL.put("DEVICE", "marlin");
+-        propsToChangePixelXL.put("PRODUCT", "marlin");
+-        propsToChangePixelXL.put("MODEL", "Pixel XL");
+-        propsToChangePixelXL.put("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
++        propsToChangePixelXL.put("DEVICE", "guybrush_cheets");
++        propsToChangePixelXL.put("PRODUCT", "guybrush");
++        propsToChangePixelXL.put("MODEL", "guybrush");
++        propsToChangePixelXL.put("FINGERPRINT", "google/guybrush/guybrush_cheets:11/R119-15633.69.0/11189745:user/release-keys");
+         propsToChangeROG1 = new HashMap<>();
+         propsToChangeROG1.put("MODEL", "ASUS_Z01QD");
+         propsToChangeROG1.put("MANUFACTURER", "asus");
+-- 
+2.34.1
+

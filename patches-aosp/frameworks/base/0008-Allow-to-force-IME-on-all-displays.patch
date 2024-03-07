@@ -1,0 +1,40 @@
+From 2605cf9046dc8de5f9b5985e845c93eaebb671ab Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Fri, 19 Jan 2024 13:37:10 -0500
+Subject: [PATCH 08/16] Allow to force IME on all displays
+
+Uses "ro.boot.bliss.force_ime_on_all_displays" property (true,false)
+
+or pass it through Grub with androidboot.bliss.force_ime_on_all_displays=true
+---
+ .../java/com/android/server/wm/DisplayWindowSettings.java  | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/services/core/java/com/android/server/wm/DisplayWindowSettings.java b/services/core/java/com/android/server/wm/DisplayWindowSettings.java
+index f4331f74e069..119b647eb7e5 100644
+--- a/services/core/java/com/android/server/wm/DisplayWindowSettings.java
++++ b/services/core/java/com/android/server/wm/DisplayWindowSettings.java
+@@ -28,6 +28,7 @@ import static com.android.server.wm.DisplayContent.FORCE_SCALING_MODE_DISABLED;
+ import android.annotation.NonNull;
+ import android.annotation.Nullable;
+ import android.app.WindowConfiguration;
++import android.os.SystemProperties;
+ import android.provider.Settings;
+ import android.view.Display;
+ import android.view.DisplayInfo;
+@@ -236,7 +237,11 @@ class DisplayWindowSettings {
+             // Default display should show IME.
+             return DISPLAY_IME_POLICY_LOCAL;
+         }
+-
++        // Check if the property ro.boot.bliss.force_ime_on_all_displays is true
++        boolean forceIMEOnAllDisplays = SystemProperties.getBoolean("ro.boot.bliss.force_ime_on_all_displays", false);
++        if (forceIMEOnAllDisplays) {
++            return DISPLAY_IME_POLICY_LOCAL;
++        }
+         final DisplayInfo displayInfo = dc.getDisplayInfo();
+         final SettingsProvider.SettingsEntry settings = mSettingsProvider.getSettings(displayInfo);
+         return settings.mImePolicy != null ? settings.mImePolicy
+-- 
+2.34.1
+

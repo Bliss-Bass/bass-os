@@ -1,0 +1,53 @@
+From 55fe01f17867f2dc26dfa7c82071721ef3ee87e0 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Sat, 27 Jan 2024 10:14:05 -0500
+Subject: [PATCH 10/16] DisplayLayout: Add a method to force navbar on
+ secondary displays
+
+Allow a system property to override this for desktop mode navigation to work on secondary displays.
+
+ro.boot.force.navbar_on_secondary_displays
+
+fix conditional for secondary display navbar
+---
+ .../wm/shell/common/DisplayLayout.java        | 24 ++++++++++++-------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java b/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java
+index 6d7b1b2e6dde..7c55c56be92c 100644
+--- a/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java
++++ b/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java
+@@ -499,15 +499,21 @@ public class DisplayLayout {
+             }
+             return context.getResources().getBoolean(R.bool.config_showNavigationBar);
+         } else {
+-            boolean isUntrustedVirtualDisplay = info.type == Display.TYPE_VIRTUAL
+-                    && info.ownerUid != SYSTEM_UID;
+-            final ContentResolver resolver = context.getContentResolver();
+-            boolean forceDesktopOnExternal = Settings.Global.getInt(resolver,
+-                    DEVELOPMENT_FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS, 0) != 0;
+-
+-            return ((info.flags & FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS) != 0
+-                    || (forceDesktopOnExternal && !isUntrustedVirtualDisplay));
+-            // TODO(b/142569966): make sure VR2D and DisplayWindowSettings are moved here somehow.
++            // Allow a system property to override this for desktop mode navigation to work on secondary displays.
++            final String navBarOnSecondaryDisplaysOverride = SystemProperties.get("ro.boot.force.navbar_on_secondary_displays");
++            if ("1".equals(navBarOnSecondaryDisplaysOverride)) {
++                return true;
++            } else {
++                boolean isUntrustedVirtualDisplay = info.type == Display.TYPE_VIRTUAL
++                        && info.ownerUid != SYSTEM_UID;
++                final ContentResolver resolver = context.getContentResolver();
++                boolean forceDesktopOnExternal = Settings.Global.getInt(resolver,
++                        DEVELOPMENT_FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS, 0) != 0;
++
++                return ((info.flags & FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS) != 0
++                        || (forceDesktopOnExternal && !isUntrustedVirtualDisplay));
++                // TODO(b/142569966): make sure VR2D and DisplayWindowSettings are moved here somehow.
++            }
+         }
+     }
+ 
+-- 
+2.34.1
+

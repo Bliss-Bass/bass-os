@@ -1,0 +1,53 @@
+From fc250f221160892b9c2cd0cac0cff532e6754803 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Tue, 16 Jan 2024 15:05:43 -0500
+Subject: [PATCH 07/16] DisplayWindowSettings: Only use freeform if conditions
+ are met
+
+Check for two features that override windowing mode:
+android.software.freeform_window_management & android.hardware.type.pc
+
+if both are present, and forceDesktop mode is set or it is an external display, then use freeform windowing mode else use fullscreen windowing mode
+
+This lets us control it using PC_MODE cmdline override
+---
+ .../android/server/wm/DisplayWindowSettings.java | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/services/core/java/com/android/server/wm/DisplayWindowSettings.java b/services/core/java/com/android/server/wm/DisplayWindowSettings.java
+index e530ad34a27b..f4331f74e069 100644
+--- a/services/core/java/com/android/server/wm/DisplayWindowSettings.java
++++ b/services/core/java/com/android/server/wm/DisplayWindowSettings.java
+@@ -37,6 +37,7 @@ import android.view.WindowManager.DisplayImePolicy;
+ 
+ import com.android.server.policy.WindowManagerPolicy;
+ import com.android.server.wm.DisplayContent.ForceScalingMode;
++import com.android.server.wm.DisplayWindowSettings.SettingsProvider.SettingsEntry;
+ 
+ import java.util.Objects;
+ 
+@@ -131,10 +132,17 @@ class DisplayWindowSettings {
+         }
+         // No record is present so use default windowing mode policy.
+         if (windowingMode == WindowConfiguration.WINDOWING_MODE_UNDEFINED) {
+-            windowingMode = mService.mAtmService.mSupportsFreeformWindowManagement
+-                    && (mService.mIsPc || dc.getDisplayId() != Display.DEFAULT_DISPLAY)
+-                    ? WindowConfiguration.WINDOWING_MODE_FREEFORM
+-                    : WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
++            // check for two features that override windowing mode: 
++            // android.software.freeform_window_management & android.hardware.type.pc
++            // if both are present, then use freeform windowing mode
++            // else use fullscreen windowing mode
++            if ((mService.mAtmService.mSupportsFreeformWindowManagement
++                    && mService.mIsPc) && (dc.forceDesktopMode() ||
++                    dc.getDisplayId() != Display.DEFAULT_DISPLAY)) {
++                windowingMode = WindowConfiguration.WINDOWING_MODE_FREEFORM;
++            } else {
++                windowingMode = WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
++            }
+         }
+         return windowingMode;
+     }
+-- 
+2.34.1
+

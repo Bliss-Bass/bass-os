@@ -1,0 +1,34 @@
+From 1e95e96d3fa475d05e4e49131101f511b1e90f51 Mon Sep 17 00:00:00 2001
+From: Govinda Wasserman <gwasserman@google.com>
+Date: Wed, 15 Dec 2021 15:44:15 -0500
+Subject: [PATCH 03/16] Fix PhoneStateMonitor crash
+
+Fixes an issue where PhoneStateMonitor could crash if the task stack
+changed and the new running task had a null top activity.
+
+Test: Tested locally
+BUG: 204516470
+FIX: 204516470
+Change-Id: I8880b6ed508d7985b709e43cd624aa0a20414d0c
+---
+ .../src/com/android/systemui/assist/PhoneStateMonitor.java    | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/assist/PhoneStateMonitor.java b/packages/SystemUI/src/com/android/systemui/assist/PhoneStateMonitor.java
+index f13730e602a0..3f5c2c8f45d5 100644
+--- a/packages/SystemUI/src/com/android/systemui/assist/PhoneStateMonitor.java
++++ b/packages/SystemUI/src/com/android/systemui/assist/PhoneStateMonitor.java
+@@ -171,8 +171,8 @@ public final class PhoneStateMonitor {
+         return mStatusBarStateController.isDozing();
+     }
+ 
+-    private boolean isLauncherShowing(ActivityManager.RunningTaskInfo runningTaskInfo) {
+-        if (runningTaskInfo == null) {
++    private boolean isLauncherShowing(@Nullable ActivityManager.RunningTaskInfo runningTaskInfo) {
++        if (runningTaskInfo == null || runningTaskInfo.topActivity == null) {
+             return false;
+         } else {
+             return runningTaskInfo.topActivity.equals(mDefaultHome);
+-- 
+2.34.1
+

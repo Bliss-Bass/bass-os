@@ -1,0 +1,30 @@
+From 937b250c892eb7ecfaac133faa0782302c88f7f8 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Sat, 24 Feb 2024 12:01:59 -0500
+Subject: [PATCH 15/16] Revert "Make "windows" key to act as "home" key"
+
+This reverts commit 5bc2c3d520e958493c9b4d5624457403267c9689.
+
+This will be reworked to be based on a property we can control from frameworks/native instead
+---
+ data/keyboards/Generic.kl | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/data/keyboards/Generic.kl b/data/keyboards/Generic.kl
+index 08434fb07beb..d6c38348f284 100644
+--- a/data/keyboards/Generic.kl
++++ b/data/keyboards/Generic.kl
+@@ -144,8 +144,8 @@ key 121   NUMPAD_COMMA
+ key 122   KANA
+ key 123   EISU
+ key 124   YEN
+-key 125   HOME
+-key 126   HOME
++key 125   META_LEFT
++key 126   META_RIGHT
+ key 127   MENU
+ key 128   MEDIA_STOP
+ # key 129 "KEY_AGAIN"
+-- 
+2.34.1
+

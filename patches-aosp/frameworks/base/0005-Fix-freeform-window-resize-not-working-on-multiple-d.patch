@@ -1,0 +1,43 @@
+From 0a06dce556b0d835355bcb5f4d47228b84b05254 Mon Sep 17 00:00:00 2001
+From: nift4 <nift4@protonmail.com>
+Date: Sun, 28 Aug 2022 19:19:32 +0200
+Subject: [PATCH 05/16] Fix freeform window resize not working on multiple
+ displays
+
+mInputSurface is never getting recreated, so it still has old display as
+parent. Delete it when finishing resize to fix freeform window resize on
+multiple displays.
+
+Steps to reproduce:
+1. Attach secondary display
+2. Open freeform window on secondary display
+3. Resize freeform window on secondary display
+4. Open freeform window on primary display
+5. Resize freeform window on primary display
+6. See "window not found" error in log and resize not working
+
+Test: Reproduce steps resize both windows successfully.
+Change-Id: I10bdf890cb7615cc6d26cd72b75b817a7edcd492
+---
+ .../com/android/server/wm/TaskPositioningController.java     | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/services/core/java/com/android/server/wm/TaskPositioningController.java b/services/core/java/com/android/server/wm/TaskPositioningController.java
+index abc5a1ee1ff6..69f5a3cf7eb3 100644
+--- a/services/core/java/com/android/server/wm/TaskPositioningController.java
++++ b/services/core/java/com/android/server/wm/TaskPositioningController.java
+@@ -215,6 +215,11 @@ class TaskPositioningController {
+             synchronized (mService.mGlobalLock) {
+                 cleanUpTaskPositioner();
+                 mPositioningDisplay = null;
++                // Clear the internal variables.
++                if (mInputSurface != null) {
++                    mTransaction.remove(mInputSurface).apply();
++                    mInputSurface = null;
++                }
+             }
+         });
+     }
+-- 
+2.34.1
+

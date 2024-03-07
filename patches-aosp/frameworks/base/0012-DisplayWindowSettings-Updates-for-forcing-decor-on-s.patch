@@ -1,0 +1,33 @@
+From 79999e8851fea7ae8f4f74905a8698532a4611a5 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Sat, 27 Jan 2024 10:32:48 -0500
+Subject: [PATCH 12/16] DisplayWindowSettings: Updates for forcing decor on
+ secondary displays
+
+---
+ .../com/android/server/wm/DisplayWindowSettings.java     | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/services/core/java/com/android/server/wm/DisplayWindowSettings.java b/services/core/java/com/android/server/wm/DisplayWindowSettings.java
+index 119b647eb7e5..faed54a652fa 100644
+--- a/services/core/java/com/android/server/wm/DisplayWindowSettings.java
++++ b/services/core/java/com/android/server/wm/DisplayWindowSettings.java
+@@ -217,6 +217,15 @@ class DisplayWindowSettings {
+         if (dc.getDisplayId() == Display.DEFAULT_DISPLAY) {
+             // Default display should show system decors.
+             return true;
++        } else {
++            final String statusBarOnSecondaryDisplaysOverride = SystemProperties.get("ro.boot.force.statusbar_on_secondary_displays");
++            if ("1".equals(statusBarOnSecondaryDisplaysOverride)) {
++                return true;
++            }
++            final String navBarOnSecondaryDisplaysOverride = SystemProperties.get("ro.boot.force.navbar_on_secondary_displays");
++            if ("1".equals(navBarOnSecondaryDisplaysOverride)) {
++                return true;
++            }
+         }
+ 
+         final DisplayInfo displayInfo = dc.getDisplayInfo();
+-- 
+2.34.1
+
