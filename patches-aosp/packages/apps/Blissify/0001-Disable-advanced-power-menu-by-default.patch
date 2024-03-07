@@ -1,0 +1,25 @@
+From b517cb54523c03208a87687b85fb60ee7e2e597e Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Fri, 9 Jun 2023 21:39:25 -0400
+Subject: [PATCH 1/4] Disable advanced power menu by default
+
+---
+ res/xml/blissify_power_menu.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/res/xml/blissify_power_menu.xml b/res/xml/blissify_power_menu.xml
+index 019b0126..4f3f23bf 100644
+--- a/res/xml/blissify_power_menu.xml
++++ b/res/xml/blissify_power_menu.xml
+@@ -38,7 +38,7 @@
+         <com.bliss.support.preferences.SystemSettingSwitchPreference
+             android:key="powermenu_advanced"
+             android:title="@string/powermenu_advanced"
+-            android:defaultValue="true" />
++            android:defaultValue="false" />
+ 
+         <com.bliss.support.preferences.SystemSettingSwitchPreference
+             android:key="powermenu_screenshot"
+-- 
+2.34.1
+

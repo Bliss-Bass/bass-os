@@ -1,0 +1,28 @@
+From d737ad133dedbb75e57dc906f6e7e3ff17b858ef Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 30 Oct 2023 23:16:03 -0400
+Subject: [PATCH] TouchInteractionService: allow to disable recents
+
+Change-Id: I084c39d1cc1b532e1423d1bf1ec08b75fe31503f
+---
+ .../src/com/android/quickstep/TouchInteractionService.java    | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/quickstep/src/com/android/quickstep/TouchInteractionService.java b/quickstep/src/com/android/quickstep/TouchInteractionService.java
+index af8fec23fb..e8dd965a83 100644
+--- a/quickstep/src/com/android/quickstep/TouchInteractionService.java
++++ b/quickstep/src/com/android/quickstep/TouchInteractionService.java
+@@ -891,7 +891,9 @@ public class TouchInteractionService extends Service
+             return;
+         }
+ 
+-        if (RestoreDbTask.isPending(this) || !mDeviceState.isUserSetupComplete()) {
++        boolean disableRecents = SystemProperties.getBoolean("persist.bliss.disable_recents", false);
++
++        if (RestoreDbTask.isPending(this) || !mDeviceState.isUserSetupComplete() || disableRecents) {
+             // Preloading while a restore is pending may cause launcher to start the restore
+             // too early.
+             return;
+-- 
+2.34.1
+

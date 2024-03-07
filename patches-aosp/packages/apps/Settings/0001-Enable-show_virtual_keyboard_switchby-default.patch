@@ -1,0 +1,25 @@
+From 1d39e760e892563949c5119d814c77562c2d353c Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Fri, 9 Jun 2023 08:21:35 -0400
+Subject: [PATCH] Enable show_virtual_keyboard_switchby default
+
+---
+ res/xml/physical_keyboard_settings.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/res/xml/physical_keyboard_settings.xml b/res/xml/physical_keyboard_settings.xml
+index 96946a9030..a0b0761c67 100644
+--- a/res/xml/physical_keyboard_settings.xml
++++ b/res/xml/physical_keyboard_settings.xml
+@@ -25,7 +25,7 @@
+             android:key="show_virtual_keyboard_switch"
+             android:title="@string/show_ime"
+             android:summary="@string/show_ime_summary"
+-            android:defaultValue="false" />
++            android:defaultValue="true" />
+ 
+         <Preference
+             android:key="keyboard_shortcuts_helper"
+-- 
+2.34.1
+

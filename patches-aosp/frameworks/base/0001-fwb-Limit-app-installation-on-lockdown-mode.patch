@@ -1,0 +1,36 @@
+From 7afb28eb871c1761b712aef0f71b6ab0bc32a738 Mon Sep 17 00:00:00 2001
+From: Erfan Abdi <erfangplus@gmail.com>
+Date: Sun, 20 Feb 2022 10:02:50 +0100
+Subject: [PATCH] fwb: Limit app installation on lockdown mode
+
+Change-Id: I2b8a791a25d47b127f54b48df4a07d8a5ec94a7c
+---
+ .../android/packageinstaller/PackageInstallerActivity.java   | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/packages/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java b/packages/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java
+index 9c6113ce4b47..d73a75b03d2f 100644
+--- a/packages/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java
++++ b/packages/PackageInstaller/src/com/android/packageinstaller/PackageInstallerActivity.java
+@@ -44,6 +44,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
+ import android.net.Uri;
+ import android.os.Bundle;
+ import android.os.Process;
++import android.os.SystemProperties;
+ import android.os.UserManager;
+ import android.provider.Settings;
+ import android.util.Log;
+@@ -446,6 +447,10 @@ public class PackageInstallerActivity extends AlertActivity {
+      * show the appropriate dialog.
+      */
+     private void checkIfAllowedAndInitiateInstall() {
++        if (SystemProperties.get("ro.boot.bliss.bootmode").equals("lockdown")) {
++            showDialogInner(DLG_UNKNOWN_SOURCES_RESTRICTED_FOR_USER);
++            return;
++        }
+         // Check for install apps user restriction first.
+         final int installAppsRestrictionSource = mUserManager.getUserRestrictionSource(
+                 UserManager.DISALLOW_INSTALL_APPS, Process.myUserHandle());
+-- 
+2.29.2
+
