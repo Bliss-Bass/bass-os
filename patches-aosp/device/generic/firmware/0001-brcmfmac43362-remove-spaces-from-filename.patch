@@ -1,0 +1,17 @@
+From 0ef74553995d8aec40561facafb48209df235749 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Thu, 7 Mar 2024 16:05:00 -0500
+Subject: [PATCH] brcmfmac43362: remove spaces from filename
+
+---
+ ...6C.txt => brcmfmac43362-sdio.ASUSTeK_COMPUTER_INC.-ME176C.txt} | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ rename brcm/{brcmfmac43362-sdio.ASUSTeK COMPUTER INC.-ME176C.txt => brcmfmac43362-sdio.ASUSTeK_COMPUTER_INC.-ME176C.txt} (100%)
+
+diff --git a/brcm/brcmfmac43362-sdio.ASUSTeK COMPUTER INC.-ME176C.txt b/brcm/brcmfmac43362-sdio.ASUSTeK_COMPUTER_INC.-ME176C.txt
+similarity index 100%
+rename from brcm/brcmfmac43362-sdio.ASUSTeK COMPUTER INC.-ME176C.txt
+rename to brcm/brcmfmac43362-sdio.ASUSTeK_COMPUTER_INC.-ME176C.txt
+-- 
+2.34.1
+
