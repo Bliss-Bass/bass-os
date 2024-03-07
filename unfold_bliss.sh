@@ -38,9 +38,9 @@ rm default.xml
 cp ${LOCAL_PATH}/manifests/bliss-static.xml bliss.xml
 cp ${LOCAL_PATH}/manifests/bass.xml bass.xml
 cp ${LOCAL_PATH}/manifests/default_bliss.xml default.xml
-if [ -f ${LOCAL_PATH}/manifests/private.xml ]; then
+if [ -f ${LOCAL_PATH}/manifests/private*.xml ]; then
     mkdir -p ../local_manifests
-    cp ${LOCAL_PATH}/manifests/private.xml ../local_manifests/private.xml
+    cp ${LOCAL_PATH}/manifests/private*.xml ../local_manifests/
 fi
 git add *
 git commit --no-edit -m "Add Bass OS Project"
