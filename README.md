@@ -153,7 +153,7 @@ sudo apt-get install git-core gnupg flex bison gperf build-essential zip curl zl
 
 - Install additional packages
 ```bash
-sudo apt-get install -y swig libssl-dev flex bison device-tree-compiler mtools git gettext libncurses5 libgmp-dev libmpc-dev cpio rsync dosfstools kmod gdisk lz4 meson cmake libglib2.0-dev git-lfs
+sudo apt-get install -y swig libssl-dev device-tree-compiler mtools libncurses5 libgmp-dev libmpc-dev cpio rsync dosfstools kmod gdisk lz4 cmake libglib2.0-dev git-lfs
 ```
 
 <br/>
