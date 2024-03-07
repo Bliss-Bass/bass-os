@@ -1,0 +1,28 @@
+From 43a7c2705c7c8d3c3b40922ee3b4d703098d18bf Mon Sep 17 00:00:00 2001
+From: "Wang, ArvinX" <arvinx.wang@intel.com>
+Date: Sat, 27 Jan 2024 11:04:36 -0500
+Subject: [PATCH 084/105] Configurate the multi-window and split screen
+
+1. Enable activity on secondary display
+2. Enable supports split screen multi-window
+---
+ overlay/frameworks/base/core/res/res/values/config.xml | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/overlay/frameworks/base/core/res/res/values/config.xml b/overlay/frameworks/base/core/res/res/values/config.xml
+index 35a9133..e93ab72 100644
+--- a/overlay/frameworks/base/core/res/res/values/config.xml
++++ b/overlay/frameworks/base/core/res/res/values/config.xml
+@@ -241,4 +241,9 @@
+          rotations as the default behavior. -->
+     <bool name="config_allowAllRotations">true</bool>
+ 
++    <!-- Required to enable activity on secondary display -->
++    <bool name="config_supportsMultiWindow">true</bool>
++    <!-- Required to support split screen multiwindow -->
++    <bool name="config_supportsSplitScreenMultiWindow">true</bool>
++
+ </resources>
+-- 
+2.34.1
+

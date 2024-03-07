@@ -1,0 +1,53 @@
+From fddb8800c3074404806d65278aa25c1c439dcaa4 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 4 Mar 2024 17:46:30 -0500
+Subject: [PATCH 104/105] init: add tv and titanius launcher actions
+
+---
+ init.sh | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
+
+diff --git a/init.sh b/init.sh
+index 41dbfdd..8c5c23b 100644
+--- a/init.sh
++++ b/init.sh
+@@ -959,20 +959,34 @@ function set_custom_package_perms()
+ 		am start -a android.intent.action.MAIN -c android.intent.category.HOME
+ 	fi
+ 
+-	# Game-Mode Launcher
++	# Molla Launcher
+ 	exists_molla=$(pm list packages com.sinu.molla | grep -c com.sinu.molla)
+ 	if [ $exists_molla -eq 1 ]; then
+ 		pm set-home-activity "com.sinu.molla/.MainActivity"
+ 		am start -a android.intent.action.MAIN -c android.intent.category.HOME
+ 	fi
+ 
+-	# Game-Mode Launcher
++	# CrossLauncher
+ 	exists_cross=$(pm list packages id.psw.vshlauncher | grep -c id.psw.vshlauncher)
+ 	if [ $exists_cross -eq 1 ]; then
+ 		pm set-home-activity "id.psw.vshlauncher/.activities.Xmb"
+ 		am start -a android.intent.action.MAIN -c android.intent.category.HOME
+ 	fi
+ 
++	# TV-Mode Launcher
++	exists_tvl=$(pm list packages nl.ndat.tvlauncher | grep -c nl.ndat.tvlauncher)
++	if [ $exists_tvl -eq 1 ]; then
++		pm set-home-activity "nl.ndat.tvlauncher/.MainActivity"
++		am start -a android.intent.action.MAIN -c android.intent.category.HOME
++	fi
++
++	# Titanius Launcher
++	exists_titanius=$(pm list packages app.titanius.launcher | grep -c app.titanius.launcher)
++	if [ $exists_titanius -eq 1 ]; then
++		pm set-home-activity "app.titanius.launcher/.MainActivity"
++		am start -a android.intent.action.MAIN -c android.intent.category.HOME
++	fi
++
+ 	# Garlic-Launcher
+ 	exists_garliclauncher=$(pm list packages com.sagiadinos.garlic.launcher | grep -c com.sagiadinos.garlic.launcher)
+ 	if [ $exists_garliclauncher -eq 1 ]; then
+-- 
+2.34.1
+

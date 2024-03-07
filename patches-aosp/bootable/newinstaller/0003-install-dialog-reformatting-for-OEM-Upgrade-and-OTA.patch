@@ -1,0 +1,26 @@
+From 3e5be48516ad2f9a295045572d3de0e6db03a3bc Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Sat, 16 Dec 2023 11:37:54 -0500
+Subject: [PATCH 03/19] install: dialog reformatting for OEM Upgrade and OTA
+
+Change-Id: Id2d7a1e7729a14723211de4a1f9d7bae7bacca4a
+---
+ install/scripts/1-install | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/install/scripts/1-install b/install/scripts/1-install
+index 63cb42f9..143088b5 100644
+--- a/install/scripts/1-install
++++ b/install/scripts/1-install
+@@ -955,6 +955,8 @@ if you already have a boot solution in place."
+ 		for f in *; do
+ 			[ -d $f ] || chmod 644 $f
+ 		done
++		
++		dialog --infobox "\n Preparing install for OTA updates..." 5 42
+ 
+ 		if [ "$skip_ota_prepare" -eq 0 ]; then
+ 			dialog --backtitle "$BACK_TITLE" --infobox "\n Preparing install for OTA updates..." 6 41
+-- 
+2.34.1
+

@@ -1,0 +1,197 @@
+From 5dd37300aeeb87ee12217d7dd4c68c98f306f4b2 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Fri, 13 Oct 2023 15:04:46 -0400
+Subject: [PATCH 04/19] Move install options to the top
+
+---
+ boot/isolinux/isolinux.cfg         | 100 +++++++++++++++++++----------
+ install/grub2/efi/boot/android.cfg |  31 +++++----
+ 2 files changed, 80 insertions(+), 51 deletions(-)
+
+diff --git a/boot/isolinux/isolinux.cfg b/boot/isolinux/isolinux.cfg
+index 34279b5d..4a124391 100644
+--- a/boot/isolinux/isolinux.cfg
++++ b/boot/isolinux/isolinux.cfg
+@@ -11,26 +11,83 @@ menu color unsel 0 #ffffffff #00000000
+ menu color hotsel 0 #ffffff00 #ff000000
+ menu color hotkey 7 #ffffff00 #00000000
+ 
++label install
++	menu label ^Installation - Install OS_TITLE to harddisk
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE INSTALL=1 DEBUG= noexec=off
++
++
++menu separator
++
++menu begin oem
++menu label ^OEM Install options...
++menu title OEM Install options
++
++label oem_install
++	menu label OEM_^Installation - OEM Install to specified harddisk
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE OEM_INSTALL=0 DEBUG= noexec=off
++
++label force_oem_install
++	menu label Force_OEM_^Installation MBR- Force OEM Install to detected harddisk
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE OEM_INSTALL=mbr DEBUG= noexec=off
++
++label force_oem_install_mbr
++	menu label Force_OEM_^Installation EFI - Force OEM Install to detected harddisk
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE OEM_INSTALL=efi DEBUG= noexec=off
++
++label force_oem_install_efi
++	menu label Force_OEM_^Installation - Force OEM Install to detected harddisk
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE OEM_INSTALL=force DEBUG= noexec=off
++
++label oem_update
++	menu label OEM_^Update - OEM update OS_TITLE
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE OEM_INSTALL=update DEBUG= noexec=off
++
++menu end
++
++add_entry "$live PC-Mode (Intel)" quiet PC_MODE=1 HWC=drm_minigbm_celadon GRALLOC=minigbm
++add_entry "$live PC-Mode (Intel) w/ FFMPEG" quiet PC_MODE=1 HWC=drm_minigbm_celadon GRALLOC=minigbm FFMPEG_CODEC=1 FFMPEG_PREFER_C2=1
++
+ label livem
+-	menu label Live CD - ^Run OS_TITLE without installation
++	menu label default - ^Run OS_TITLE with default options
+ 	kernel /kernel
+ 	append initrd=/initrd.img CMDLINE quiet SRC= DATA=
+ 
++label livem_def_ff
++	menu label default - ^(Default) w/ FFMPEG
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE quiet FFMPEG_CODEC=1 FFMPEG_PREFER_C2=1 SRC= DATA=
++
++label livem_int_ff
++	menu label default - ^(Intel) w/ FFMPEG
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE quiet HWC=drm_minigbm_celadon GRALLOC=minigbm FFMPEG_CODEC=1 FFMPEG_PREFER_C2=1 SRC= DATA=
++
++label livem_def_pc
++	menu label PC-Mode - ^(Default)
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE quiet PC_MODE=1 SRC= DATA=
++
++label livem
++	menu label PC-Mode - ^(Default) w/ FFMPEG
++	kernel /kernel
++	append initrd=/initrd.img CMDLINE quiet PC_MODE=1 FFMPEG_CODEC=1 FFMPEG_PREFER_C2=1 SRC= DATA=
++
+ label live_intel
+-	menu label PC-Mode (Intel)
++	menu label PC-Mode - ^(Intel)
+ 	kernel /kernel
+ 	append initrd=/initrd.img CMDLINE quiet SRC= DATA= HWC=drm_minigbm_celadon GRALLOC=minigbm
+ 
+ label live_pc_intel
+-	menu label PC-Mode (Intel) w/ FFMPEG
++	menu label PC-Mode - ^(Intel) w/ FFMPEG
+ 	kernel /kernel
+ 	append initrd=/initrd.img CMDLINE quiet SRC= DATA= HWC=drm_minigbm_celadon GRALLOC=minigbm FFMPEG_CODEC=1 FFMPEG_PREFER_C2=1
+ 
+-label install
+-	menu label ^Installation - Install OS_TITLE to harddisk
+-	kernel /kernel
+-	append initrd=/initrd.img CMDLINE INSTALL=1 DEBUG= noexec=off
+-
+ menu separator
+ 
+ menu begin adv_options
+@@ -111,33 +168,6 @@ label vesa
+ 
+ menu separator
+ 
+-label oem_install
+-	menu label OEM_^Installation - OEM Install to specified harddisk
+-	kernel /kernel
+-	append initrd=/initrd.img CMDLINE OEM_INSTALL=0 DEBUG= noexec=off
+-
+-label force_oem_install
+-	menu label Force_OEM_^Installation MBR- Force OEM Install to detected harddisk
+-	kernel /kernel
+-	append initrd=/initrd.img CMDLINE OEM_INSTALL=mbr DEBUG= noexec=off
+-
+-label force_oem_install_mbr
+-	menu label Force_OEM_^Installation EFI - Force OEM Install to detected harddisk
+-	kernel /kernel
+-	append initrd=/initrd.img CMDLINE OEM_INSTALL=efi DEBUG= noexec=off
+-
+-label force_oem_install_efi
+-	menu label Force_OEM_^Installation - Force OEM Install to detected harddisk
+-	kernel /kernel
+-	append initrd=/initrd.img CMDLINE OEM_INSTALL=force DEBUG= noexec=off
+-
+-label oem_update
+-	menu label OEM_^Update - OEM update OS_TITLE
+-	kernel /kernel
+-	append initrd=/initrd.img CMDLINE OEM_INSTALL=update DEBUG= noexec=off
+-
+-menu separator
+-
+ label local
+ 	menu label Boot from ^local drive
+ 	kernel chain.c32
+diff --git a/install/grub2/efi/boot/android.cfg b/install/grub2/efi/boot/android.cfg
+index 1d519d88..75c1118c 100755
+--- a/install/grub2/efi/boot/android.cfg
++++ b/install/grub2/efi/boot/android.cfg
+@@ -94,16 +94,26 @@ search --no-floppy --set android -f $kdir/kernel
+ export android bootefi grub kdir live src
+ 
+ # Create main menu
+-add_entry "$live" quiet
++if [ -s ($android)$kdir/install.img ]; then
++	add_entry "Installation" INSTALL=1
++fi
++
++if [ -s ($android)$kdir/install.img ]; then
++	submenu "OEM Install -> " --class forward {
++		add_entry "OEM Install to specified harddisk" OEM_INSTALL=0
++		add_entry "Force OEM Install to detected harddisk" OEM_INSTALL=force
++		add_entry "Force MBR OEM Install to detected harddisk" OEM_INSTALL=mbr
++		add_entry "Force EFI OEM Install to detected harddisk" OEM_INSTALL=efi
++		add_entry "OEM Update" OEM_INSTALL=update
++	}
++fi
++
++add_entry "$live (Default)" quiet
+ add_entry "$live (Default) w/ FFMPEG" quiet FFMPEG_CODEC=1 FFMPEG_PREFER_C2=1
+ add_entry "$live PC-Mode (Default)" quiet PC_MODE=1
+ add_entry "$live PC-Mode (Default) w/ FFMPEG" quiet PC_MODE=1 FFMPEG_CODEC=1 FFMPEG_PREFER_C2=1
+ #WINDOWS_ENTRY
+ 
+-if [ -s ($android)$kdir/install.img ]; then
+-	add_entry "Installation" INSTALL=1
+-fi
+-
+ submenu "VM Options -> " --class forward {
+ 	add_entry "$live - QEMU/KVM - Virgl - SW-FFMPEG" quiet HWC=drm_minigbm GRALLOC=minigbm_arcvm
+ 	add_entry "$live - Vbox/VMWare - No HW Acceleration" quiet nomodeset HWACCEL=0
+@@ -134,17 +144,6 @@ submenu "Advanced options -> " --class forward {
+ 	menuentry "UEFI firmware settings" --class setup { fwsetup }
+ }
+ 
+-if [ -s ($android)$kdir/install.img ]; then
+-	submenu "OEM Install -> " --class forward {
+-		add_entry "OEM Install to specified harddisk" OEM_INSTALL=0
+-		add_entry "Force OEM Install to detected harddisk" OEM_INSTALL=force
+-		add_entry "Force MBR OEM Install to detected harddisk" OEM_INSTALL=mbr
+-		add_entry "Force EFI OEM Install to detected harddisk" OEM_INSTALL=efi
+-		add_entry "OEM Update" OEM_INSTALL=update
+-	}
+-fi
+-
+-
+ # Add other OSes boot loaders if exist
+ add_os_if_exists /EFI/fedora/${grub}.efi Fedora fedora
+ add_os_if_exists /EFI/centos/${grub}.efi CentOS centos
+-- 
+2.34.1
+

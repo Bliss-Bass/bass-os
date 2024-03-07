@@ -1,0 +1,40 @@
+From 17c7cb4fac78b03841853b9ee8d929b8b2cc89d6 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 4 Mar 2024 17:44:48 -0500
+Subject: [PATCH 102/105] init.rc: split ro.boot.bliss.animation.scale property
+ into 2 options
+
+- ro.boot.bliss.animation.duration.scale
+- ro.boot.bliss.window.animation.scale
+---
+ init.x86.rc | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/init.x86.rc b/init.x86.rc
+index c7c5bf6..b90b33c 100644
+--- a/init.x86.rc
++++ b/init.x86.rc
+@@ -92,11 +92,15 @@ on boot
+     chown system system /system/vendor/etc/thermal-daemon/thermal-conf.xml
+     restorecon_recursive /sys/class/powercap
+ 
+-on property:sys.boot_completed=1 && property:ro.boot.bliss.animation.scale=*
+-    exec u:r:init:s0 -- /system/bin/settings put global animator_duration_scale ${ro.boot.bliss.animation.scale}
+-    exec u:r:init:s0 -- /system/bin/settings put global window_animation_scale ${ro.boot.bliss.animation.scale}
+-    exec u:r:init:s0 -- /system/bin/settings put global window_transition_scale ${ro.boot.bliss.animation.scale}
+-    exec u:r:init:s0 -- /system/bin/settings put global transition_animation_scale ${ro.boot.bliss.animation.scale}
++# Animation duration scale (0.0 - 1.0)
++on property:sys.boot_completed=1 && property:ro.boot.bliss.animation.duration.scale=*
++    exec u:r:init:s0 -- /system/bin/settings put global animator_duration_scale ${ro.boot.bliss.animation.duration.scale}
++
++# Window specific animations scale (0.0 - 1.0)
++on property:sys.boot_completed=1 && property:ro.boot.bliss.window.animation.scale=*
++    exec u:r:init:s0 -- /system/bin/settings put global window_animation_scale ${ro.boot.bliss.window.animation.scale}
++    exec u:r:init:s0 -- /system/bin/settings put global window_transition_scale ${ro.boot.bliss.window.animation.scale}
++    exec u:r:init:s0 -- /system/bin/settings put global transition_animation_scale ${ro.boot.bliss.window.animation.scale}
+ 
+ service wpa_supplicant /vendor/bin/hw/wpa_supplicant -dd \
+     -O/data/vendor/wifi/wpa/sockets -puse_p2p_group_interface=1 \
+-- 
+2.34.1
+

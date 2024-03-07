@@ -1,0 +1,40 @@
+From 6c92cb57907efbd6072f6283d8e86cb805e64b34 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Wed, 24 Jan 2024 18:01:54 -0500
+Subject: [PATCH 091/105] Allow for adjusting intel_pstate max/min freq on boot
+
+Uses cmdline boot options to set the minimum and maximum intel_pstate perf percentage.
+
+Minimum P-state the driver is allowed to set in percent of the maximum supported performance level (the highest supported turbo P-state).
+
+This attribute will not be exposed if the intel_pstate=per_cpu_perf_limits argument is present in the kernel command line.
+
+INTEL_PSTATE_CPU_MIN_PERF_PCT=10
+INTEL_PSTATE_CPU_MAX_PERF_PCT=80
+---
+ init.sh | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/init.sh b/init.sh
+index 6c41944..38faf7e 100644
+--- a/init.sh
++++ b/init.sh
+@@ -30,6 +30,15 @@ function init_misc()
+ 	# in case no cpu governor driver autoloads
+ 	[ -d /sys/devices/system/cpu/cpu0/cpufreq ] || modprobe acpi-cpufreq
+ 
++	# Allow for adjusting intel_pstate max/min freq on boot
++	if [ -n "$INTEL_PSTATE_CPU_MIN_PERF_PCT"  ]; then
++		echo $INTEL_PSTATE_CPU_MIN_PERF_PCT > /sys/devices/system/cpu/intel_pstate/min_perf_pct
++	fi
++	
++	if [ -n "$INTEL_PSTATE_CPU_MAX_PERF_PCT"  ]; then
++		echo $INTEL_PSTATE_CPU_MAX_PERF_PCT > /sys/devices/system/cpu/intel_pstate/max_perf_pct
++	fi
++
+ 	# enable sdcardfs if /data is not mounted on tmpfs or 9p
+ 	#mount | grep /data\ | grep -qE 'tmpfs|9p'
+ 	#[ $? -eq 0 ] && set_prop_if_empty ro.sys.sdcardfs false
+-- 
+2.34.1
+

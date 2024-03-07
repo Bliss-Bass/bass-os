@@ -1,0 +1,60 @@
+From 219ed33cf6e022defd6e650ac278bf6548b01b1b Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Sat, 16 Dec 2023 13:22:07 -0500
+Subject: [PATCH 011/105] bass: updates packages.mk
+
+---
+ packages.mk | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+
+diff --git a/packages.mk b/packages.mk
+index cf75bc8..b770f19 100644
+--- a/packages.mk
++++ b/packages.mk
+@@ -157,3 +157,43 @@ endif
+ 
+ # Some additional CLI programs
+ PRODUCT_PACKAGES += tput dialog alsa-info.sh tree lspci dmidecode
++
++# SeedVault
++PRODUCT_PACKAGES += \
++    Seedvault \
++    BasicDreams \
++    
++# Include dhcptool
++PRODUCT_PACKAGES += \
++    libnetutils \
++    dhcpdbg
++
++# Bliss Ethernet Manager
++ifeq ($(USE_BLISS_ETHERNET_MANAGER), true)
++PRODUCT_PACKAGES += \
++    BlissEthernetManagerApp
++
++endif
++
++# Bliss Power Manager
++ifeq ($(USE_BLISS_POWER_MANAGER), true)
++PRODUCT_PACKAGES += \
++    BlissPowerManagerApp
++
++endif
++
++# Bliss Kiosk App
++ifeq ($(USE_BLISS_KIOSK_LAUNCHER), true)
++
++PRODUCT_PACKAGES += \
++    BlissKioskLauncher
++
++endif
++
++# Bliss Restricted Launcher
++ifeq ($(USE_BLISS_RESTRICTED_LAUNCHER), true)
++
++PRODUCT_PACKAGES += \
++    BlissRestrictedLauncher
++
++endif
+-- 
+2.34.1
+

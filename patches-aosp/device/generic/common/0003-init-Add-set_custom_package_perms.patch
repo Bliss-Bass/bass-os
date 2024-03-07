@@ -1,0 +1,244 @@
+From 4dda0ba28924e9d9f86596593f6d578994d52160 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Sat, 16 Dec 2023 12:50:49 -0500
+Subject: [PATCH 003/105] init: Add set_custom_package_perms
+
+---
+ init.sh | 214 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 214 insertions(+)
+
+diff --git a/init.sh b/init.sh
+index e86ced3..3a9c8b0 100644
+--- a/init.sh
++++ b/init.sh
+@@ -680,6 +680,218 @@ function set_custom_timezone()
+ 	
+ }
+ 
++function set_custom_package_perms()
++{
++	# Set up custom package permissions
++
++	current_user=$(dumpsys activity | grep mCurrentUserId | cut -d: -f2)
++
++	# KioskLauncher
++	exists_kiosk=$(pm list packages org.blissos.kiosklauncher | grep -c org.blissos.kiosklauncher)
++	if [ $exists_kiosk -eq 1 ]; then
++		pm set-home-activity "org.blissos.kiosklauncher/.ui.MainActivity"
++		am start -a android.intent.action.MAIN -c android.intent.category.HOME
++	fi
++
++	# BlissRestrictedLauncher
++	exists_restlauncher=$(pm list packages com.bliss.restrictedlauncher | grep -c com.bliss.restrictedlauncher)
++	if [ $exists_restlauncher -eq 1 ]; then
++		if [ ! -f /data/misc/rlconfig/admin ]; then
++			# set device admin
++			dpm set-device-owner com.bliss.restrictedlauncher/.DeviceAdmin
++			mkdir -p /data/misc/rlconfig
++			touch /data/misc/rlconfig/admin
++			chown 1000.1000 /data/misc/rlconfig /data/misc/rlconfig/*
++			chmod 775 /data/misc/rlconfig
++			chmod 664 /data/misc/rlconfig/admin
++		fi
++		set_property persist.wm.debug.hide_navbar_window 1
++		
++		pm grant com.bliss.restrictedlauncher android.permission.SYSTEM_ALERT_WINDOW
++		pm set-home-activity "com.bliss.restrictedlauncher/.activities.LauncherActivity"
++		am start -a android.intent.action.MAIN -c android.intent.category.HOME
++	fi
++
++	# Game-Mode Launcher
++	exists_molla=$(pm list packages com.sinu.molla | grep -c com.sinu.molla)
++	if [ $exists_molla -eq 1 ]; then
++		pm set-home-activity "com.sinu.molla/.MainActivity"
++		am start -a android.intent.action.MAIN -c android.intent.category.HOME
++	fi
++
++	# Game-Mode Launcher
++	exists_cross=$(pm list packages id.psw.vshlauncher | grep -c id.psw.vshlauncher)
++	if [ $exists_cross -eq 1 ]; then
++		pm set-home-activity "id.psw.vshlauncher/.activities.Xmb"
++		am start -a android.intent.action.MAIN -c android.intent.category.HOME
++	fi
++
++	# Garlic-Launcher
++	exists_garliclauncher=$(pm list packages com.sagiadinos.garlic.launcher | grep -c com.sagiadinos.garlic.launcher)
++	if [ $exists_garliclauncher -eq 1 ]; then
++		if [ ! -f /data/misc/glauncherconfig/admin ]; then
++			# set device admin
++			dpm set-device-owner com.sagiadinos.garlic.launcher/.receiver.AdminReceiver
++			mkdir -p /data/misc/glauncherconfig
++			touch /data/misc/glauncherconfig/admin
++			chown 1000.1000 /data/misc/glauncherconfig /data/misc/glauncherconfig/*
++			chmod 775 /data/misc/glauncherconfig
++			chmod 664 /data/misc/glauncherconfig/admin
++		fi
++		pm set-home-activity "com.sagiadinos.garlic.launcher/.MainActivity"
++		am start -a android.intent.action.MAIN -c android.intent.category.HOME
++	fi
++		
++	# SmartDock
++	exists_smartdock=$(pm list packages cu.axel.smartdock | grep -c cu.axel.smartdock)
++	if [ $exists_smartdock -eq 1 ]; then
++		pm grant cu.axel.smartdock android.permission.SYSTEM_ALERT_WINDOW
++		pm grant cu.axel.smartdock android.permission.GET_TASKS
++		pm grant cu.axel.smartdock android.permission.REORDER_TASKS
++		pm grant cu.axel.smartdock android.permission.REMOVE_TASKS
++		pm grant cu.axel.smartdock android.permission.ACCESS_WIFI_STATE
++		pm grant cu.axel.smartdock android.permission.CHANGE_WIFI_STATE
++		pm grant cu.axel.smartdock android.permission.ACCESS_NETWORK_STATE
++		pm grant cu.axel.smartdock android.permission.ACCESS_COARSE_LOCATION
++		pm grant cu.axel.smartdock android.permission.ACCESS_FINE_LOCATION
++		pm grant cu.axel.smartdock android.permission.READ_EXTERNAL_STORAGE
++		pm grant cu.axel.smartdock android.permission.MANAGE_USERS
++		pm grant cu.axel.smartdock android.permission.BLUETOOTH_ADMIN
++		pm grant cu.axel.smartdock android.permission.BLUETOOTH_CONNECT
++		pm grant cu.axel.smartdock android.permission.BLUETOOTH
++		pm grant cu.axel.smartdock android.permission.REQUEST_DELETE_PACKAGES
++		pm grant cu.axel.smartdock android.permission.ACCESS_SUPERUSER
++		pm grant cu.axel.smartdock android.permission.PACKAGE_USAGE_STATS
++		pm grant cu.axel.smartdock android.permission.QUERY_ALL_PACKAGES
++		pm grant cu.axel.smartdock android.permission.WRITE_SECURE_SETTINGS
++		pm grant --user $current_user cu.axel.smartdock android.permission.WRITE_SECURE_SETTINGS
++		appops set cu.axel.smartdock WRITE_SECURE_SETTINGS allow
++		pm grant cu.axel.smartdock android.permission.WRITE_SETTINGS
++		pm grant --user $current_user cu.axel.smartdock android.permission.WRITE_SETTINGS
++		appops set cu.axel.smartdock WRITE_SETTINGS allow
++		pm grant cu.axel.smartdock android.permission.BIND_ACCESSIBILITY_SERVICE
++		pm grant --user $current_user cu.axel.smartdock android.permission.BIND_ACCESSIBILITY_SERVICE
++		appops set cu.axel.smartdock BIND_ACCESSIBILITY_SERVICE allow
++		pm grant cu.axel.smartdock android.permission.BIND_NOTIFICATION_LISTENER_SERVICE
++		pm grant --user $current_user cu.axel.smartdock android.permission.BIND_NOTIFICATION_LISTENER_SERVICE
++		appops set cu.axel.smartdock BIND_NOTIFICATION_LISTENER_SERVICE allow
++		pm grant cu.axel.smartdock android.permission.BIND_DEVICE_ADMIN
++		pm grant --user $current_user cu.axel.smartdock android.permission.BIND_DEVICE_ADMIN
++		appops set cu.axel.smartdock BIND_DEVICE_ADMIN allow
++		pm grant cu.axel.smartdock android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
++		pm grant --user $current_user cu.axel.smartdock android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
++
++		# set overlays enabled
++		settings put secure secure_overlay_settings 1
++
++		# allow displaying over other apps if in Go mode
++		settings put system alert_window_bypass_low_ram 1
++
++		# Only if PC_MODE is 1
++		if [ $PC_MODE -eq 1 ]; then
++			
++			if [ ! -f /data/misc/sdconfig/accessibility ] && ! pm list packages | grep -q "com.blissos.setupwizard"; then
++				# set accessibility services
++				eas=$(settings get secure enabled_accessibility_services)
++				if [ -n "$eas" ]; then
++					settings put secure enabled_accessibility_services $eas:cu.axel.smartdock/cu.axel.smartdock.services.DockService
++				else
++					settings put secure enabled_accessibility_services cu.axel.smartdock/cu.axel.smartdock.services.DockService
++				fi
++				mkdir -p /data/misc/sdconfig
++				touch /data/misc/sdconfig/accessibility
++				chown 1000.1000 /data/misc/sdconfig /data/misc/sdconfig/*
++				chmod 775 /data/misc/sdconfig
++				chmod 664 /data/misc/sdconfig/accessibility
++			fi
++			if [ ! -f /data/misc/sdconfig/notification ]; then
++				# set notification listeners
++				enl=$(settings get secure enabled_notification_listeners)
++				if [ -n "$enl" ]; then
++					settings put secure enabled_notification_listeners $enl:cu.axel.smartdock/cu.axel.smartdock.services.NotificationService
++					
++				else
++					settings put secure enabled_notification_listeners cu.axel.smartdock/cu.axel.smartdock.services.NotificationService
++				fi
++				mkdir -p /data/misc/sdconfig
++				touch /data/misc/sdconfig/notification
++				chown 1000.1000 /data/misc/sdconfig /data/misc/sdconfig/*
++				chmod 775 /data/misc/sdconfig
++				chmod 664 /data/misc/sdconfig/notification
++			fi
++			if [ ! -f /data/misc/sdconfig/admin ]; then
++				# set device admin
++				dpm set-active-admin --user current cu.axel.smartdock/android.app.admin.DeviceAdminReceiver
++				mkdir -p /data/misc/sdconfig
++				touch /data/misc/sdconfig/admin
++				chown 1000.1000 /data/misc/sdconfig /data/misc/sdconfig/*
++				chmod 775 /data/misc/sdconfig
++				chmod 664 /data/misc/sdconfig/admin
++			fi
++
++			if [ $(settings get global development_settings_enabled) == 0 ]; then
++		    	settings put global development_settings_enabled 1
++			fi
++
++			# Disable Launcher3 Taskbar
++			set_property persist.wm.debug.hide_navbar_window 1
++
++			[ -n "$SET_SMARTDOCK_DEFAULT" ] && pm set-home-activity "cu.axel.smartdock/.activities.LauncherActivity" || pm set-home-activity "com.android.launcher3/.LauncherProvider"
++			
++		fi
++	fi
++
++	# com.farmerbb.taskbar
++	exists_taskbar=$(pm list packages com.farmerbb.taskbar | grep -c com.farmerbb.taskbar)
++	if [ $exists_taskbar -eq 1 ]; then
++		pm grant com.farmerbb.taskbar android.permission.PACKAGE_USAGE_STATS
++		pm grant --user $current_user com.farmerbb.taskbar android.permission.WRITE_SECURE_SETTINGS
++		appops set com.farmerbb.taskbar BIND_DEVICE_ADMIN allow
++		pm grant com.farmerbb.taskbar android.permission.GET_TASKS
++		pm grant com.farmerbb.taskbar android.permission.BIND_CONTROLS
++		pm grant com.farmerbb.taskbar android.permission.BIND_INPUT_METHOD
++		pm grant com.farmerbb.taskbar android.permission.BIND_QUICK_SETTINGS_TILE
++		pm grant com.farmerbb.taskbar android.permission.REBOOT
++		pm grant --user $current_user com.farmerbb.taskbar android.permission.BIND_ACCESSIBILITY_SERVICE
++		appops set com.farmerbb.taskbar BIND_ACCESSIBILITY_SERVICE allow
++		pm grant --user $current_user com.farmerbb.taskbar android.permission.MANAGE_OVERLAY_PERMISSION
++		appops set com.farmerbb.taskbar MANAGE_OVERLAY_PERMISSION allow
++		pm grant com.farmerbb.taskbar android.permission.SYSTEM_ALERT_WINDOW
++		pm grant com.farmerbb.taskbar android.permission.USE_FULL_SCREEN_INTENT
++
++		# set overlays enabled
++		settings put secure secure_overlay_settings 1
++	fi
++
++	# MicroG: com.google.android.gms
++	is_microg=$(dumpsys package com.google.android.gms | grep -m 1 -c org.microg.gms)
++	if [ $is_microg -eq 1 ]; then
++		exists_gms=$(pm list packages com.google.android.gms | grep -c com.google.android.gms)
++		if [ $exists_gms -eq 1 ]; then
++			pm grant com.google.android.gms android.permission.ACCESS_FINE_LOCATION
++			pm grant com.google.android.gms android.permission.READ_EXTERNAL_STORAGE
++			pm grant com.google.android.gms android.permission.ACCESS_BACKGROUND_LOCATION
++			pm grant com.google.android.gms android.permission.ACCESS_COARSE_UPDATES
++			pm grant --user $current_user com.google.android.gms android.permission.FAKE_PACKAGE_SIGNATURE
++			appops set com.google.android.gms android.permission.FAKE_PACKAGE_SIGNATURE
++			pm grant --user $current_user com.google.android.gms android.permission.MICROG_SPOOF_SIGNATURE
++			appops set com.google.android.gms android.permission.MICROG_SPOOF_SIGNATURE
++			pm grant --user $current_user com.google.android.gms android.permission.WRITE_SECURE_SETTINGS
++			appops set com.google.android.gms android.permission.WRITE_SECURE_SETTINGS
++			pm grant com.google.android.gms android.permission.SYSTEM_ALERT_WINDOW
++			pm grant --user $current_user com.google.android.gms android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
++			appops set com.google.android.gms android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
++		fi
++		exists_vending=$(pm list packages com.google.android.vending | grep -c com.google.android.vending)
++		if [ $exists_vending -eq 1 ]; then
++			pm grant --user $current_user com.google.android.vending android.permission.FAKE_PACKAGE_SIGNATURE
++			appops set com.google.android.vending android.permission.FAKE_PACKAGE_SIGNATURE
++		fi
++	fi
++	
++}
++
++
+ function do_init()
+ {
+ 	init_misc
+@@ -790,6 +1002,8 @@ function do_bootcomplete()
+ 		pm disable org.lineageos.updater
+ 	fi
+ 
++	set_custom_package_perms
++
+ 	post_bootcomplete
+ }
+ 
+-- 
+2.34.1
+

@@ -1,0 +1,39 @@
+From 7d13babd98432dc469dd99ac5bf480b762ebcf60 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Sat, 16 Dec 2023 13:35:50 -0500
+Subject: [PATCH 013/105] bass: treble updates for cameras
+
+---
+ treble.mk | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/treble.mk b/treble.mk
+index 7055139..1387061 100644
+--- a/treble.mk
++++ b/treble.mk
+@@ -31,9 +31,22 @@ PRODUCT_PACKAGES += \
+     android.hardware.bluetooth.audio@2.1-impl \
+ #    android.hardware.bluetooth@1.1-service.btlinux \
+ 
++# Camera Device
++PRODUCT_PACKAGES += \
++    android.hardware.camera.common@1.0 \
++    android.hardware.camera.device@1.0 \
++    android.hardware.camera.device@3.2 \
++    android.hardware.camera.device@3.4 \
++    android.hardware.camera.device@3.5
+ 
+ # Camera HAL
+ PRODUCT_PACKAGES += \
++    android.hardware.camera.provider@2.4-external-service \
++	android.hardware.camera.provider@2.4-service_64 \
++	android.hardware.camera.provider@2.4-impl \
++    android.hardware.camera.provider@2.6 \
++    android.hardware.camera.provider@2.6-impl \
++    android.hardware.camera.provider@2.6-service_64 \
+     camera.x86
+ 
+ # Media codec
+-- 
+2.34.1
+

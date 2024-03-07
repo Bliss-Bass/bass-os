@@ -1,0 +1,66 @@
+From dd3690e3bad6245e414dd6501784c4fd0f57911c Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Sat, 16 Dec 2023 12:58:14 -0500
+Subject: [PATCH 005/105] Add SET_MAX_LOGD boot flag
+
+SET_MAX_LOGD=1 will force 8GB logging buffer
+---
+ init.sh | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/init.sh b/init.sh
+index a73ee35..0d56c34 100644
+--- a/init.sh
++++ b/init.sh
+@@ -956,6 +956,40 @@ function set_usb_mode()
+ 	done
+ }
+ 
++function set_max_logd()
++{
++	for c in `cat /proc/cmdline`; do
++		case $c in
++			*=*)
++				eval $c
++				if [ -z "$1" ]; then
++					case $c in
++						# Set TimeZone
++						SET_MAX_LOGD=*)
++							if [ "$SET_MAX_LOGD" == 1 ]; then
++								size_value="8388608"
++								radio_size_value="4M"
++								system_size_value="4M"
++								crash_size_value="1M"
++							else
++								size_value=""
++								radio_size_value=""
++								system_size_value=""
++								crash_size_value=""
++							fi
++							setprop persist.logd.size "$size_value"
++							setprop persist.logd.size.radio "$radio_size_value"
++							setprop persist.logd.size.system "$system_size_value"
++							setprop persist.logd.size.crash "$crash_size_value"
++							;;
++					esac
++				fi
++				;;
++		esac
++	done
++	
++}
++
+ 
+ function do_init()
+ {
+@@ -965,6 +999,7 @@ function do_init()
+ 	set_custom_timezone
+ 	init_hal_audio
+ 	set_custom_ota
++	set_max_logd
+ 	init_hal_bluetooth
+ 	init_hal_camera
+ 	init_hal_gps
+-- 
+2.34.1
+

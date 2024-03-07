@@ -1,0 +1,24 @@
+From c0344ece62a7d8c83270514d92984c19f8130751 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 4 Mar 2024 17:43:32 -0500
+Subject: [PATCH 101/105] overlays: force config_imeDrawsImeNavBar to false
+
+---
+ overlay/frameworks/base/core/res/res/values/config.xml | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/overlay/frameworks/base/core/res/res/values/config.xml b/overlay/frameworks/base/core/res/res/values/config.xml
+index 35107e7..1f23673 100644
+--- a/overlay/frameworks/base/core/res/res/values/config.xml
++++ b/overlay/frameworks/base/core/res/res/values/config.xml
+@@ -255,4 +255,7 @@
+          The default is false. -->
+     <bool name="config_lidControlsSleep">true</bool>
+ 
++    <!-- Controls whether the IME renders the back and IME switcher buttons or not. -->
++    <bool name="config_imeDrawsImeNavBar">false</bool>
++
+ </resources>
+-- 
+2.34.1
+

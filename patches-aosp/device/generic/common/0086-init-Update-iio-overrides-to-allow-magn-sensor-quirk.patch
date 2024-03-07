@@ -1,0 +1,29 @@
+From f65f78885f60cd745135935029be584ae92a5228 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Sun, 28 Jan 2024 20:47:34 -0500
+Subject: [PATCH 086/105] init: Update iio overrides to allow magn sensor quirk
+ overrides
+
+This allows us to set ro.iio.* properties through the following flags:
+SET_IIO_MAGN_QUIRKS
+---
+ init.sh | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/init.sh b/init.sh
+index c0740c1..2d47e54 100644
+--- a/init.sh
++++ b/init.sh
+@@ -1279,6 +1279,9 @@ function set_iio_options()
+ 							# (0,1) 0=off, 1=on
+ 							set_property ro.ignore_atkbd "$SET_IGNORE_ATKBD"
+ 							;;
++						SET_IIO_MAGN_QUIRKS=*)
++							set_property ro.iio.magn.quirks "$SET_IIO_MAGN_QUIRKS"
++							;;
+ 					esac
+ 				fi
+ 				;;
+-- 
+2.34.1
+

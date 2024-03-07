@@ -1,0 +1,30 @@
+From 838375971d7fa610e79f0a0127c2ac8269ff79b2 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Sat, 16 Dec 2023 13:10:57 -0500
+Subject: [PATCH 009/105] Allow configuring animation scale from boot
+
+This uses the property: ro.boot.bliss.animation.scale= Or from kernel cmdline: androidboot.bliss.animation.scale=
+---
+ init.x86.rc | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/init.x86.rc b/init.x86.rc
+index 80862b0..49f49f3 100644
+--- a/init.x86.rc
++++ b/init.x86.rc
+@@ -88,6 +88,12 @@ on boot
+     chown system system /system/vendor/etc/thermal-daemon/thermal-conf.xml
+     restorecon_recursive /sys/class/powercap
+ 
++on property:sys.boot_completed=1 && property:ro.boot.bliss.animation.scale=*
++    exec u:r:init:s0 -- /system/bin/settings put global animator_duration_scale ${ro.boot.bliss.animation.scale}
++    exec u:r:init:s0 -- /system/bin/settings put global window_animation_scale ${ro.boot.bliss.animation.scale}
++    exec u:r:init:s0 -- /system/bin/settings put global window_transition_scale ${ro.boot.bliss.animation.scale}
++    exec u:r:init:s0 -- /system/bin/settings put global transition_animation_scale ${ro.boot.bliss.animation.scale}
++
+ service wpa_supplicant /vendor/bin/hw/wpa_supplicant -dd \
+     -O/data/vendor/wifi/wpa/sockets -puse_p2p_group_interface=1 \
+     -g@android:wpa_wlan0
+-- 
+2.34.1
+

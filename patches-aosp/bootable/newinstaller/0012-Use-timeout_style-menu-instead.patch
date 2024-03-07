@@ -1,0 +1,34 @@
+From 3a226c62d8bbac462a88c4b0af29ae8c3f0ff5cc Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Tue, 7 Nov 2023 14:31:46 -0500
+Subject: [PATCH 12/19] Use timeout_style menu instead
+
+---
+ install/scripts/1-install | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/install/scripts/1-install b/install/scripts/1-install
+index 143088b5..431d7af0 100644
+--- a/install/scripts/1-install
++++ b/install/scripts/1-install
+@@ -662,7 +662,7 @@ install_grub_bios()
+ 	fi
+ 	sed -i "/fwsetup/d" /hd/boot/grub/android.cfg
+ 	grubcfg=/hd/boot/grub/grub.cfg
+-	echo -e 'set timeout=5\nset debug_mode="(DEBUG mode)"' > $grubcfg
++	echo -e 'set timeout_style=menu\ntimeout=5\nset debug_mode="(DEBUG mode)"' > $grubcfg
+ 	echo -e "set kdir=/$asrc" >> $grubcfg
+ 	echo -e '\nsource /boot/grub/android.cfg' >> $grubcfg
+ }
+@@ -710,7 +710,7 @@ install_grub_efi()
+ 	[ -s /hd/boot/grub/grubenv ] || ( printf %-1024s "# GRUB Environment Block%" | sed 's/k%/k\n/; s/   /###/g' > /hd/boot/grub/grubenv )
+ 
+ 	echo -e "search.fs_uuid $fs_uuid root" > $grubcfg
+-	echo -e 'set timeout=5\nset debug_mode="(DEBUG mode)"' >> $grubcfg
++	echo -e 'set timeout_style=menu\ntimeout=5\nset debug_mode="(DEBUG mode)"' >> $grubcfg
+ 	echo -e "set prefix=(\$root)'/boot/grub'" >> $grubcfg
+ 	echo -e "set kdir=/$asrc" >> $grubcfg
+ 	echo -e '\nsource $prefix/android.cfg' >> $grubcfg
+-- 
+2.34.1
+

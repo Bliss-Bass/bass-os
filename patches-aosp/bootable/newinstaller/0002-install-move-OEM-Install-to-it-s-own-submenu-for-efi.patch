@@ -1,0 +1,49 @@
+From 2e53f38dc5270bc6ba3e57b1956bb5498969b4b4 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Sat, 16 Dec 2023 11:36:49 -0500
+Subject: [PATCH 02/19] install: move OEM Install to it's own submenu for efi
+
+Change-Id: I803fc0660f93fd67e1f9b72c1a41cddbcfce0509
+---
+ install/grub2/efi/boot/android.cfg | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/install/grub2/efi/boot/android.cfg b/install/grub2/efi/boot/android.cfg
+index ef0e1a56..1d519d88 100755
+--- a/install/grub2/efi/boot/android.cfg
++++ b/install/grub2/efi/boot/android.cfg
+@@ -124,13 +124,6 @@ submenu "Debugging -> " --class forward {
+ }
+ 
+ submenu "Advanced options -> " --class forward {
+-	if [ -s ($android)$kdir/install.img ]; then
+-		add_entry "OEM Install to specified harddisk" OEM_INSTALL=0
+-		add_entry "Force OEM Install to detected harddisk" OEM_INSTALL=force
+-		add_entry "Force MBR OEM Install to detected harddisk" OEM_INSTALL=mbr
+-		add_entry "Force EFI OEM Install to detected harddisk" OEM_INSTALL=efi
+-		add_entry "OEM Update" OEM_INSTALL=update
+-	fi
+ 	add_entry "$live - No Setup Wizard" quiet SETUPWIZARD=0
+ 	add_entry "$live - No Hardware Acceleration" quiet nomodeset HWACCEL=0
+ 	add_os_if_exists /EFI/BOOT/$bootefi "UEFI OS" os
+@@ -141,6 +134,17 @@ submenu "Advanced options -> " --class forward {
+ 	menuentry "UEFI firmware settings" --class setup { fwsetup }
+ }
+ 
++if [ -s ($android)$kdir/install.img ]; then
++	submenu "OEM Install -> " --class forward {
++		add_entry "OEM Install to specified harddisk" OEM_INSTALL=0
++		add_entry "Force OEM Install to detected harddisk" OEM_INSTALL=force
++		add_entry "Force MBR OEM Install to detected harddisk" OEM_INSTALL=mbr
++		add_entry "Force EFI OEM Install to detected harddisk" OEM_INSTALL=efi
++		add_entry "OEM Update" OEM_INSTALL=update
++	}
++fi
++
++
+ # Add other OSes boot loaders if exist
+ add_os_if_exists /EFI/fedora/${grub}.efi Fedora fedora
+ add_os_if_exists /EFI/centos/${grub}.efi CentOS centos
+-- 
+2.34.1
+

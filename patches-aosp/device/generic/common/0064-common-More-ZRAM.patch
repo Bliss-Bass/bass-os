@@ -1,0 +1,66 @@
+From dcd662a879b36c6841323c06ba1421bf1e94e5ba Mon Sep 17 00:00:00 2001
+From: Erfan Abdi <erfangplus@gmail.com>
+Date: Sat, 2 Dec 2023 05:49:09 +0330
+Subject: [PATCH 064/105] common: More ZRAM
+
+---
+ fstab.internal.x86 |  2 +-
+ fstab.x86          |  2 +-
+ init.x86.rc        | 11 +++++++----
+ 3 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/fstab.internal.x86 b/fstab.internal.x86
+index bd4bbbc..a833a02 100644
+--- a/fstab.internal.x86
++++ b/fstab.internal.x86
+@@ -12,4 +12,4 @@ none			/cache		tmpfs	nosuid,nodev,noatime	defaults
+ /devices/*/*/vd*		auto	auto	defaults,uid=1000,gid=1000		voldmanaged=usbdisk,noemulatedsd
+ /devices/*/*/nvme*		auto	auto	defaults,uid=1000,gid=1000		voldmanaged=usbdisk,noemulatedsd
+ /devices/*/*/xvd*		auto	auto	defaults,uid=1000,gid=1000		voldmanaged=usbdisk,noemulatedsd
+-/dev/block/zram0        none    swap    defaults	        zramsize=52%,max_comp_streams=4,swapprio=10,notrim
++/dev/block/zram0        none    swap    defaults	        zramsize=75%,max_comp_streams=4,swapprio=10,notrim
+diff --git a/fstab.x86 b/fstab.x86
+index 6e82de8..918dabf 100644
+--- a/fstab.x86
++++ b/fstab.x86
+@@ -9,4 +9,4 @@ none			/cache		tmpfs	nosuid,nodev,noatime	defaults
+ /devices/*/80860F*:*/mmc_*	auto	auto	defaults		voldmanaged=sdcard1:auto,encryptable=userdata
+ /devices/*/000*:0*:*/000*:0*:*/mmc_*	auto	auto	defaults		voldmanaged=sdcard1:auto,encryptable=userdata
+ /devices/*/PNP0FFF:00/mmc_*	auto	auto	defaults		voldmanaged=sdcard1:auto,encryptable=userdata
+-/dev/block/zram0        none    swap    defaults	        zramsize=52%,max_comp_streams=4,swapprio=10,notrim
++/dev/block/zram0        none    swap    defaults	        zramsize=75%,max_comp_streams=4,swapprio=10,notrim
+diff --git a/init.x86.rc b/init.x86.rc
+index ec001e1..c7c5bf6 100644
+--- a/init.x86.rc
++++ b/init.x86.rc
+@@ -23,13 +23,14 @@ on early-init && property:mesa.galliumhud.value=*
+ on early-init && property:mesa.galliumhud.period=*
+     export GALLIUM_HUD_PERIOD ${mesa.galliumhud.period}
+ 
+-    write /sys/block/zram0/comp_algorithm zstd
++on fs
++    mount_all /fstab.${ro.hardware}
+ 
+-on init
++    write /sys/block/zram0/comp_algorithm lz4
+     write /proc/sys/vm/page-cluster 0
++    write /proc/sys/vm/swappiness 100
++    write /sys/kernel/mm/swap/vma_ra_enabled false
+ 
+-on fs
+-    mount_all /fstab.${ro.hardware}
+     swapon_all /fstab.${ro.hardware}
+ 
+ on post-fs
+@@ -60,6 +61,8 @@ on post-fs-data
+     mkdir /data/vendor/thermal-daemon 0660 system system
+ 
+ on boot
++    write /proc/sys/vm/dirty_writeback_centisecs 300
++
+     setprop ro.radio.use-ppp yes
+     setprop status.battery.state Slow
+     setprop status.battery.level 5
+-- 
+2.34.1
+

@@ -1,0 +1,1105 @@
+From af75600917accc80befac12c5d411d3c2c4b2b7b Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Thu, 11 Jan 2024 20:40:26 -0500
+Subject: [PATCH 17/19] bass: Use legacy installer script
+
+---
+ install/scripts/1-install | 859 +++++++++-----------------------------
+ 1 file changed, 200 insertions(+), 659 deletions(-)
+
+diff --git a/install/scripts/1-install b/install/scripts/1-install
+index 5070990c..c7653143 100644
+--- a/install/scripts/1-install
++++ b/install/scripts/1-install
+@@ -1,8 +1,6 @@
+ #
+ # By Chih-Wei Huang <cwhuang@linux.org.tw>
+ #
+-# Modified by BlissLabs & Contributors
+-#
+ # License: GNU Public License
+ # We explicitely grant the right to use the scripts
+ # with Android-x86 project.
+@@ -13,23 +11,15 @@ menufile=/tmp/menu-$$
+ 
+ CPIO=cpio
+ OS_TITLE=${OS_TITLE:-Android-x86}
+-BACK_TITLE="Made by Android-x86 Project, Modified by BlissLabs & Contributors"
+-EFI_LABEL="BlissOS"
+-INSTALL_LABEL="BlissOS"
+ 
+ rebooting()
+ {
+-	dialog --backtitle "$BACK_TITLE" --title " Rebooting... " --nocancel --pause "" 8 41 1
++	dialog --title " Rebooting... " --nocancel --pause "" 8 41 1
+ 	sync
+ 	umount -a
+ 	reboot -f
+ }
+ 
+-restart_installer()
+-{
+-	dialog --backtitle "$BACK_TITLE" --title " Please Wait " --nocancel --pause "\n Restarting the installer..... " 10 41 1
+-}
+-
+ auto_answer()
+ {
+ 	echo "$answer" > $tempfile
+@@ -47,7 +37,7 @@ adialog()
+ 	if [ -n "$answer" ]; then
+ 		auto_answer
+ 	else
+-		dialog --backtitle "$BACK_TITLE" "$@" 2> $tempfile
++		dialog "$@" 2> $tempfile
+ 	fi
+ }
+ 
+@@ -59,30 +49,6 @@ choose()
+ 	choice=`cat $tempfile`
+ }
+ 
+-choose_partmenu()
+-{
+-	adialog --clear --title " $1 " --cancel-label "Reboot" --menu "$2" 21 79 13 --file $menufile
+-
+-	retval=$?
+-	choice=`cat $tempfile`
+-}
+-
+-choose_formatfs()
+-{
+-	adialog --clear --title " $1 " --nocancel --menu "$2" 21 79 13 --file $menufile
+-
+-	retval=$?
+-	choice=`cat $tempfile`
+-}
+-
+-choose_efiboot()
+-{
+-	adialog --clear --title " $1 " --cancel-label "Skip" --menu "$2" 14 60 13 --file /tmp/efioptions
+-
+-	retval=$?
+-	choice=`cat $tempfile`
+-}
+-
+ size_gb()
+ {
+ 	size=`cat $1/size`
+@@ -101,40 +67,6 @@ list_disks()
+ 	done
+ }
+ 
+-list_partitions()
+-{
+-	blkid | grep -v -E "^/dev/block/|^/dev/loop" | cut -b6- | sort | awk '{
+-		l=""
+-		t="unknown"
+-		sub(/:/, "", $1)
+-		for (i = NF; i > 1; --i)
+-			if (match($i, "^TYPE")) {
+-				t=$i
+-				gsub(/TYPE=|"/, "", t)
+-			} else if (match($i, "^LABEL")) {
+-				l=$i
+-				gsub(/LABEL=|"/, "", l)
+-			}
+-		printf("%-11s%-12s%-18s\n", $1, t, l)
+-	}' > $tempfile
+-
+-	for d in `ls /sys/block`; do
+-		for i in /sys/block/$d/$d*; do
+-			[ -d $i ] || continue
+-			echo $i | grep -qE "loop|ram|sr|boot|rpmb" && continue
+-			f=$(grep "`basename $i`" $tempfile || printf "%-11s%-30s" `basename $i` unknown)
+-			sz=$(size_gb $i)
+-			[ "$sz" = "0.00GB" ] || printf "$f%10s\n" $sz
+-		done
+-	done | awk -v b=$booted_from '{
+-		if (!match($1, b)) {
+-			printf("\"%s\" \"", $0)
+-			system("cd /sys/block/*/"$1"; for f in ../device/model ../device/name; do [ -e $f ] && printf %-17s \"`cat $f`\" && break; done")
+-			printf("\"\n")
+-		}
+-	}'
+-}
+-
+ auto_partition()
+ {
+ 	[ "$OEM_INSTALL" = "force" ] || [ "$OEM_INSTALL" = "mbr" ] || [ "$OEM_INSTALL" = "efi" ] || dialog --title " OEM Installer " --defaultno --yesno \
+@@ -194,7 +126,7 @@ partition_drive()
+ 	done
+ 	count=`wc -l < $menufile`
+ 	if [ $count -eq 0 ]; then
+-		dialog --backtitle "$BACK_TITLE" --title " Error " --msgbox \
++		dialog --title " Error " --msgbox \
+ 			"\nOK. There is no hard drive to edit partitions." 8 49
+ 		return 255
+ 	fi
+@@ -218,7 +150,7 @@ partition_drive()
+ 		if fdisk -l /dev/$choice | grep -q GPT; then
+ 			part_tool=cgdisk
+ 		elif fdisk -l /dev/$choice | grep -q "doesn't"; then
+-		dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yes-label "Yes, switch to cgdisk" --no-label "No, continue to cfdisk" --yesno \
++			dialog --title " Confirm " --defaultno --yesno \
+ "\n The setup will now redirect to the cfdisk program on drive /dev/$choice. \
+ However, would you prefer to use the cgdisk program instead? \
+ \n cgdisk is designed exclusively for GPT disks, while cfdisk can handle both MBR and GPT. \
+@@ -242,32 +174,45 @@ Select 'Yes' to switch to cgdisk, or 'No' to remain with cfdisk. \
+ 
+ select_dev()
+ {
+-	list_partitions > $menufile
+-	printf "\"\" \"\"\n\"Create/Modify partitions\" 
+-\"\"\n\"Setup userdata partition\" 
+-\"\"\n\"Restart the installer\" 
+-\"\"\n\"Open command-line shell\" \"\"\n" >> $menufile
+-	choose_partmenu "Choose Partition" "Please select a partition to install $OS_TITLE:\n\nRecommended minimum free space - 12GB  |  
+-Optimum free space >= 32GB\n\nPartition | Filesystem | Label            | Size     | Drive name/model"
+-	return $retval
+-}
++	blkid | grep -v -E "^/dev/block/|^/dev/loop" | cut -b6- | sort | awk '{
++		l=""
++		t="unknown"
++		sub(/:/, "", $1)
++		for (i = NF; i > 1; --i)
++			if (match($i, "^TYPE")) {
++				t=$i
++				gsub(/TYPE=|"/, "", t)
++			} else if (match($i, "^LABEL")) {
++				l=$i
++				gsub(/LABEL=|"/, "", l)
++			}
++		printf("%-11s%-12s%-18s\n", $1, t, l)
++	}' > $tempfile
+ 
+-select_dev_esp()
+-{
+-	list_partitions > $menufile
+-	printf "\"\" \"\"\n\"Create/Modify partitions\" 
+-\"\"\n\"Restart the installer\" 
+-\"\"\n\"Open command-line shell\" 
+-\"\"\n\"Skip (Not Recommended)\" \"\"\n" >> $menufile
+-	choose_partmenu "Choose Partition" "UEFI System detected ! Please select a partition as EFI System Partition (ESP)
+-\n\nHint: If you chose ESP already but got restarted to this stage, please choose ESP again, no need to format if you already did.
+-\n\nPartition | Filesystem | Label            | Size     | Drive name/model"
++	for d in `ls /sys/block`; do
++		for i in /sys/block/$d/$d*; do
++			[ -d $i ] || continue
++			echo $i | grep -qE "loop|ram|sr|boot|rpmb" && continue
++			f=$(grep "`basename $i`" $tempfile || printf "%-11s%-30s" `basename $i` unknown)
++			sz=$(size_gb $i)
++			[ "$sz" = "0.00GB" ] || printf "$f%10s\n" $sz
++		done
++	done | awk -v b=$booted_from '{
++		if (!match($1, b)) {
++			printf("\"%s\" \"", $0)
++			system("cd /sys/block/*/"$1"; for f in ../device/model ../device/name; do [ -e $f ] && printf %-17s \"`cat $f`\" && break; done")
++			printf("\"\n")
++		}
++	} END {
++		printf("\"\" \"\"\n\"Create/Modify partitions\" \"\"\n\"Detect devices\" \"\"\n\"Open command-line shell\" \"\"")
++	}' > $menufile
++	choose "Choose Partition" "Please select a partition to install $OS_TITLE:\n\nRecommended minimum free space - 8GB  |  Optimum free space >= 16GB\n\nPartition | Filesystem | Label            | Size     | Drive name/model"
+ 	return $retval
+ }
+ 
+ progress_bar()
+ {
+-	dialog --backtitle "$BACK_TITLE" --clear --title " $1 " --gauge "\n $2" 8 70
++	dialog --clear --title " $1 " --gauge "\n $2" 8 70
+ }
+ 
+ convert_fs()
+@@ -287,7 +232,7 @@ format_fs()
+ 	local cmd
+ 	echo -e '"Do not re-format" ""\next4 ""\nntfs ""\nfat32 ""\nexfat ""\nf2fs ""' > $menufile
+ 	set_answer_if_auto $FORCE_FORMAT
+-	choose_formatfs "Choose filesystem" "Please select a filesystem to format $1:"
++	choose "Choose filesystem" "Please select a filesystem to format $1:"
+ 	case "$choice" in
+ 		ext4)
+ 			cmd="mkfs.ext3 -L"
+@@ -308,163 +253,42 @@ format_fs()
+ 			;;
+ 	esac
+ 	if [ -n "$cmd" ]; then
+-		if [ "$choice" = ntfs ]; then
+-			dialog --backtitle "$BACK_TITLE" --title " Warning " --defaultno --yesno \
+-				"OTA Update is not available on NTFS partition, are you sure you want to format to NTFS ?" 6 59
+-			[ $? -ne 0 ] && cancel_format=1 && return 1
+-		fi
+-
+-		dialog --backtitle "$BACK_TITLE" --title " Question " --nook --nocancel --inputbox \
+-			"\nWould you like to customize the formatted drive name ? 
+-\n\nYou can change it here or press Enter to skip:" 10 63 "$INSTALL_LABEL" 2> /tmp/install_drive_name
+-
+-		[ -n "$OEM_INSTALL" ] || dialog --colors --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-			"\nYou chose to format $1 to $choice.\n\Z1THE FORMAT PROCESS WILL START IMMEDIATELY. 
+-ALL DATA IN THIS PARTITION WILL BE LOST.\Zn\n\nAre you sure to format the partition $1?" 10 59
+-		[ $? -ne 0 ] && cancel_format=1 && return 1
+-		$cmd `cat /tmp/install_drive_name` /dev/$1 | awk '{
++		[ -n "$OEM_INSTALL" ] || dialog --title " Confirm " --defaultno --yesno \
++			"\n You chose to format $1 to $choice.\n All data in that partition will be LOST.\n\n Are you sure to format the partition $1?" 10 59
++		[ $? -ne 0 ] && return 1
++		$cmd Android-x86 /dev/$1 | awk '{
+ 			# FIXME: very imprecise progress
+ 			if (match($0, "done"))
+ 				printf("%d\n", i+=33)
+ 		}' | progress_bar "Formatting" "Formatting partition $1..."
+-		cancel_format=0
+ 		convert_fs $1
+ 	elif blkid /dev/$1 | grep -q ext[23]; then
+-		dialog --backtitle "$BACK_TITLE" --clear --title " Warning " --yesno \
++		dialog --clear --title " Warning " --yesno \
+ 			"\nYou chose to install android-x86 to an ext2/3 filesystem. We suggest you convert it to ext4 for better reliability and performance." 9 62
+ 		[ $? -eq 0 ] && convert_fs $1
+-	else
+-		[ "$(blkid /dev/$1 | grep "ntfs")" ] && dialog --backtitle "$BACK_TITLE" --title " Warning " --defaultno --yesno \
+-				"OTA Update is not available on NTFS partition, are you sure you want to choose this drive ?" 6 59
+-		[ $? -ne 0 ] && cancel_format=1 || cancel_format=0
+-
+-		[ -n "$OEM_INSTALL" ] || dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-			"\n Are you sure you want to install on $1 ?" 8 48
+-		[ $? -ne 0 ] && cancel_format=1 || cancel_format=0
+ 	fi
+ }
+ 
+-create_winitem_bios()
+-{
+-#	win=`fdisk -l /dev/$(echo $1 | cut -b-3) | grep ^/dev | cut -b6-12,55- | awk '{
+-#		if (match($2, "NTFS"))
+-#			print $1
+-#	}' | head -1`
+-#	if [ -n "$win" ]; then
+-#		dialog --backtitle "$BACK_TITLE" --title " Confirm " --yesno \
+-#			"\nThe installer found a Windows partition in /dev/$win.\n\nDo you want to create a boot item for Windows?" 9 59
+-#		[ $? -ne 0 ] && return 1
+-#		wp=$((`echo $win | cut -b4-`-1))
+-#		sed -i "s|#WINDOWS_ENTRY|add_winboot_entry $d $wp|" /hd/boot/grub/android.cfg
+-#	fi
+-	
+-	mkdir /win
+-	for i in `blkid | grep 'TYPE="ntfs"' | awk -F: '{print substr($1, 6)}'`; do
+-		try_mount ro /dev/$i /win
+-		if [ -d "/win/Program Files" ] && [ -d "/win/Windows/System32" ]; then
+-			dialog --backtitle "$BACK_TITLE" --title " Confirm " --yesno \
+-				"\nThe installer found a Windows partition in /dev/$win.\n\nDo you want to create a boot item for Windows?" 9 59
+-			[ $? -ne 0 ] && continue
+-			export windows_part=$i
+-		fi
+-	get_part_info $windows_part
+-	sed -i "s|#WINDOWS_ENTRY|add_winboot_entry $d $p|" /hd/boot/grub/android.cfg		
+-	umount /win
+-	done
+-
+-}
+-
+-# The name is kinda misleading, just check if a Windows drive exist
+-# and then warn about the limitation of UEFI Windows detection on our 
+-# grub
+-create_winitem_uefi()
++create_winitem()
+ {
+-	mkdir /win
+-	for i in `blkid | grep 'TYPE="ntfs"' | awk -F: '{print substr($1, 6)}'`; do
+-		try_mount ro /dev/$i /win
+-		if [ -d "/win/Program Files" ] && [ -d "/win/Windows/System32" ]; then
+-			export windows_part=$i
+-		fi
+-		umount /win
+-	done
+-	
+-	if [ -n "${windows_part}" ]; then
+-		dialog --backtitle "$BACK_TITLE" --clear --title " Notice " --msgbox \
+-			"\nDetected a Windows installation on your machine. On UEFI, our Grub2 may not be
+-able to detect your Windows installation due to some limitation.\n\nIf you want to know more, check BlissOS Documentation for more info." 11 58
++	win=`fdisk -l /dev/$(echo $1 | cut -b-3) | grep ^/dev | cut -b6-12,55- | awk '{
++		if (match($2, "NTFS"))
++			print $1
++	}' | head -1`
++	if [ -n "$win" ]; then
++		dialog --title " Confirm " --yesno \
++			"\nThe installer found a Windows partition in /dev/$win.\n\nDo you want to create a boot item for Windows?" 9 59
++		[ $? -ne 0 ] && return 1
++		wp=$((`echo $win | cut -b4-`-1))
++		sed -i "s|#WINDOWS_ENTRY|add_winboot_entry $d $wp|" /hd/boot/grub/android.cfg
+ 	fi
+ }
+ 
+-make_userdata_part()
+-{
+-	local cmd
+-	echo -e '"Do not re-format" ""\next4 ""\nf2fs ""' > $menufile
+-#	set_answer_if_auto $FORCE_FORMAT
+-	choose_formatfs "Choose filesystem" "Please select a filesystem to format $1:"
+-	case "$choice" in
+-		ext4)
+-			cmd="mkfs.ext3 -L"
+-			;;
+-		f2fs)
+-			cmd="make_f2fs -l"
+-			;;
+-		*)
+-			;;
+-	esac
+-	if [ -n "$cmd" ]; then		
+-	dialog --backtitle "$BACK_TITLE" --title " Question " --nook --nocancel --inputbox \
+-		"\nWould you like to customize the formatted drive name ? 
+-\n\nYou can change it here or press Enter to skip:" 10 63 "userdata" 2> /tmp/userdata_drive_name
+-
+-	dialog --colors --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-		"\nYou chose to format $1 to $choice.\n\Z1THE FORMAT PROCESS WILL START IMMEDIATELY. \
+-ALL DATA IN THIS PARTITION WILL BE LOST.\Zn\n\nAre you sure to format the partition $1?" 10 59
+-	[ $? -ne 0 ] && return 1
+-	$cmd `cat /tmp/userdata_drive_name` /dev/$1 | awk '{
+-		# FIXME: very imprecise progress
+-		if (match($0, "done"))
+-			printf("%d\n", i+=33)
+-	}' | progress_bar "Formatting" "Formatting partition $1..."
+-	convert_fs $1
+-	export userdata_partition=$1
+-	else
+-	dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-		"\n Are you sure you want to pick $1 as userdata partition ? \n\n You can always pick again if you choose 'Restart the installer'" 10 75
+-	[ $? -ne 0 ] && return 1
+-	export userdata_partition=$1
+-	fi
+-}
+-
+-setup_userdata_part()
+-{
+-	list_partitions > $menufile
+-	printf "\"\" \"\"\n\"Create/Modify partitions\" 
+-\"\"\n\"Restart the installer\" 
+-\"\"\n\"Open command-line shell\" \"\"\n" >> $menufile
+-	choose_partmenu "Choose Partition" "Here you can choose a separate partition dedicated to only store your userdata.
+-\n\nRecommended minimum free space - 12GB  |  Optimum free space >= 32GB\n\nPartition | Filesystem | Label            | Size     | Drive name/model"
+-	case "$choice" in
+-		Create*)
+-			partition_drive
+-			;;
+-		Restart*the*installer*)
+-			;;
+-		*shell*)
+-			dialog --backtitle "$BACK_TITLE" --clear --title " WARNING " --nocancel --pause "You are going to use AOSP's shell, if you want to go back to the installer please type exit" 12 41 8
+-			/system/bin/sh 2>&1
+-			;;
+-		*)
+-			make_userdata_part $choice
+-			dialog --backtitle "$BACK_TITLE" --clear --title " WARNING " --nocancel --pause "The installer will now restart but the userdata option will remain. You'll be asked one more time later on to confirm your partition choice." 12 50 8
+-			;;
+-	esac
+-}
+-
+ check_data_img()
+ {
+ 	losetup /dev/loop7 data.img
+ 	if blkid /dev/loop7 | grep -q ext[23]; then
+-		dialog --backtitle "$BACK_TITLE" --clear --title " Warning " --yesno \
++		dialog --clear --title " Warning " --yesno \
+ 			"\nYour data.img is an ext2/3 filesystem. We suggest you convert it to ext4 for better reliability." 8 58
+ 		[ $? -eq 0 ] && convert_fs loop7
+ 	fi
+@@ -524,12 +348,12 @@ create_img()
+ {
+ 	bname=`basename $2`
+ 	if [ -e $2 ]; then
+-		dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
++		dialog --title " Confirm " --defaultno --yesno \
+ 			"\n $bname exists. Overwrite it?" 7 38
+ 		[ $? -ne 0 ] && return 255
+ 		rm -f $2
+ 	fi
+-	dialog --backtitle "$BACK_TITLE" --title " Question " --nook --nocancel --inputbox \
++	dialog --title " Question " --nook --nocancel --inputbox \
+ 		"\nPlease input the size of the $bname in MB:" 8 63 $1 2> $tempfile
+ 	size=`cat $tempfile`
+ 	[ 0$size -le 0 ] && size=2048
+@@ -538,24 +362,24 @@ create_img()
+ 
+ create_data_img()
+ {
+-	dialog --backtitle "$BACK_TITLE" --title " Confirm " --yesno \
+-		"\nThe installer is going to create a disk image to save the user data. At least 4000MB free disk space is recommended.\n\nAre you sure to create the image?" 11 62
++	dialog --title " Confirm " --yesno \
++		"\nThe installer is going to create a disk image to save the user data. At least 2048MB free disk space is recommended.\n\nAre you sure to create the image?" 11 62
+ 
+ 	if [ $? -eq 0 ]; then
+ 		if create_img 2048 data.img; then
+ 			losetup /dev/loop6 data.img
+ 			mkfs.ext4 -L /data /dev/loop6 > /dev/tty6
+ 		fi
+-		[ $? -ne 0 ] && dialog --backtitle "$BACK_TITLE" --msgbox "\n Failed to create data.img." 7 33
++		[ $? -ne 0 ] && dialog --msgbox "\n Failed to create data.img." 7 33
+ 	else
+-		dialog --backtitle "$BACK_TITLE" --title " Warning " --msgbox \
++		dialog --title " Warning " --msgbox \
+ 			"\nOK. So data will be save to a RAMDISK(tmpfs), and lose after power off." 8 49
+ 	fi
+ }
+ 
+ try_upgrade()
+ {
+-	[ -d $1 ] && dialog --backtitle "$BACK_TITLE" --title "No install found to upgrade at: $1" --nocancel --pause "" 8 41 1 && return
++	[ -d $1 ] && dialog --title "No install found to upgrade at: $1" --nocancel --pause "" 8 54 1 && return
+ 
+ 	for d in hd/*; do
+ 		[ -n "`ls "$d"/system* 2> /dev/null`" ] && echo \"`basename $d`\" \"\"
+@@ -619,293 +443,121 @@ install_to()
+ 	while [ 1 ]; do
+ 		format_fs $1
+ 		try_mount rw /dev/$1 /hd && break
+-		dialog --backtitle "$BACK_TITLE" --clear --title " Error " --defaultno --yesno \
+-			"\n Cannot mount /dev/$1\n Do you want to force format it to ext4 ?" 8 45
++		dialog --clear --title " Error " --defaultno --yesno \
++			"\n Cannot mount /dev/$1\n Do you want to format it?" 8 37
+ 		[ $? -ne 0 ] && return 255
+ 		FORCE_FORMAT=ext4
+ 	done
+-	
+-	if [ "$cancel_format" = 1 ]; then
+-		return 1
+-	else
+-		install_process $1
+-	fi
+-
+-}
+-
+-install_grub_bios()
+-{
+-	get_part_info $1
+-	if fdisk -l /dev/$disk | grep -q GPT; then
+-		umount /hd
+-		dialog --backtitle "$BACK_TITLE" --title " Warning " --defaultno --yesno \
+-			"\nFound GPT on /dev/$disk. Grub2 in Legacy can't be installed to GPT. Do you want to convert it to MBR?\n\nWARNING: This is a dangerous operation. You should backup your data first." 11 63
+-		[ $? -eq 1 ] && rebooting
+-		plist=$(sgdisk --print /dev/$disk | awk '/^  / { printf "%s:", $1 }' | sed 's/:$//')
+-		sgdisk --gpttombr=$plist /dev/$disk > /dev/tty6
+-		until try_mount rw /dev/$1 /hd; do
+-			sleep 1
+-		done
+-	fi
+-	grub-install --directory=/lib/grub/i386-pc --modules="all_video video png gfxmenu gfxterm" --root-directory=/hd /dev/$disk
+-	[ $? -ne 0 ] && return 255
+-
+-	cp /grub2/efi/boot/android.cfg /hd/boot/grub/
+-	if [ -d src/boot/grub/theme ]; then
+-		cp -R src/boot/grub/[ft]* /hd/boot/grub
+-		find /hd/boot/grub -name TRANS.TBL -delete
+-	fi
+-	if [ "$skip_ota_prepare" -eq 0 ]; then
+-		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|; s|/kernel|/kernel_a|; s|/initrd.img|/initrd_a.img|" /hd/boot/grub/android.cfg
+-	else
+-		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|" /hd/boot/grub/android.cfg
+-	fi
+-	sed -i "/fwsetup/d" /hd/boot/grub/android.cfg
+-	grubcfg=/hd/boot/grub/grub.cfg
+-	echo -e 'set timeout_style=menu\ntimeout=5\nset debug_mode="(DEBUG mode)"' > $grubcfg
+-	echo -e "set kdir=/$asrc" >> $grubcfg
+-	echo -e '\nsource /boot/grub/android.cfg' >> $grubcfg
+-}
+ 
+-install_grub_efi()
+-{
+-	# Instead of copying EFI bootloader & config like a layout of a Linux image
+-	# with /boot/grub and /efi, we do like what linux installer did by copy
+-	# all the .efi to /EFI/$EFI_LABEL and create grub.cfg. Theme and andorid.cfg
+-	# will put on /boot of the installation drive.
+-	efidir=/EFI/"$EFI_LABEL"
+-	grubcfg=efi$efidir/grub.cfg
+-
+-	if [ `dirname $efidir` ]; then
+-	mkdir -p /efi/EFI
+-	fi
+-
+-	if [ "$efi" = "32" ]; then
+-		bootefi=bootia32.efi
+-		grubefi=grubia32.efi
+-		efimod=i386-efi
+-	else
+-		bootefi=BOOTx64.EFI
+-		grubefi=grubx64.efi
+-		efimod=x86_64-efi
+-	fi
+-	
+-	source /grub2/scripts/grub_modules
+-	
+-	mkdir -p efi$efidir
+-	cp -af grub2/efi/boot/bootia32.efi efi$efidir
+-	cp -af grub2/efi/boot/BOOTx64.EFI efi$efidir
+-	cp -af grub2/efi/boot/mmia32.efi efi$efidir
+-	cp -af grub2/efi/boot/mmx64.efi efi$efidir
+-	# Don't copy android.cfg to /EFI/$EFI_LABEL, make grub.cfg instead
+-	find efi$efidir -name android.cfg -delete
+-	mkdir -p /hd/boot/grub
+-	cp /grub2/efi/boot/android.cfg /hd/boot/grub/
+-#		cmdline="$cmdline androidboot.efidir=$efidir androidboot.efidisk=$boot"
+-	if [ "$skip_ota_prepare" -eq 0 ]; then
+-		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|; s|/kernel|/kernel_a|; s|/initrd.img|/initrd_a.img|" /hd/boot/grub/android.cfg
+-	else
+-		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|" /hd/boot/grub/android.cfg
+-	fi
+-	[ -s /hd/boot/grub/grubenv ] || ( printf %-1024s "# GRUB Environment Block%" | sed 's/k%/k\n/; s/   /###/g' > /hd/boot/grub/grubenv )
+-
+-	echo -e "search.fs_uuid $fs_uuid root" > $grubcfg
+-	echo -e 'set timeout_style=menu\ntimeout=5\nset debug_mode="(DEBUG mode)"' >> $grubcfg
+-	echo -e "set prefix=(\$root)'/boot/grub'" >> $grubcfg
+-	echo -e "set kdir=/$asrc" >> $grubcfg
+-	echo -e '\nsource $prefix/android.cfg' >> $grubcfg
+-	if [ -d src/boot/grub/theme ]; then
+-		cp -R src/boot/grub/[ft]* /hd/boot/grub
+-		find /hd/boot/grub -name TRANS.TBL -delete
+-	fi
+-
+-	# Checking for old EFI entries, removing them and adding new depending on bitness
+-	efibootmgr | grep -Eo ".{0,6}Android-x86" | cut -c1-4 > /tmp/efientries
+-	if [ -s /tmp/efientries ]; then
+-		set_answer_if_auto 1
+-		adialog --title " Question " --yesno "\nEFI boot entries for legacy Android-x86 installations were found.\n\nDo you wish to delete them?" 10 61
+-		[ $? -eq 0 ] && while read entry; do efibootmgr -Bb "$entry" > /dev/tty4 2>&1; done < /tmp/efientries
+-	fi
+-
+-	efibootmgr | grep -Eo ".{0,6}$EFI_LABEL" | cut -c1-4 > /tmp/efientries
+-	if [ -s /tmp/efientries ]; then
+-		set_answer_if_auto 1
+-		adialog --title " Question " --yesno "\nEFI boot entries for previous $EFI_LABEL installations were found.\n\nDo you wish to delete them?" 10 61
+-		[ $? -eq 0 ] && while read entry; do efibootmgr -Bb "$entry" > /dev/tty4 2>&1; done < /tmp/efientries
+-	fi
+-	
+-	# We do exactly like what Debian did
+-	touch /tmp/tmpgrubconf
+-	echo 'normal (memdisk)/grub.cfg' > /tmp/tmpgrubconf
+-
+-	source /grub2/scripts/memdisk_gen
+-	# Create a monolithic Grub2 efi
+-	grub-mkimage --format="$efimod" \
+-					--output=efi$efidir/$grubefi \
+-					--config=/tmp/tmpgrubconf \
+-					--directory="lib/grub/$efimod" \
+-					--memdisk=/tmp/memdisk.squashfs \
+-					--prefix="$efidir" \
+-					$GRUB_MODULES
+-
+-	# Create boot entry for shim in nvram
+-	efibootmgr -u -v -c -d /dev/$disk -p $esp -L "$EFI_LABEL" -l $efidir/$bootefi > /dev/tty4 2>&1	
+-}
+-
+-install_refind()
+-{
+-	# Current we will only install refind without SB
+-	# Also install where rEFInd usually being installed
+-	efidir=/EFI/refind
+-
+-	if [ `dirname $efidir` ]; then
+-	mkdir -p /efi/EFI
+-	fi
+-	mkdir -p efi$efidir
+-
+-	# Defining files & dir name
+-	if [ "$efi" = "32" ]; then
+-		refinddrv=drivers_ia32
+-		refindefi=refind_ia32.efi
+-		refindtools=tools_ia32
+-	else
+-		refinddrv=drivers_x64
+-		refindefi=refind_x64.efi
+-		refindtools=tools_x64
+-	fi
+-	# Define config file
+-	refindcfg=efi$efidir/refind.conf
+-
+-	# Start copying files to /efi/EFI/refind
+-	cp -R /refind/refind/$refinddrv efi$efidir
+-	cp -R /refind/refind/$refindtools efi$efidir
+-	cp -R /refind/refind/$refindefi efi$efidir
+-	
+-	cp -af /refind/refind/refind.conf-sample $refindcfg
+-
+-	if [ -d /refind/themes ]; then
+-		cp -R /refind/themes efi$efidir
+-		echo -e '# Load rEFInd theme Regular\ninclude themes/refind-theme-regular/theme.conf' >> $refindcfg
+-	fi
+-	
+-	# Start copying or configuring BlissOS boot options on rEFInd
+-	cp -R /refind/android.cfg efi$efidir
+-	echo -e '\ninclude android.cfg' >> $refindcfg
+-	
+-	if [ "$skip_ota_prepare" -eq 0 ]; then
+-		sed -i "s|FS_UUID|$fs_partuuid|; s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|; s|/kernel|/kernel_a|; s|/initrd.img|/initrd_a.img|" efi$efidir/android.cfg
+-	else
+-		sed -i "s|FS_UUID|$fs_partuuid|; s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|" efi$efidir/android.cfg
+-	fi
+-
+-	# Checking for old EFI entries, removing them and adding new depending on bitness
+-	efibootmgr | grep -Eo ".{0,6}rEFInd Boot Manager" | cut -c1-4 > /tmp/efientries
+-	if [ -s /tmp/efientries ]; then
+-		set_answer_if_auto 1
+-		adialog --title " Question " --yesno "\nEFI boot entries of an old rEFInd version were found.\n\nDo you wish to delete them?" 10 61
+-		[ $? -eq 0 ] && while read entry; do efibootmgr -Bb "$entry" > /dev/tty4 2>&1; done < /tmp/efientries
+-	fi
+-
+-	# Create BOOT.CSV
+-#	echo -e "$refinddrv,rEFInd Boot Manager,,This is the boot entry for rEFInd" > /tmp/refindboot.csv
+-#	iconv -t UCS-2 /tmp/refindboot.csv > efi$efidir/BOOT.CSV
+-
+-	echo "$refinddrv,rEFInd Boot Manager,,This is the boot entry for rEFInd" | \
+-		iconv -t UCS-2 > "efi$efidir/BOOT.CSV"
+-
+-	# Create boot entry for refind in nvram
+-	efibootmgr -u -v -c -d /dev/$disk -p $esp -L "rEFInd Boot Manager" -l $efidir/$refindefi > /dev/tty4 2>&1
+-}
+-
+-install_process()
+-{
+ 	fs=`cat /proc/mounts | grep /dev/$1 | awk '{ print $3 }'`
+-	fs_uuid=`blkid /dev/$1 | awk -F '\"' '{print $4}'`
+-	fs_partuuid=`fdisk -x | grep /dev/$1 | awk '{ print $6 }'`
+ 	cmdline=`sed "s|\(initrd.*img\s*\)||; s|quiet\s*||; s|\(vga=\w\+\?\s*\)||; s|\(DPI=\w\+\?\s*\)||; s|\(OEM_INSTALL=\w\+\?\s*\)||; s|\(INSTALL=\w\+\?\s*\)||; s|\(SRC=\S\+\?\s*\)||; s|\(DEBUG=\w\+\?\s*\)||; s|\(BOOT_IMAGE=\S\+\?\s*\)||; s|\(iso-scan/filename=\S\+\?\s*\)||; s|[[:space:]]*$||" /proc/cmdline`
++	cmdline="$cmdline androidboot.slot_suffix=_a"
+ 
+ 	[ -n "$INSTALL_PREFIX" ] && asrc=$INSTALL_PREFIX || asrc=android-$VER
+ 	set_answer_if_auto 1
+-
+-	datapart_cancel=1
+-	if [ -n "$userdata_partition" ]; then
+-		dialog --backtitle "$BACK_TITLE" --title " Confirm " --yesno \
+-			"\nYou have chosen $userdata_partition as the userdata partition, are you sure you want to store data here ?
+-\n\nThis is the final confirmation ! If you press 'No', setup will cancel this choice and start putting data next to system instead." 10 75
+-		if [ $? -eq 0 ]; then
+-			datapart_cancel=0
+-			cmdline="$cmdline DATA=/dev/$userdata_partition"
++	[ -z "$efi" ] && adialog --title " Confirm " --no-label Skip --defaultno --yesno \
++		"\n Do you want to install boot loader GRUB?" 7 47
++	if [ $? -eq 0 ]; then
++		get_part_info $1
++		if fdisk -l /dev/$disk | grep -q GPT; then
++			umount /hd
++			dialog --title " Warning " --defaultno --yesno \
++				"\nFound GPT on /dev/$disk. The legacy GRUB can't be installed to GPT. Do you want to convert it to MBR?\n\nWARNING: This is a dangerous operation. You should backup your data first." 11 63
++			[ $? -eq 1 ] && rebooting
++			plist=$(sgdisk --print /dev/$disk | awk '/^  / { printf "%s:", $1 }' | sed 's/:$//')
++			sgdisk --gpttombr=$plist /dev/$disk > /dev/tty6
++			until try_mount rw /dev/$1 /hd; do
++				sleep 1
++			done
+ 		fi
+-	fi
+-
+-	## Ask if user want to prepare for delta update
+-	## If NTFS is chosen, automatically choose no
+-	if [ "$(blkid /dev/$1 | grep "ntfs")" ]; then
+-		skip_ota_prepare=1
+-	else
+-		dialog --backtitle "$BACK_TITLE" --clear --title " Confirm " --yesno \
+-			"\nWould you like the installer to prepare for OTA update ?
+-	\n\nThis operation will double the system size ! We only recommend it if you have more storage than the recommended size !" 11 55
+-		[ $? -eq 0 ] && skip_ota_prepare=0 || skip_ota_prepare=1
+-	fi
++		grub-install --directory=/lib/grub/i386-pc --root-directory=/hd /dev/$disk
++		[ $? -ne 0 ] && return 255
+ 
+-	if [ "$skip_ota_prepare" -eq 0 ]; then
+-		cmdline="$cmdline androidboot.slot_suffix=_a"
++		cp /grub2/efi/boot/android.cfg /hd/boot/grub/
++		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|; s|/kernel|/kernel_a|; s|/initrd.img|/initrd_a.img|" /hd/boot/grub/android.cfg
++		sed -i "/fwsetup/d" /hd/boot/grub/android.cfg
++		grubcfg=/hd/boot/grub/grub.cfg
++		echo -e 'set timeout_style=hidden\nset timeout=1\nset debug_mode="(DEBUG mode)"' > $grubcfg
++		echo -e "set kdir=/$asrc" >> $grubcfg
++		echo -e '\nsource /boot/grub/android.cfg' >> $grubcfg
++		create_winitem
+ 	fi
+ 
+-	## Legacy/BIOS installation
+-	[ -z "$efi" ] && adialog --title " Confirm " --no-label Skip --defaultno --yesno \
+-		"\n Do you want to install Grub2 bootloader ?" 7 47
++	[ -n "$efi" ] && adialog --title " Confirm " --no-label Skip --yesno \
++		"\n Do you want to install EFI GRUB2?" 7 39
+ 	if [ $? -eq 0 ]; then
+-		install_grub_bios $1
+-		create_winitem_bios
+-	fi
+-
+-	## UEFI installation
+-	## Prepare ESP before asking bootloader options
+-	if [ -n "$efi" ]; then
+-		if [ "$esp_manual_done" = "1" ]; then
+-			boot=$boot_esp
+-			esp=$esp_chosen
+-			get_part_info $boot
+-		else
+-			[ -z "$OEM_INSTALL" -o -n "$AUTO_UPDATE" ] && for i in `list_disks`; do
+-				disk=`basename $i`
+-				esp=`sgdisk --print /dev/$disk 2> /dev/null | grep EF00 | awk '{print $1}'`
+-				[ -n "$esp" ] && boot=`find_partition $disk $esp` && break
+-			done
+-			if [ -z "$esp" ]; then
+-				get_part_info $1
+-				boot=$(blkid /dev/$disk* | grep -v $disk: | grep vfat | cut -d: -f1 | head -1)
+-				[ -z "$boot" ] && boot=`find_partition $disk 1` || boot=`basename $boot`
+-				esp=`cat /sys/block/$disk/$boot/partition`
+-			fi
++		[ -z "$OEM_INSTALL" -o -n "$AUTO_UPDATE" ] && for i in `list_disks`; do
++			disk=`basename $i`
++			esp=`sgdisk --print /dev/$disk 2> /dev/null | grep EF00 | awk '{print $1}'`
++			[ -n "$esp" ] && boot=`find_partition $disk $esp` && break
++		done
++		if [ -z "$esp" ]; then
++			get_part_info $1
++			boot=$(blkid /dev/$disk* | grep -v $disk: | grep vfat | cut -d: -f1 | head -1)
++			[ -z "$boot" ] && boot=`find_partition $disk 1` || boot=`basename $boot`
++			esp=`cat /sys/block/$disk/$boot/partition`
+ 		fi
+ 		mkdir -p efi
+ 		mountpoint -q efi && umount efi
+ 		wait_for_device $boot
+ 		until try_mount rw /dev/$boot efi; do
+-			dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno "\n Cannot mount /dev/$boot.\n Do you want to format it?" 8 37
++			dialog --title " Confirm " --defaultno --yesno "\n Cannot mount /dev/$boot.\n Do you want to format it?" 8 37
+ 			[ $? -eq 0 ] && mkdosfs -n EFI /dev/$boot
+ 		done
++		if [ "$efi" = "32" ]; then
++			grubcfg=efi/boot/grub/i386-efi/grub.cfg
++			bootefi=bootia32.efi
++		else
++			grubcfg=efi/boot/grub/x86_64-efi/grub.cfg
++			bootefi=BOOTx64.EFI
++		fi
++		if [ -d efi/efi/boot -a ! -s efi/efi/boot/android.cfg ]; then
++			efidir=/efi/Android
++		else
++			efidir=/efi/boot
++			rm -rf efi/efi/Android
++		fi
++		mkdir -p `dirname $grubcfg` efi$efidir
++		cp -af grub2/efi/boot/* efi$efidir
++
++		cmdline="$cmdline androidboot.efidir=$efidir androidboot.efidisk=$boot"
++		sed -i "s|VER|$VER|; s|CMDLINE|$cmdline|; s|OS_TITLE|$OS_TITLE|; s|/kernel|/kernel_a|; s|/initrd.img|/initrd_a.img|" efi$efidir/android.cfg
++		[ -s efi/boot/grub/grubenv ] || ( printf %-1024s "# GRUB Environment Block%" | sed 's/k%/k\n/; s/   /###/g' > efi/boot/grub/grubenv )
++
++		echo -e 'set timeout_style=hidden\nset timeout=1\nset debug_mode="(DEBUG mode)"' > $grubcfg
++		# Our grub-efi doesn't support ntfs directly.
++		# Copy boot files to ESP so grub-efi could read them
++		if [ "$fs" = "fuseblk" ]; then
++			#FIXME: No OTA suuport for kernel and initrd of fuseblk
++			dialog --infobox "\n OTA updates is not supported for fuseblk. \n Please use extfs if you need OTA updates..." 5 27
++			cp -f src/kernel efi$efidir/kernel_a
++			cp -f src/kernel efi$efidir/kernel_b
++			cp -f src/initrd.img efi$efidir/initrd_a.img
++			cp -f src/initrd.img efi$efidir/initrd_b.img
++			echo -e "set kdir=$efidir\nset src=SRC=/$asrc" >> $grubcfg
++		else
++			echo -e "set kdir=/$asrc" >> $grubcfg
++		fi
++		echo -e '\nsource $cmdpath/android.cfg' >> $grubcfg
++		if [ -d src/boot/grub/theme ]; then
++			cp -R src/boot/grub/[ft]* efi/boot/grub
++			find efi/boot/grub -name TRANS.TBL -delete
++		fi
+ 
+-		printf "\n\"Grub2 EFI Bootloader\"
+-\"\"\n\"rEFInd Boot Manager\" \"\"\n" >> /tmp/efioptions
+-		choose_efiboot "Choose EFI Boot" "Since you are using UEFI, we offer two boot options for the OS: \
+-rEFInd Boot Manager or Grub2 EFI Bootloader.\n\nPlease select the one you prefer, or opt for 'Skip' \
+-if you already have a boot solution in place."
+-		case "$choice" in
+-			*Grub2*)
+-				install_grub_efi $1
+-				;;
+-			*rEFInd*)
+-				install_refind $1
+-				;;
+-			*)
+-				;;
+-		esac
+-		# Check if a Windows drive exist, warn about UEFI Windows limitation
+-		create_winitem_uefi
++		# Checking for old EFI entries, removing them and adding new depending on bitness
++		efibootmgr | grep -Eo ".{0,6}Android-x86" | cut -c1-4 > /tmp/efientries
++		if [ -s /tmp/efientries ]; then
++			set_answer_if_auto 1
++			adialog --title " Question " --yesno "\nEFI boot entries for previous Android-x86 installations were found.\n\nDo you wish to delete them?" 10 61
++			[ $? -eq 0 ] && while read entry; do efibootmgr -Bb "$entry" > /dev/tty4 2>&1; done < /tmp/efientries
++		fi
++		efibootmgr -v -c -d /dev/$disk -p $esp -L "Android-x86 $VER" -l $efidir/$bootefi > /dev/tty4 2>&1
++
++		if [ -s efi/startup.nsh ]; then
++			sed -i "s|\\\\efi\\\\Android|$efidir|; s|/|\\\\|g" efi/startup.nsh
++		else
++			echo $efidir/$bootefi | sed 's|/|\\|g' > efi/startup.nsh
++		fi
+ 	fi
+ 
+ 	if [ "$OEM_INSTALL" = "force" ] || [ "$OEM_INSTALL" = "mbr" ] || [ "$OEM_INSTALL" = "efi" ]; then
+@@ -926,7 +578,7 @@ if you already have a boot solution in place."
+ 		sysimg="sfs/system.img"
+ 	fi
+ 
+-	files="/mnt/$SRC/kernel /mnt/$SRC/initrd.img /$sysimg"
++	files="mnt/$SRC/kernel mnt/$SRC/initrd.img $sysimg"
+ 	size=0
+ 	for s in `du -sk $files | awk '{print $1}'`; do
+ 		size=$(($size+$s))
+@@ -935,21 +587,13 @@ if you already have a boot solution in place."
+ 	mkdir -p hd/$asrc
+ 	cd hd/$asrc
+ 	rm -rf system* *.img
+-
+-#	( ( cd /; find $files | $CPIO -H newc -o ) | pv -ns ${size}k | ( $CPIO -iud > /dev/null; echo $? > /tmp/result )) 2>&1 \
+-#		| progress_bar "Installing $OS_TITLE to $1" "Expect to write $size KB..."
+-
+-	## New way to copy files with rsync
+-	(LD_LIBRARY_PATH=/system/system_ext/lib64 rsync -a --info=progress2 $files .; echo $? > /tmp/result) \
+-	| stdbuf -oL awk 'BEGIN { RS="\r" } /%/ { print $2 }' \
+-	| sed --unbuffered 's/%//g' \
+-	| progress_bar "Installing $OS_TITLE to $1" "Expect to write $size KB..."
+-
++	( ( cd /; find $files | $CPIO -H newc -o ) | pv -ns ${size}k | ( $CPIO -iud > /dev/null; echo $? > /tmp/result )) 2>&1 \
++		| progress_bar "Installing $OS_TITLE to $1" "Expect to write $size KB..."
+ 	result=$((`cat /tmp/result`*255))
+ 
+ 	if [ $result -eq 0 ]; then
+ 		for d in android mnt sfs ./$SRC; do
+-			[ -d $d ] && mv $d/* . && rmdir "$d"
++			[ -d $d ] && mv $d/* . && rmdir $d
+ 		done
+ 		chown 0.0 *
+ 		for f in *; do
+@@ -958,137 +602,61 @@ if you already have a boot solution in place."
+ 		
+ 		dialog --infobox "\n Preparing install for A/B updates..." 5 42
+ 
+-		if [ "$skip_ota_prepare" -eq 0 ]; then
+-			dialog --backtitle "$BACK_TITLE" --infobox "\n Preparing install for OTA updates..." 6 41
+-
+-			mv kernel kernel_a
+-			mv initrd.img initrd_a.img
+-			mv system.img system_a.img
+-			gen_img 40 kernel_b
+-			gen_img 40 initrd_b.img
+-			gen_img 4096 system_b.img
+-			gen_img 10 misc.img
+-			resize_img kernel_a kernel_b
+-			resize_img initrd_a.img initrd_b.img
+-			resize_img system_a.img system_b.img
+-		fi
+-
+-		if [ "$datapart_cancel" = 1 ]; then
+-			case "$fs" in
+-				vfat|fuseblk|exfat)
+-					[ -e data.img ] && check_data_img || create_data_img
+-					;;
+-				*)
+-					mkdir -p data
+-					;;
+-			esac
+-		fi
+-	fi
+-
+-	dialog --backtitle "$BACK_TITLE" --infobox "\n Syncing to disk..." 5 27
+-	sync
+-	cd /
+-
+-	return $result
+-}
+-
+-make_esp()
+-{
+-	ESP_CHECK_GPT=$( fdisk -l | grep "EFI System" | grep "/dev/$1" | awk '{ print $1 }' )
+-	ESP_CHECK_MBR=$( fdisk -l | grep "EFI (FAT-12/16/32)" | grep "/dev/$1" | awk '{ print $1 }' )
+-
+-	if [ "$ESP_CHECK_GPT" == "/dev/$1" ] || [ "$ESP_CHECK_MBR" == "/dev/$1" ]; then
+-		local cmd
+-		echo -e '"Do not re-format" ""\n"fat32 (CAREFUL)" ""' > $menufile
+-		choose_formatfs  "Choose filesystem" "Please select a filesystem to format $1:"
+-		case "$choice" in
+-			*fat32*)
+-				cmd="mkdosfs -n"
++		mv kernel kernel_a
++		mv initrd.img initrd_a.img
++		mv system.img system_a.img
++		gen_img 40 kernel_b
++		gen_img 40 initrd_b.img
++		gen_img 4096 system_b.img
++		gen_img 10 misc.img
++		resize_img kernel_a kernel_b
++		resize_img initrd_a.img initrd_b.img
++		resize_img system_a.img system_b.img
++
++		case "$fs" in
++			vfat|fuseblk|exfat)
++				[ -e data.img ] && check_data_img || create_data_img
+ 				;;
+ 			*)
++				mkdir -p data
+ 				;;
+ 		esac
+-		if [ -n "$cmd" ]; then		
+-			dialog --backtitle "$BACK_TITLE" --title " Question " --nook --nocancel --inputbox \
+-			"\nWould you like to customize the formatted drive name ? 
+-\n\nYou can change it here or press Enter to skip:" 10 63 "ESP" 2> /tmp/esp_drive_name
+-
+-			[ -n "$OEM_INSTALL" ] || dialog --colors --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-			"\nYou chose to format $1 to $choice.\n\Z1THE FORMAT PROCESS WILL START IMMEDIATELY. 
+-ALL DATA IN THIS PARTITION WILL BE LOST.\Zn\n\nAre you sure to format the partition $1?" 10 59
+-			[ $? -ne 0 ] && return 1
+-			$cmd `cat /tmp/esp_drive_name` /dev/$1 | awk '{
+-				# FIXME: very imprecise progress
+-				if (match($0, "done"))
+-					printf("%d\n", i+=33)
+-			}' | progress_bar "Formatting" "Formatting partition $1..."
+-		else
+-			[ -n "$OEM_INSTALL" ] || dialog --backtitle "$BACK_TITLE" --title " Confirm " --defaultno --yesno \
+-				"\n Are you sure you want to pick $1 as ESP ? \n\n You can always pick again if you choose 'Restart the installer'" 10 75
+-			[ $? -ne 0 ] && return 1
+-		fi
+-
+-		export boot_esp=$1
+-		export esp_chosen=`cat /sys/block/*/$boot_esp/partition`
+-		export esp_manual_done=1
+-	else
+-		dialog --backtitle "$BACK_TITLE" --title " Error " --nocancel --pause \
+-		"This is not an EFI System Partition, please check again" 10 41 4
+-		return 1
+ 	fi
+ 
+-}
++	dialog --infobox "\n Syncing to disk..." 5 27
++	sync
++	cd /
+ 
+-warn_esp()
+-{
+-	dialog --backtitle "$BACK_TITLE" --title " WARNING " --nocancel --pause \
+-"UEFI System detected ! Please select a partition as an \
+-EFI System Partition (ESP). \n \
+-\nIf you don't know what this is, visit BlissOS Documentation \
+-for more info." 14 45 7
++	return $result
+ }
+ 
+-initialize_esp()
++install_hd()
+ {
+-	case "$choice" in
+-		Create*)
+-			partition_drive
+-			;;
+-		Restart*the*installer*)
+-			;;
+-		*shell*)
+-			dialog --backtitle "$BACK_TITLE" --clear --title " WARNING " --nocancel --pause "You are going to use AOSP's shell, if you want to go back to the installer please type exit" 12 41 8
+-			/system/bin/sh 2>&1
+-			;;
+-		Skip*)
+-			dialog --backtitle "$BACK_TITLE" --clear --title " WARNING " --defaultno --yes-label "Yes, skip it" --no-label "No, I changed my mind" \
+-			--yesno "No ESP is selected, setup will use the old detection method to automatically choose ESP instead which
+-is not recommended. Do you still want to skip it ?" 9 55
+-			[ $? -eq 0 ] && export esp_manual_done=0 && retval=0
++	case "$OEM_INSTALL" in
++		[Uu]*)
++			answer=${AUTO_UPDATE:-$(blkid | grep -v loop | grep -v iso9660 | sort | grep Android-x86 | cut -d: -f1 | head -1)}
++			answer=${answer:-$(blkid | grep -v loop | sort | grep ext4 | cut -d: -f1 | head -1)}
++			[ -b "$answer" -o -b /dev/$answer ] && answer=`basename $answer` || answer=
++			AUTO_UPDATE=${answer:-$AUTO_UPDATE}
++			[ -z "$AUTO_UPDATE" ] && OEM_INSTALL=
+ 			;;
+ 		*)
+-			make_esp $choice
+-			retval=$?
++			[ -z "$answer" ] && set_answer_if_auto Create
+ 			;;
+ 	esac
+-	return $retval
+-
+-}
+ 
+-initialize_hd()
+-{
++	select_dev || rebooting
++	retval=1
+ 	case "$choice" in
+ 		Create*)
+ 			partition_drive
++			retval=$?
+ 			;;
+-		*Setup*userdata*partition*)
+-			setup_userdata_part
+-			return 1
+-			;;
+-		Restart*the*installer*)
++		Detect*)
++			dialog --title " Detecting... " --nocancel --pause "" 8 41 1
+ 			;;
+ 		*shell*)
+-			dialog --backtitle "$BACK_TITLE" --clear --title " WARNING " --nocancel --pause "You are going to use AOSP's shell, if you want to go back to the installer please type exit" 12 41 8
++			dialog --clear --title " WARNING " --nocancel --pause "You are going to use AOSP's shell, if you want to go back to the installer please type exit" 12 41 8
+ 			/system/bin/sh 2>&1
+ 			;;
+ 		*)
+@@ -1099,54 +667,27 @@ initialize_hd()
+ 	return $retval
+ }
+ 
+-install_hd()
+-{
+-	case "$OEM_INSTALL" in
+-		[Uu]*)
+-			answer=${AUTO_UPDATE:-$(blkid | grep -v loop | grep -v iso9660 | sort | grep Android-x86 | cut -d: -f1 | head -1)}
+-			answer=${answer:-$(blkid | grep -v loop | sort | grep ext4 | cut -d: -f1 | head -1)}
+-			[ -b "$answer" -o -b /dev/$answer ] && answer=`basename $answer` || answer=
+-			AUTO_UPDATE=${answer:-$AUTO_UPDATE}
+-			[ -z "$AUTO_UPDATE" ] && OEM_INSTALL=
+-			;;
+-		*)
+-			[ -z "$answer" ] && set_answer_if_auto Create
+-			;;
+-	esac
+-
+-	# If UEFI is detected, tell user to pick ESP partition
+-	if [ -n "$efi" ]; then
+-	warn_esp
+-	select_dev_esp || rebooting
+-	retval=1
+-	initialize_esp || return $?
+-	fi
+-
+-	select_dev || rebooting
+-	retval=1
+-	initialize_hd || return $?
+-	return $retval
+-}
+-
+ do_install()
+ {
+-	chmod 755 /sbin/*
+ 	booted_from=`basename $dev`
+ 	efi=$(cat /sys/firmware/efi/fw_platform_size 2> /dev/null)
+ 	[ -n "$efi" ] && mount -t efivarfs none /sys/firmware/efi/efivars
++	
++	chmod 755 /sbin/grub-install
++	chmod 755 /sbin/mkntfs
++	chmod 755 /sbin/efibootmgr
++	chmod 755 /bin/sfdisk
+ 
+ 	until install_hd; do
+-		restart_installer
+-
+ 		if [ $retval -eq 255 ]; then
+-			dialog --backtitle "$BACK_TITLE" --title ' Error! ' --yes-label Retry --no-label Reboot \
++			dialog --title ' Error! ' --yes-label Retry --no-label Reboot \
+ 				--yesno "\nInstallation failed! Either there's no more free space or something is wrong with the installer !" 8 51
+ 			[ $? -eq 1 ] && rebooting
+ 		fi
+ 	done
+ 
+ 	[ -n "$VESA" ] || runit="Run $OS_TITLE"
+-	dialog --backtitle "$BACK_TITLE" --clear --title ' Congratulations! ' \
++	dialog --clear --title ' Congratulations! ' \
+ 		--menu "\n $OS_TITLE is installed successfully.\n " 11 51 13 \
+ 		"$runit" "" "Reboot" "" 2> $tempfile
+ 	case "`cat $tempfile`" in
+-- 
+2.34.1
+

@@ -1,0 +1,90 @@
+From 81af55456bd2b9ce04cd2d0f3369574605a74b9c Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Sat, 16 Dec 2023 13:34:23 -0500
+Subject: [PATCH 012/105] bass: device updates for go builds and cameras
+
+---
+ device.mk | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
+
+diff --git a/device.mk b/device.mk
+index cdd93b0..466269b 100644
+--- a/device.mk
++++ b/device.mk
+@@ -61,6 +61,36 @@ PRODUCT_PRODUCT_PROPERTIES += \
+     ro.lmk.use_minfree_levels=true \
+     ro.lmk.use_psi=true \
+     ro.lmk.use_new_strategy=false
++else
++# LMKd
++PRODUCT_PRODUCT_PROPERTIES += \
++    ro.lmk.critical_upgrade=true \
++    ro.lmk.use_psi=true \
++    ro.lmk.use_new_strategy=false
++    
++    # We want to be able to set this via kernel cli
++    # ro.lmk.use_minfree_levels=true
++endif
++
++# Disable support of one-handed mode
++PRODUCT_PRODUCT_PROPERTIES += \
++    ro.support_one_handed_mode=false
++
++# Go mode tweaks
++ifeq ($(IS_GO_VERSION),true)
++PRODUCT_PRODUCT_PROPERTIES += \
++    supplicant_scan_interval=200
++
++# Set Bliss specific identifier for Android Go enabled products
++PRODUCT_TYPE := go
++
++# Dex
++PRODUCT_ALWAYS_PREOPT_EXTRACTED_APK := true
++
++# Boot image
++PRODUCT_USE_PROFILE_FOR_BOOT_IMAGE := true
++PRODUCT_DEX_PREOPT_BOOT_IMAGE_PROFILE_LOCATION := frameworks/base/config/boot-image-profile.txt
++
+ endif
+ 
+ PRODUCT_COPY_FILES := \
+@@ -100,6 +130,17 @@ PRODUCT_COPY_FILES += \
+     frameworks/native/data/etc/android.hardware.audio.low_latency.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.audio.low_latency.xml \
+     frameworks/native/data/etc/android.hardware.bluetooth.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth.xml \
+     frameworks/native/data/etc/android.hardware.bluetooth_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth_le.xml \
++    frameworks/native/data/etc/android.hardware.camera.ar.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.ar.xml \
++    frameworks/native/data/etc/android.hardware.camera.autofocus.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.autofocus.xml \
++    frameworks/native/data/etc/android.hardware.camera.concurrent.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.concurrent.xml \
++    frameworks/native/data/etc/android.hardware.camera.external.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.external.xml \
++    frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.flash-autofocus.xml \
++    frameworks/native/data/etc/android.hardware.camera.front.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.front.xml \
++    frameworks/native/data/etc/android.hardware.camera.full.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.full.xml \
++    frameworks/native/data/etc/android.hardware.camera.manual_postprocessing.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.manual_postprocessing.xml \
++    frameworks/native/data/etc/android.hardware.camera.manual_sensor.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.manual_sensor.xml \
++    frameworks/native/data/etc/android.hardware.camera.raw.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.raw.xml \
++    frameworks/native/data/etc/android.hardware.camera.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.xml \
+     frameworks/native/data/etc/android.hardware.ethernet.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.ethernet.xml \
+     frameworks/native/data/etc/android.hardware.fingerprint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.fingerprint.xml \
+     frameworks/native/data/etc/android.hardware.gamepad.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.gamepad.xml \
+@@ -244,6 +285,8 @@ ifeq ($(IS_GO_VERSION),true)
+ $(call inherit-product, build/target/product/go_defaults.mk)
+ PRODUCT_TYPE := go
+ DONT_UNCOMPRESS_PRIV_APPS_DEXS := true
++MALLOC_SVELTE := true
++$(call inherit-product-if-exists, frameworks/base/data/sounds/AudioPackageGo.mk)
+ endif
+ 
+ # Widevine addons
+@@ -281,6 +324,9 @@ $(call inherit-product-if-exists, vendor/google/proprietary/SettingsIntelligence
+ # Boringdroid
+ $(call inherit-product-if-exists, vendor/boringdroid/boringdroid.mk)
+ 
++# vendor customization layer
++$(call inherit-product-if-exists, vendor/bass/branding.mk)
++
+ # Enable MultiWindow
+ PRODUCT_PROPERTY_OVERRIDES += \
+     persist.sys.debug.multi_window=true
+-- 
+2.34.1
+
