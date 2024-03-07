@@ -103,6 +103,10 @@ function update_apps()
 function copy_configs()
 {    
     if [ "$USE_BLISS_KIOSK_LAUNCHER" = "true" ]; then
+        if [ ! -f packages/apps/BlissKioskLauncher/build.gradle ]; then
+            echo -e "Kiosk launcher source not found. Please make sure you have licensed access. Aborting..."
+            exit 1
+        fi
         echo -e "Kiosk launcher selected. Copying configs now..."
         echo ""
         cp -r vendor/$vendor_name/configs/grub_configs/kiosk/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
@@ -117,6 +121,13 @@ function copy_configs()
         echo -e "Grub configs updated"
     fi
     if [[ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "true" ]] || [[ "$USE_BLISS_RESTRICTED_LAUNCHER" = "true" ]]; then
+        if [ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "true" ]; then
+            # check if user has access to restricted launcher pro apk by checking for the file
+            if [ ! -f vendor/agp-apps/private/restricted_app_pro/Android.mk ]; then
+                echo -e "Restricted launcher pro not found. Please make sure you have licensed access. Aborting..."
+                exit 1
+            fi
+        fi
         echo -e "Restricted launcher selected. Copying configs now..."
         echo ""
         cp -r vendor/$vendor_name/configs/grub_configs/restricted/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
