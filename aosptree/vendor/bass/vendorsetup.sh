@@ -17,7 +17,12 @@ vendor_name=$(basename "$SCRIPT_PATH")
 
 # replace "vendor/branding" with "vendor/$vendor_name" in vendor/$vendor_name/includes/menus/branding-menu/branding-menu.json
 sed -i "s/branding/$vendor_name/g" vendor/$vendor_name/includes/menus/branding-menu/branding-menu.json
-sed -i "s/vendor\/branding/vendor\/$vendor_name/g" vendor/$vendor_name/branding/bootanimation/Android.mk
+if sed -i "s/vendor\/branding/vendor\/$vendor_name/g" vendor/$vendor_name/branding/bootanimation/Android.mk; then
+    echo -e "${green}Setting vendor name\n${reset}"
+else
+    echo -e "${yellow}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without menu...\n${reset}"
+fi
+
 sed -i "s/vendor\/branding/vendor\/$vendor_name/g" vendor/$vendor_name/branding.mk
 
 #setup colors
@@ -43,7 +48,11 @@ export PATH="$SCRIPT_PATH/includes/core-menu/includes/:$PATH"
 source $SCRIPT_PATH/includes/core-menu/includes/easybashgui
 source $SCRIPT_PATH/includes/core-menu/includes/common.sh
 export supertitle="Bliss-Bass Vendor Customization"
-source $SCRIPT_PATH/branding/branding_setup.sh
+if source $SCRIPT_PATH/branding/branding_setup.sh; then
+    echo -e "${green}Loading vendor customization functions\n${reset}"
+else
+    echo -e "${yellow}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without menu...\n${reset}"
+fi
 
 # source the official lunch command
 sed '/ lunch()/,/^}/!d'  build/envsetup.sh | sed 's/function lunch/function aosp_lunch/' > ${tmp_lunch}
@@ -63,17 +72,17 @@ function lunch
     if menu_redirect; then
         echo -e "${green}Starting menu redirect\n${reset}"
     else
-        echo -e "${red}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without menu...\n${reset}"
+        echo -e "${yellow}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without menu...\n${reset}"
     fi
     if copy_wallpaper; then
         echo -e "${green}Starting wallpaper customization\n${reset}"
     else
-        echo -e "${red}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without wallpaper customization...\n${reset}"
+        echo -e "${yellow}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without wallpaper customization...\n${reset}"
     fi
     if copy_grub_background; then
         echo -e "${green}Starting grub background customization\n${reset}"
     else
-        echo -e "${red}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without grub customization...\n${reset}"
+        echo -e "${yellow}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without grub customization...\n${reset}"
     fi
     
     copy_configs
