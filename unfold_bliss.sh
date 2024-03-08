@@ -29,6 +29,8 @@ LOCAL_PATH=$(pwd)
 res_patch_dir="${LOCAL_PATH}/patches-aosp--resolutions"
 top_dir=`readlink -f "$LOCAL_PATH/aosptree"`
 
+# do a submodule sync first
+git submodule update --init --recursive
 
 echo -e "${ltblue}Init repo tree using AOSP manifest ${reset}"
 pushd aosptree
