@@ -1,0 +1,33 @@
+From 98232f6a47b85781988dacfa42b90477dedda5d2 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Thu, 7 Mar 2024 19:10:46 -0500
+Subject: [PATCH] versions: check for release keys before setting properties
+
+---
+ config/versions.mk | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/config/versions.mk b/config/versions.mk
+index 2a1e87b3..91bb02e2 100644
+--- a/config/versions.mk
++++ b/config/versions.mk
+@@ -8,6 +8,8 @@ BLISS_CODENAME = Arcadia
+ ifeq ($(BLISS_PRODUCTION_BUILD),true)
+ # Flavor and signing
+ 
++# If vendor/bliss/config/signing/releasekey exists, then we can apply the properties
++ifneq ($(wildcard vendor/bliss/config/signing/releasekey),)
+ PRODUCT_PROPERTY_OVERRIDES += \
+     ro.bliss.releasetype=RELEASE \
+ 
+@@ -16,6 +18,7 @@ SIGNING_KEYS := vendor/bliss/config/signing
+ PRODUCT_DEFAULT_DEV_CERTIFICATE := vendor/bliss/config/signing/releasekey
+ PRODUCT_OTA_PUBLIC_KEYS := vendor/bliss/config/signing/platform
+ PRODUCT_EXTRA_RECOVERY_KEYS := vendor/bliss/config/signing/platform
++endif
+ 
+ endif
+ 
+-- 
+2.34.1
+
