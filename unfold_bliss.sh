@@ -50,9 +50,17 @@ popd
 
 echo -e "${ltblue}Sync repo tree ${reset}"
 if [ "$1" != "-s" ]; then
-pushd aosptree
-repo sync -c --force-sync -j4 || exit 1
-popd
+    pushd aosptree
+    repo sync -c --force-sync -j4 || set_failed=true && continue
+
+    # if repo sync failed, use git reset tool
+    if [ "$set_failed" = true ]; then
+        echo -e "${ltblue}Reset repo tree ${reset}"
+        bash vendor/bass/tools/tool-reset-paths.sh || exit 1
+    fi
+    # try and sync again
+    repo sync -c --force-sync -j4 || exit 1
+    popd
 fi
 
 tag_project() {
