@@ -60,9 +60,22 @@ function lunch
     fi
 
     if [ "$BASS_DEBUG" != "true" ] ; then
-    menu_redirect
-    copy_wallpaper
-    copy_grub_background
+    if menu_redirect; then
+        echo -e "${green}Starting menu redirect\n${reset}"
+    else
+        echo -e "${red}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without menu...\n${reset}"
+    fi
+    if copy_wallpaper; then
+        echo -e "${green}Starting wallpaper customization\n${reset}"
+    else
+        echo -e "${red}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without wallpaper customization...\n${reset}"
+    fi
+    if copy_grub_background; then
+        echo -e "${green}Starting grub background customization\n${reset}"
+    else
+        echo -e "${red}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without grub customization...\n${reset}"
+    fi
+    
     copy_configs
     update_apps
     fi
