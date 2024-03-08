@@ -126,7 +126,7 @@ function copy_configs()
 {    
     if [ "$USE_BLISS_KIOSK_LAUNCHER" = "true" ]; then
         if [ ! -f packages/apps/BlissKioskLauncher/build.gradle ]; then
-            echo -e "Kiosk launcher source not found. Please make sure you have licensed access. Aborting..."
+            echo -e "${ltred}Kiosk launcher source not found. Please make sure you have licensed access. Aborting...${reset}"
             exit 1
         fi
         echo -e "Kiosk launcher selected. Copying configs now..."
@@ -146,7 +146,7 @@ function copy_configs()
         if [ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "true" ]; then
             # check if user has access to restricted launcher pro apk by checking for the file
             if [ ! -f vendor/agp-apps/private/restricted_app_pro/Android.mk ]; then
-                echo -e "Restricted launcher pro not found. Please make sure you have licensed access. Aborting..."
+                echo -e "${ltred}Restricted launcher pro not found. Please make sure you have licensed access. Aborting...${reset}"
                 exit 1
             fi
         fi
