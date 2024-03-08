@@ -10,21 +10,6 @@
 # save the official lunch command to aosp_lunch() and source it
 tmp_lunch=`mktemp`
 
-# grab path for this script
-SCRIPT_PATH=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-# define vendor_name as the top directory name
-vendor_name=$(basename "$SCRIPT_PATH")
-
-# replace "vendor/branding" with "vendor/$vendor_name" in vendor/$vendor_name/includes/menus/branding-menu/branding-menu.json
-sed -i "s/branding/$vendor_name/g" vendor/$vendor_name/includes/menus/branding-menu/branding-menu.json
-if sed -i "s/vendor\/branding/vendor\/$vendor_name/g" vendor/$vendor_name/branding/bootanimation/Android.mk; then
-    echo -e "${green}Setting vendor name\n${reset}"
-else
-    echo -e "${yellow}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without menu...\n${reset}"
-fi
-
-sed -i "s/vendor\/branding/vendor\/$vendor_name/g" vendor/$vendor_name/branding.mk
-
 #setup colors
 red=`tput setaf 1`
 green=`tput setaf 2`
@@ -42,6 +27,21 @@ ltpurple=`tput setaf 13`
 CL_CYN=`tput setaf 12`
 CL_RST=`tput sgr0`
 reset=`tput sgr0`
+
+# grab path for this script
+SCRIPT_PATH=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+# define vendor_name as the top directory name
+vendor_name=$(basename "$SCRIPT_PATH")
+
+# replace "vendor/branding" with "vendor/$vendor_name" in vendor/$vendor_name/includes/menus/branding-menu/branding-menu.json
+sed -i "s/branding/$vendor_name/g" vendor/$vendor_name/includes/menus/branding-menu/branding-menu.json
+if sed -i "s/vendor\/branding/vendor\/$vendor_name/g" vendor/$vendor_name/branding/bootanimation/Android.mk; then
+    echo -e "${green}Setting vendor name\n${reset}"
+else
+    echo -e "${yellow}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without menu...\n${reset}"
+fi
+
+sed -i "s/vendor\/branding/vendor\/$vendor_name/g" vendor/$vendor_name/branding.mk
 
 echo "SCRIPT_PATH: $SCRIPT_PATH"
 export PATH="$SCRIPT_PATH/includes/core-menu/includes/:$PATH"
