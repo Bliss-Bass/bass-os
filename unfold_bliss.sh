@@ -40,8 +40,10 @@ rm default.xml
 cp ${LOCAL_PATH}/manifests/bliss-static.xml bliss.xml
 cp ${LOCAL_PATH}/manifests/bass.xml bass.xml
 cp ${LOCAL_PATH}/manifests/default_bliss.xml default.xml
-if [ -f ${LOCAL_PATH}/private/manifests/private*.xml ]; then
+private_manifests_exist=$(ls ${LOCAL_PATH}/private/manifests/*.xml | wc -l)
+if [ $private_manifests_exist -gt 0 ]; then
     mkdir -p ../local_manifests
+    echo -e "${ltblue}Copy private manifests ${reset}"
     cp ${LOCAL_PATH}/manifests/private*.xml ../local_manifests/
     cp ${LOCAL_PATH}/private/manifests/private*.xml ../local_manifests/
     cp ${LOCAL_PATH}/private/addons/**/manifest/private*.xml ../local_manifests/
