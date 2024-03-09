@@ -1,0 +1,6 @@
+*
+!patchsets/
+!patchsets-go/
+!patchsets-bass/
+!patchsets--resolutions/
+!autopatch.sh

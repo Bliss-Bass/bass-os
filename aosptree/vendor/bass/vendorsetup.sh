@@ -397,6 +397,27 @@ function check_patchsets()
     fi
 }
 
+function apply_addon_patches() 
+{
+    patchset_type=$1
+    local T=$(gettop)
+    if [ ! "$T" ]; then
+        echo "[lunch] Couldn't locate the top of the tree.  Try setting TOP." >&2
+        return
+    fi
+    echo "[lunch] Patchsets found"
+    if [ "$patchset_type" != "" ]; then
+        if [ -d vendor/$vendor_name/patches/patchsets-$patchset_type ]; then
+            echo "Applying addon patchsets: vendor/$vendor_name/patches/patchsets-$patchset_type/$patchset_type"
+            bash vendor/$vendor_name/patches/autopatch.sh vendor/$vendor_name/patches/patchsets-$patchset_type/$patchset_type
+        else
+            echo "No addon patchsets found for $patchset_type"
+        fi
+    else
+        echo "No addon patchsets specified"
+    fi
+}
+
 # Get the exact value of a build variable.
 function get_build_var()
 {
