@@ -54,6 +54,7 @@ export USE_GBOARD_LITE_PREBUILT=false
 export USE_MINIMAL_FOSS_APPS=false
 export BLISS_DISABLE_DEVICE_SEARCH=false
 export BLISS_BUILD_SECURE_ADB=false
+export USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS=false
 
 # Help dialog
 function displayHelp() {
@@ -81,6 +82,7 @@ function displayHelp() {
     echo "--crosslauncher        Enable cross launcher"
     echo "--tvlauncher           Enable tv launcher"
     echo "--titaniuslauncher     Enable titanius launcher"
+    echo "--desktoponsecondary   Enable desktop on secondary displays"
     echo ""
     echo "Navigation Options:"
     echo "-t, --tabletnav        Enable tablet navigation"
@@ -125,7 +127,7 @@ function displayHelp() {
     echo "-m, --manifest         Generate manifest"
     echo "--alwaysonsettings     Enable always on settings"
     echo "--nolarge              Disable large screen settings"
-    echo "--usesystemuirecents   Set SystemUI as the default recents provider"
+    # echo "--usesystemuirecents   Set SystemUI as the default recents provider"
     exit 0
 }
 
@@ -366,6 +368,10 @@ while [[ $# -gt 0 ]]; do
             BLISS_BUILD_SECURE_ADB=true
             shift
             ;;
+        --desktoponsecondary)
+            USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             displayHelp
@@ -465,6 +471,7 @@ export USE_GBOARD_LITE_PREBUILT=${USE_GBOARD_LITE_PREBUILT:-false};
 export USE_MINIMAL_FOSS_APPS=${USE_MINIMAL_FOSS_APPS:-false};
 export BLISS_DISABLE_DEVICE_SEARCH=${BLISS_DISABLE_DEVICE_SEARCH:-false};
 export BLISS_BUILD_SECURE_ADB=${BLISS_BUILD_SECURE_ADB:-false};
+export USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS=${USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS:-false};
 
 echo "Title: ${RELEASE_OS_TITLE}";
 echo "SmartDock: ${USE_SMARTDOCK}";
@@ -516,6 +523,7 @@ echo "UseGboardLitePrebuilt: ${USE_GBOARD_LITE_PREBUILT}";
 echo "UseMinimalFossApps: ${USE_MINIMAL_FOSS_APPS}";
 echo "DisableDeviceSearch: ${BLISS_DISABLE_DEVICE_SEARCH}";
 echo "BuildSecureADB: ${BLISS_BUILD_SECURE_ADB}";
+echo "DesktopModeOnSecondaryDisplays: ${USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY}";
 jcores=$(nproc --all --ignore=4);
 lunch bliss_x86_64-userdebug && make ${BUILD_EXTRA_PACKAGES} blissify iso_img -j$jcores;
 

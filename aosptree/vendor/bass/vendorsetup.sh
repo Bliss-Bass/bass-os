@@ -230,13 +230,21 @@ function copy_configs()
     if [ "$USE_SMARTDOCK" = "true" ]; then
         echo -e "Desktop launcher selected. Copying configs now..."
         echo ""
-        cp -r vendor/$vendor_name/configs/grub_configs/desktop/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
-        cp -r vendor/$vendor_name/configs/grub_configs/desktop/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
-        # cp -r vendor/$vendor_name/configs/config_defaults/desktop/overlay/* vendor/$vendor_name/overlay/
-        cp -r vendor/$vendor_name/configs/config_defaults/desktop/dgc/* device/generic/common/
-        sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-        sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-        
+        if [ "$USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY" = "true" ]; then
+            cp -r vendor/$vendor_name/configs/grub_configs/desktop-ext/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
+            cp -r vendor/$vendor_name/configs/grub_configs/desktop-ext/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
+            # cp -r vendor/$vendor_name/configs/config_defaults/desktop/overlay/* vendor/$vendor_name/overlay/
+            cp -r vendor/$vendor_name/configs/config_defaults/desktop-ext/dgc/* device/generic/common/
+            sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+            sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        else
+            cp -r vendor/$vendor_name/configs/grub_configs/desktop/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
+            cp -r vendor/$vendor_name/configs/grub_configs/desktop/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
+            # cp -r vendor/$vendor_name/configs/config_defaults/desktop/overlay/* vendor/$vendor_name/overlay/
+            cp -r vendor/$vendor_name/configs/config_defaults/desktop/dgc/* device/generic/common/
+            sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+            sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        fi
         echo -e "Grub configs updated"
     fi
     if [ "$USE_ALWAYS_ON_SETTINGS" = "true" ]; then
