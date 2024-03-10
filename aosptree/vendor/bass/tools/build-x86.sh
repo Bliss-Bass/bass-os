@@ -55,6 +55,7 @@ export USE_MINIMAL_FOSS_APPS=false
 export BLISS_DISABLE_DEVICE_SEARCH=false
 export BLISS_BUILD_SECURE_ADB=false
 export USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS=false
+export GRUB_CMDLINE_OPTIONS=""
 
 # Help dialog
 function displayHelp() {
@@ -67,6 +68,7 @@ function displayHelp() {
     echo "-b, --blissbuildvariant (variant)   Set the Bliss build variant"
     echo "-i, --isgo             Enable isgo version"
     echo "-v, --specialvariant (variant)      Set the special variant"
+    echp "--grubcmdline (options) Set the grub cmdline options"
     echo "--production           Disable Test Build watermark and sign builds (requires release/product signature keys)"
     echo ""
     echo "Launcher Options:"
@@ -372,6 +374,12 @@ while [[ $# -gt 0 ]]; do
             USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY=true
             shift
             ;;
+        
+        --grubcmdline)
+            GRUB_CMDLINE_OPTIONS="$2"
+            shift
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             displayHelp
@@ -472,6 +480,7 @@ export USE_MINIMAL_FOSS_APPS=${USE_MINIMAL_FOSS_APPS:-false};
 export BLISS_DISABLE_DEVICE_SEARCH=${BLISS_DISABLE_DEVICE_SEARCH:-false};
 export BLISS_BUILD_SECURE_ADB=${BLISS_BUILD_SECURE_ADB:-false};
 export USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS=${USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS:-false};
+export GRUB_CMDLINE_OPTIONS=${GRUB_CMDLINE_OPTIONS:-""};
 
 echo "Title: ${RELEASE_OS_TITLE}";
 echo "SmartDock: ${USE_SMARTDOCK}";
@@ -524,6 +533,7 @@ echo "UseMinimalFossApps: ${USE_MINIMAL_FOSS_APPS}";
 echo "DisableDeviceSearch: ${BLISS_DISABLE_DEVICE_SEARCH}";
 echo "BuildSecureADB: ${BLISS_BUILD_SECURE_ADB}";
 echo "DesktopModeOnSecondaryDisplays: ${USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY}";
+echo "GrubCmdlineOptions: ${GRUB_CMDLINE_OPTIONS}";
 jcores=$(nproc --all --ignore=4);
 lunch bliss_x86_64-userdebug && make ${BUILD_EXTRA_PACKAGES} blissify iso_img -j$jcores;
 

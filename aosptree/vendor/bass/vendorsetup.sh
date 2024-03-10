@@ -86,6 +86,7 @@ function lunch
     fi
     
     copy_configs
+    add_grub_cmdline_options
     update_apps
     fi
     aosp_lunch $*
@@ -375,6 +376,17 @@ function copy_configs()
         sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' frameworks/base/core/res/res/values/config.xml
         sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
         sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
+    fi
+}
+
+function add_grub_cmdline_options()
+{
+    # add "$GRUB_CMDLINE_OPTIONS" to the the specified grub config files, replacing the word "logo":
+    # bootable/newinstaller/boot/isolinux/isolinux.cfg
+    # bootable/newinstaller/install/grub2/efi/boot/android.cfg
+    if [ "$GRUB_CMDLINE_OPTIONS" != "" ]; then
+        sed -i "s/logo/$GRUB_CMDLINE_OPTIONS/g" bootable/newinstaller/boot/isolinux/isolinux.cfg
+        sed -i "s/logo/$GRUB_CMDLINE_OPTIONS/g" bootable/newinstaller/install/grub2/efi/boot/android.cfg
     fi
 }
 
