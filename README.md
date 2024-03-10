@@ -54,7 +54,7 @@ chmod a+x ~/bin/repo
 ### Fetching the sources and building the project
 
 ```bash
-git clone https://github.com/Bliss-Bass/bass-os.git bass-os-12.1
+git clone --recurse-submodules https://github.com/Bliss-Bass/bass-os.git bass-os-12.1
 cd bass-os-12.1
 ```
 

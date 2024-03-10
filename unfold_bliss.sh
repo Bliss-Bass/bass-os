@@ -41,7 +41,8 @@ cp ${LOCAL_PATH}/manifests/bliss-static.xml bliss.xml
 cp ${LOCAL_PATH}/manifests/bass.xml bass.xml
 cp ${LOCAL_PATH}/manifests/default_bliss.xml default.xml
 private_manifests_exist=$(ls ${LOCAL_PATH}/private/manifests/*.xml | wc -l)
-if [ $private_manifests_exist -gt 0 ]; then
+private_addon_manifests_exist=$(ls ${LOCAL_PATH}/private/addons/**/manifest/*.xml | wc -l)
+if [ $private_manifests_exist -gt 0 ] || [ $private_addon_manifests_exist -gt 0 ]; then
     mkdir -p ../local_manifests
     echo -e "${ltblue}Copy private manifests ${reset}"
     cp ${LOCAL_PATH}/manifests/private*.xml ../local_manifests/
@@ -175,10 +176,12 @@ echo -e "${ltgreen}Applying Addons${reset}"
 for addon in ${addon_patchsets} ; do
     # remove "patchsets-" part from foldername
     addon=$(echo ${addon%%/} | sed 's|patchsets-||')
-    echo -e "${ltgreen}Applying Addon${reset} ${addon}"
+    # strip all but the last part of the foldername
+    stripped_path=$(echo ${addon##*/})
+    echo -e "${ltgreen}Applying Addon${reset} ${stripped_path}"
     pushd aosptree
     . build/envsetup.sh
-    apply_addon_patches $addon
+    apply_addon_patches $stripped_path
     popd
 done
 
