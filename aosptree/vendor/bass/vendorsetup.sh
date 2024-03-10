@@ -366,6 +366,7 @@ function copy_configs()
         sed -i 's/DEFAULT_FLAGS.put(SETTINGS_SUPPORT_LARGE_SCREEN, "false");/DEFAULT_FLAGS.put(SETTINGS_SUPPORT_LARGE_SCREEN, "true");/' frameworks/base/core/java/android/util/FeatureFlagUtils.java
     fi
 
+    # SystemUI Recents (does not work on Android 12+)
     if [ "$BLISS_USE_SYSTEMUI_RECENTS" = "true" ]; then
         echo "Enabling SystemUI recents"
         sed -i 's#com.android.launcher3/com.android.quickstep.RecentsActivity#com.android.systemui/.recents.RecentsActivity#g' frameworks/base/core/res/res/values/config.xml
