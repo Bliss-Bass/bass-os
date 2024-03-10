@@ -55,7 +55,7 @@ popd
 echo -e "${ltblue}Sync repo tree ${reset}"
 if [ "$1" != "-s" ]; then
     pushd aosptree
-    repo sync -c --force-sync -j4 || set_failed=true && continue
+    repo sync -c --force-sync -j4 || set_failed=true
 
     # if repo sync failed, use git reset tool
     if [ "$set_failed" = true ]; then
