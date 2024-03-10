@@ -166,4 +166,20 @@ else
   echo "applied" > ${LOCAL_PATH}/.config/patches_applied.cfg
 fi
 
+# find addons and apply
+
+# Look in private/addons and make a list of all foldernames starting with "patchsets-"
+addon_patchsets=$(find private/addons -maxdepth 1 -type d -name "patchsets-*")
+echo -e "${ltgreen}Applying Addons${reset}"
+# for each foldername, strip/trim the "patchsets-" part and apply the patch using apply_addon_patches.sh script
+for addon in ${addon_patchsets} ; do
+    # remove "patchsets-" part from foldername
+    addon=$(echo ${addon%%/} | sed 's|patchsets-||')
+    echo -e "${ltgreen}Applying Addon${reset} ${addon}"
+    pushd aosptree
+    . build/envsetup.sh
+    apply_addon_patches $addon
+    popd
+done
+
 echo -e "${ltgreen}   Done   ${reset}"
