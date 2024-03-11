@@ -147,13 +147,27 @@ ifeq ($(BLISS_BUILD_SECURE_ADB), true)
 		persist.adb.notify=1 \
 		persist.sys.usb.config="mtp" \
 		ro.secure=1 \
-		ro.adb.secure=1 \
-		ro.debuggable=0 \
 		service.adb.root=0 \
 		persist.sys.root_access=0 \
 		persist.service.adb.enable=0 \
 		service.adb.tcp.port=5555
 
+endif
+
+ifneq ($(TARGET_BUILD_VARIANT),user)
+    ifneq ($(BLISS_BUILD_SECURE_ADB),true)
+        # Disable ADB authentication
+        PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+            ro.adb.secure=0 
+    else
+        # Enable ADB authentication
+        PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+            ro.adb.secure=1
+    endif
+else
+# Enable ADB authentication
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    ro.adb.secure=1
 endif
 
 # Copy any Permissions files, overriding anything if needed
