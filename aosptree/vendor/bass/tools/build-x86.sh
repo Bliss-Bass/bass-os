@@ -374,11 +374,14 @@ while [[ $# -gt 0 ]]; do
             USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY=true
             shift
             ;;
-        
         --grubcmdline)
-            GRUB_CMDLINE_OPTIONS="$2"
+            # GRUB_CMDLINE_OPTIONS="$2"
             shift
-            shift
+            while [[ $1 != "" && $1 != -* ]]; do
+                GRUB_CMDLINE_OPTIONS="$GRUB_CMDLINE_OPTIONS $1"
+                shift
+            done
+            echo "GRUB_CMDLINE_OPTIONS=$GRUB_CMDLINE_OPTIONS"
             ;;
         *)
             echo "Unknown option: $1"
