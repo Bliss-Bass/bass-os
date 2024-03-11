@@ -33,9 +33,9 @@ SCRIPT_PATH=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 # define vendor_name as the top directory name
 vendor_name=$(basename "$SCRIPT_PATH")
 
-# replace "vendor/branding" with "vendor/$vendor_name" in vendor/$vendor_name/includes/menus/branding-menu/branding-menu.json
-sed -i "s/branding/$vendor_name/g" vendor/$vendor_name/includes/menus/branding-menu/branding-menu.json
-if sed -i "s/vendor\/branding/vendor\/$vendor_name/g" vendor/$vendor_name/branding/bootanimation/Android.mk; then
+# replace "vendor/branding" with "vendor/$vendor_name" in vendor/$vendor_name/branding/menus/branding-menu/branding-menu.json
+sed -i "s/branding/$vendor_name/g" vendor/$vendor_name/branding/menus/branding-menu/branding-menu.json
+if sed -i "s/vendor\/branding/vendor\/$vendor_name/g" vendor/$vendor_name/bootanimation/Android.mk; then
     echo -e "${green}Setting vendor name\n${reset}"
 else
     echo -e "${yellow}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without menu...\n${reset}"
@@ -95,7 +95,7 @@ function lunch
 
 function launch_menu() 
 {
-    bash vendor/$vendor_name/includes/core-menu/core-menu.sh --config vendor/$vendor_name/includes/menus/branding-menu/branding-menu.json
+    bash vendor/$vendor_name/includes/core-menu/core-menu.sh --config vendor/$vendor_name/branding/menus/branding-menu/branding-menu.json
 }
 
 function update_apps()
