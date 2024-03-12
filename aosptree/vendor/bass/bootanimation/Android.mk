@@ -22,7 +22,7 @@ $(TARGET_GENERATED_BOOTANIMATION): $(SOONG_ZIP)
 	@rm -rf $(dir $@)
 	@mkdir -p $(dir $@)
 	$(hide) mkdir -p $(INTERMEDIATES)/part0
-	$(hide) tar xfp vendor/bass/branding/bootanimation/bootanimation.tar -C $(INTERMEDIATES)/part0
+	$(hide) tar xfp vendor/bass/bootanimation/bootanimation.tar -C $(INTERMEDIATES)/part0
 	$(hide) if [ $(TARGET_SCREEN_WIDTH) -lt $(TARGET_SCREEN_HEIGHT) ]; then \
 	    IMAGEHEIGHT=$(TARGET_SCREEN_HEIGHT); \
 		IMAGEWIDTH=$(TARGET_SCREEN_WIDTH); \
@@ -43,7 +43,7 @@ $(TARGET_GENERATED_BOOTANIMATION): $(SOONG_ZIP)
 	done; \
 	prebuilts/tools-bass/${HOST_OS}-x86/bin/mogrify -resize $$RESOLUTION -colors 250 $(INTERMEDIATES)/*/*.png; \
 	echo "$$IMAGESCALEWIDTH $$IMAGESCALEHEIGHT 30" > $(INTERMEDIATES)/desc.txt; \
-	cat vendor/bass/branding/bootanimation/desc.txt >> $(INTERMEDIATES)/desc.txt
+	cat vendor/bass/bootanimation/desc.txt >> $(INTERMEDIATES)/desc.txt
 	$(hide) $(SOONG_ZIP) -L 0 -o $(TARGET_GENERATED_BOOTANIMATION) -C $(INTERMEDIATES) -D $(INTERMEDIATES)
 
 ifeq ($(TARGET_BOOTANIMATION),)
