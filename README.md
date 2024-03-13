@@ -79,6 +79,16 @@ This will sync the source, and patch it with the latest available updates for Ba
 
 #### Build Options:
 
+##### Target Specific build scripts:
+
+(**!!NOTICE FOR LICENSED CUSTOMERS!!**) If you have been supplied with the source, then chances are your source comes with a separate build script specific to your devices needs. Please check the project folder for a script with your product name or invoice number in it. Examples: `build_ABC01.0.1.sh` or `build_Intel-AC013.sh`. These will include the specific set of arguments passed to the build_bass script, so all you will need to do is run your targeted script to build. 
+
+```
+bash build_ABC01.0.1.sh
+```
+
+##### General Build Script Usage:
+
 We offer a number of options to configure your builds with. You can use the `-h` argument to see the latest integrations available. 
 We also symlink the build-x86 command with `build_bass.sh` and `build-x86.sh`, so the commands both act the same when building Bass OS
 
