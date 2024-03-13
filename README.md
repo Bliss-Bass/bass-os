@@ -60,7 +60,7 @@ cd bass-os-12.1
 
 ### Setting up Bass OS Source
 
-#####(**!!NOTICE FOR LICENSED ADDONS/FEATURES!!**) 
+#####!!NOTICE FOR LICENSED ADDONS/FEATURES!!
 If you hold an active license for any of the private addons and features for Bass OS, you will need to add the files that you were sent or given acces to, into the `private/addons` or `private/manifests` folder. If your project requires any vendor patches, those are placed in the `patches-vendor/` folder. Once all items are placed properly, you can continue onto the unfolding steps. Please also check your organizations Bass-OS project folder to make sure it didn't come with those additions already added. 
 
 #### Unfolding the source
@@ -296,7 +296,7 @@ After setting the admin password, we can select the default features we want ava
 
 **System**: Allows you to change options for default screen timeout and on-screen keyboard display
 
-Once setup is complete, we can then back out and test our lockdown settings by hitting the Lock icon at the top right of the home screen, or reboot the device, and select the **Intel Default** or **AMD Default** boot modes to enter Lockdown mode. 
+Once setup is complete, we can then back out and test our lockdown settings by hitting the Lock icon at the top right of the home screen, or reboot the device, and select the top boot option (some builds offer specific boot options per CPU manufacturer: **Intel Default** or **AMD Default**) to enter Lockdown mode. 
 
 ### Tablet/PC/IOT/IIOT/Game Mode builds
 
@@ -330,7 +330,7 @@ https://docs.blissos.org/installation/install-from-bootable-usb/#install-efi-fro
 
 (**!!NOTICE FOR BUILDS THAT HIDE GRUB!!**) When the device reboots, it will not show the grub menu by default, and automatically boot into the last known boot mode. In order to show the grub menu, tap shift multiple times while the initial BIOS boot logo is displayed. If done correctly, you will be presented with the Grub menu. If no keys are pressed, the bios boot menu will show a black screen afterwards while Grub is loading the configuration in the background.
 
-Once the device boots into Grub, the top option or two will be our default mode (**Intel Default** or **AMD Default**) boot options.
+Once the device boots into Grub, the top option or two will be our default mode (some builds offer specific boot options per CPU manufacturer: **Intel Default** or **AMD Default**) boot options.
 
 While the Debugging modes can be found in the **Other Options** section of the boot menu. 
 
