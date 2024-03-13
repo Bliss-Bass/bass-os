@@ -1,0 +1,48 @@
+From 6be9faa5730df340f1b037fc53ce6b55e30ea589 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Tue, 25 Apr 2023 18:07:06 -0400
+Subject: [PATCH] [init] Add Default Network Options
+
+---
+ init.sh | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/init.sh b/init.sh
+index b43c68d..e34bb7b 100644
+--- a/init.sh
++++ b/init.sh
+@@ -941,6 +941,31 @@ function set_management_options()
+ 							# attestation_key=<key> | setprop ro.config.attestation_key <key>
+ 							setprop ro.config.attestation_server_url "$FORCE_ATTESTATION_KEY"
+ 							;;
++						
++						# Default Network Options
++						FORCE_WIFI_AUTO_CONNECT=*)
++							# Force WiFi autoconnect
++							# setprop ro.auto_connect (true|false)
++							setprop ro.auto_connect "$FORCE_WIFI_AUTO_CONNECT"
++							;;
++						FORCE_ADD_NETWORK=*)
++							# Add wireless network SSID and password to system
++							# Replace network_name with the name of your Wi-Fi network and password with 
++							# its password. Once you have entered these commands, your Android device 
++							# will automatically connect to the specified Wi-Fi network when it reboots
++							# setprop net.wifi.supplicant.networks (SSID=network_name,password=password)
++							setprop net.wifi.supplicant.networks "$FORCE_ADD_NETWORK"
++							;;
++						FORCE_DEFAULT_SSID=*)
++							# Set the default network SSID
++							# setprop wifi.default_ssid (YOUR_SSID)
++							setprop wifi.default_ssid "$FORCE_DEFAULT_SSID"
++							;;
++						FORCE_DEFAULT_SSID_PASSWORD=*)
++							# Set the default network SSID Password
++							# setprop wifi.default_password (YOUR_PASSWORD)
++							setprop wifi.default_password "$FORCE_DEFAULT_SSID_PASSWORD"
++							;;
+ 					esac
+ 				fi
+ 				;;
+-- 
+2.34.1
+

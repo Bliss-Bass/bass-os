@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="network_options_bbp" fetch="ssh://git@github.com/BlissBass-Private/" />
+
+  <!-- Private Projects -->
+
+  <!-- Bass network_options - requires valid license to access -->
+  <project path="vendor/bass/patches/patchsets-network_options" name="addons-network_options" remote="network_options_bbp" revision="main" />
+
+</manifest>
