@@ -60,26 +60,22 @@ cd bass-os-12.1
 
 ### Setting up Bass OS Source
 
-(**!!NOTICE FOR LICENSED ADDONS/FEATURES!!**) If you hold an active license for any of the private addons and features for Bass OS, you will need to add the `private*.xml` manifest files that you were sent or given acces to. Once those are acquired, you will want to add them to the `manifests/` folder of this project before moving onto the next step. 
+#####(**!!NOTICE FOR LICENSED ADDONS/FEATURES!!**) 
+If you hold an active license for any of the private addons and features for Bass OS, you will need to add the files that you were sent or given acces to, into the `private/addons` or `private/manifests` folder. If your project requires any vendor patches, those are placed in the `patches-vendor/` folder. Once all items are placed properly, you can continue onto the unfolding steps
+
+#### Unfolding the source
+
+Bass source uses an unfolding sequence to grab the latest stable point in development for the source, then applies any required changes on top, along with any customizations, licensed addons, modules, etc. 
+
+To start the unfolding process, we use the unfold_bliss.sh script:
 
 ```bash
 bash unfold_bliss.sh
 ```
 
-This will sync the source, and patch it with the latest available updates for Bass OS. Once complete and all patches are applied successfully, you can move onto the next step.
+This will sync the source, and patch it with the latest available updates for Bass OS. Once complete and all patches, and addons are applied successfully, you can move onto the next step.
 
 ### Building Bass OS
-
-#### Licensed Addons:
-
-If you license any addon patchsets, you will want to apply those changes before you build. To do so, make sure you have the patchsets properly synced from your private-addon-addon_name.xml and check the bass/branding/patches/ folder for your addons folder. 
-Then cd into the aosptree folder, and run the following command for each addon you license, where `*addon_name*` is the name of your target addon (example: addon_hosts uses a folder name of patches-addon_hosts):
-```
-cd aosptree
-. build/envsetup.sh
-apply_addon_patches addon_name
-```
-In the event that any addon patchets fail, the conflict will need to be fixed before moving forward with the build. 
 
 #### Build Options:
 
@@ -99,6 +95,7 @@ Options:
 -b, --blissbuildvariant (variant)   Set the Bliss build variant
 -i, --isgo             Enable isgo version
 -v, --specialvariant (variant)      Set the special variant
+--grubcmdline "option1=1 option2=1" Set the grub cmdline options
 --production           Disable Test Build watermark and sign builds (requires release/product signature keys)
 
 Launcher Options:
@@ -114,6 +111,7 @@ Launcher Options:
 --crosslauncher        Enable cross launcher
 --tvlauncher           Enable tv launcher
 --titaniuslauncher     Enable titanius launcher
+--desktoponsecondary   Enable desktop on secondary displays
 
 Navigation Options:
 -t, --tabletnav        Enable tablet navigation
