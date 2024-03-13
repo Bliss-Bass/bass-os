@@ -68,7 +68,7 @@ function displayHelp() {
     echo "-b, --blissbuildvariant (variant)   Set the Bliss build variant"
     echo "-i, --isgo             Enable isgo version"
     echo "-v, --specialvariant (variant)      Set the special variant"
-    echp "--grubcmdline (options) Set the grub cmdline options"
+    echo '--grubcmdline "option1=1 option2=1" Set the grub cmdline options'
     echo "--production           Disable Test Build watermark and sign builds (requires release/product signature keys)"
     echo ""
     echo "Launcher Options:"
