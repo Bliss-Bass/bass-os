@@ -185,4 +185,32 @@ for addon in ${addon_patchsets} ; do
     popd
 done
 
+# Vendor specific patchsets
+#
+# Look in patches-vendor/ for any .patch files
+# apply the patch using apply_addon_patches.sh script
+#
+vendor_patches=$(find patches-vendor -maxdepth 1 -type f -name "*.patch")
+echo -e "${ltgreen}Applying Vendor Patches${reset}"
+for vendor_patch in ${vendor_patches} ; do
+    echo -e "${ltgreen}Applying Vendor Patch${reset} ${vendor_patch}"
+    git am -3 $vendor_patch >& /dev/null
+    if [[ $? == 0 ]]; then
+        echo -e "        ${green}Applying${reset}          $i"
+    else
+        echo -e "        ${red}Conflicts${reset}         $i"
+        git am --abort >& /dev/null
+        conflict="y"
+        if [[ "$goodpatch" != "y" ]]; then
+            echo "           No resolution was found"
+            git am --abort >& /dev/null
+            echo "           Setting $i as Conflicts"
+            conflict="y"
+            # Create List of conflicts and add this patch to the list using conflict_list variable
+            conflict_list="$conflict_list $i"
+        fi
+    fi
+done
+
+
 echo -e "${ltgreen}   Done   ${reset}"
