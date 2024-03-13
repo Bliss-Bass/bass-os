@@ -18,4 +18,4 @@
 ### NOTICE
 
    **Commercial Use**: If you wish to use this software in a closed source 
-   project or for commercial purposes, a licensing agreement for Bliss OS or Bass is required or a licensing fee of \$900 per project is required to be paid before you can use the software.
+   project or for commercial purposes, a licensing agreement for Bliss OS or Bass OS is required or a licensing fee of \$900 per project is required to be paid before you can use the software.
