@@ -111,7 +111,7 @@ function displayHelp() {
     echo ""
     echo "Input Options:"
     echo "--showkeyboard         Enable show keyboard"
-    echo "--perdisplayfocus      Enable per display focus"
+    echo "--perdisplayfocus      Enable per display focus (will display any IME on all displays)"
     echo "--gboard               Enable Google GBoard IME"
     echo "--gboardlite           Enable Google GBoard Lite IME"
     echo "--perdisplayfocusime      Enable per display focus with experiment IME"
