@@ -378,6 +378,13 @@ function copy_configs()
         sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
         sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
     fi
+
+    if [ "$INCLUDE_AGPRIVAPPS" = "true" ]; then
+        if [ ! -f vendor/ag_privapp/ag_privapp.mk ]; then
+            echo -e "${ltred}ag_privapp source not found. Please make sure you have licensed access. Aborting...${reset}"
+            exit 1
+        fi
+    fi
 }
 
 function add_grub_cmdline_options()

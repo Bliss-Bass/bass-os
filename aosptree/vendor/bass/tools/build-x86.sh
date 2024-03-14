@@ -56,6 +56,7 @@ export BLISS_DISABLE_DEVICE_SEARCH=false
 export BLISS_BUILD_SECURE_ADB=false
 export USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS=false
 export GRUB_CMDLINE_OPTIONS=""
+export INCLUDE_AGPRIVAPPS=false
 
 # Help dialog
 function displayHelp() {
@@ -108,6 +109,7 @@ function displayHelp() {
     echo "--buildextra           Build extra packages"
     echo "--updatefossapps       Update fossapps"
     echo "--usepos               Enable TabShop pos terminal app"
+    echo "-p, --privateapp       Enable privateapps **requires private git access**"
     echo ""
     echo "Input Options:"
     echo "--showkeyboard         Enable show keyboard"
@@ -383,6 +385,10 @@ while [[ $# -gt 0 ]]; do
             done
             echo "GRUB_CMDLINE_OPTIONS=$GRUB_CMDLINE_OPTIONS"
             ;;
+        -p |--privateapp)
+            INCLUDE_AGPRIVAPPS=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             displayHelp
@@ -484,6 +490,7 @@ export BLISS_DISABLE_DEVICE_SEARCH=${BLISS_DISABLE_DEVICE_SEARCH:-false};
 export BLISS_BUILD_SECURE_ADB=${BLISS_BUILD_SECURE_ADB:-false};
 export USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS=${USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS:-false};
 export GRUB_CMDLINE_OPTIONS=${GRUB_CMDLINE_OPTIONS:-""};
+export INCLUDE_AGPRIVAPPS=${INCLUDE_AGPRIVAPPS:-false};
 
 echo "Title: ${RELEASE_OS_TITLE}";
 echo "SmartDock: ${USE_SMARTDOCK}";
@@ -537,6 +544,7 @@ echo "DisableDeviceSearch: ${BLISS_DISABLE_DEVICE_SEARCH}";
 echo "BuildSecureADB: ${BLISS_BUILD_SECURE_ADB}";
 echo "DesktopModeOnSecondaryDisplays: ${USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY}";
 echo "GrubCmdlineOptions: ${GRUB_CMDLINE_OPTIONS}";
+echo "IncludeAgPrivApps: ${INCLUDE_AGPRIVAPPS}";
 jcores=$(nproc --all --ignore=4);
 lunch bliss_x86_64-userdebug && make ${BUILD_EXTRA_PACKAGES} blissify iso_img -j$jcores;
 
