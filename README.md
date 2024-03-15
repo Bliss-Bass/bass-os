@@ -334,3 +334,9 @@ Once the device boots into Grub, the top option or two will be our default mode 
 
 While the Debugging modes can be found in the **Other Options** section of the boot menu. 
 
+
+## Contributions
+
+We do have a [contributing doc](CONTRIBUTING.md) that will cover things like expanding on the BASS scripts, manifest process, addons, etc. Feel free to check that out if interested. 
+
+

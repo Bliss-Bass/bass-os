@@ -12,11 +12,12 @@ We can start with addon development as that will give you a good concept of how 
 
 Let's say that you have a change that you want to add to Bass OS, but that change can be used on many devices, so you don't want to keep it as a private change that is never shared outside this single devices source. This is where Addons come into play. 
 
-Addons consist of:
+Addons can consist of one or more of the following:
 
 * Patchsets - Single or multiple sets of patches that are to be applied on-top of the source when unfolding the OS. 
 * Prebuilt APK's - An example of this is the Restricted Launcher Pro. We offer the free version of the prebuilt for all to include, but it contains branding that cannot be changed. But we offer the Pro version that can be rebranded and further customized as an addon.
 * Package/External Sources - An example of this is our Kiosk Launcher, as that requires the private source to be included in the OS in order to use it. 
+* Script Addon - An automation script that does something or helps automate any point in the build process. 
 
 ### Patchset Addon Development
 
