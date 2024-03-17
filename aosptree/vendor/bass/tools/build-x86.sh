@@ -536,6 +536,19 @@ export GRUB_CMDLINE_OPTIONS=${GRUB_CMDLINE_OPTIONS:-""};
 export INCLUDE_AGPRIVAPPS=${INCLUDE_AGPRIVAPPS:-false};
 export BASS_DO_NOT_CLEAN=${BASS_DO_NOT_CLEAN:-false};
 
+if [ "$BLISS_PRODUCTION_BUILD" = "true" ]; then
+    if [ ! -d "vendor/bliss/config/signing" ]; then
+        echo " Missing signing keys. Would you like to generate them? (y/n)" && read ANSWER
+        if [ "$ANSWER" = "y" ]; then
+            echo "Generating signing keys..."
+            bash vendor/bass/tools/tool-generate-keys.sh
+        else
+            echo "Please verify your keys are located in vendor/bliss/config/signing or do not build with --production flag. Exiting..."
+            exit 1
+        fi
+    fi
+fi
+
 echo "Title: ${RELEASE_OS_TITLE}";
 echo "SmartDock: ${USE_SMARTDOCK}";
 echo "SmartDockB: ${USE_SMARTDOCK_B}";
