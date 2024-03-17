@@ -58,6 +58,7 @@ export USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS=false
 export GRUB_CMDLINE_OPTIONS=""
 export INCLUDE_AGPRIVAPPS=false
 export BASS_DO_NOT_CLEAN=false
+export BASS_CHECK_PROJECT_STATUS=false
 
 # Help dialog
 function displayHelp() {
@@ -73,6 +74,7 @@ function displayHelp() {
     echo "-v, --specialvariant (variant)      Set the special variant"
     echo '--grubcmdline "option1=1 option2=1" Set the grub cmdline options'
     echo "--production           Disable Test Build watermark and sign builds (requires release/product signature keys)"
+    echo "--checkproject         Check the project status"
     echo ""
     echo "Launcher Options:"
     echo "--clearhotseat         Enable clear hotseat favorites for Launcher3 Quickstep"
@@ -432,6 +434,10 @@ while [[ $# -gt 0 ]]; do
             BASS_DO_NOT_CLEAN=true
             shift
             ;;
+        --checkproject)
+            BASS_CHECK_PROJECT_STATUS=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             displayHelp
@@ -535,6 +541,7 @@ export USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS=${USE_DESKTOP_MODE_ON_SECONDARY_DI
 export GRUB_CMDLINE_OPTIONS=${GRUB_CMDLINE_OPTIONS:-""};
 export INCLUDE_AGPRIVAPPS=${INCLUDE_AGPRIVAPPS:-false};
 export BASS_DO_NOT_CLEAN=${BASS_DO_NOT_CLEAN:-false};
+export BASS_CHECK_PROJECT_STATUS=${BASS_CHECK_PROJECT_STATUS:-false};
 
 if [ "$BLISS_PRODUCTION_BUILD" = "true" ]; then
     if [ ! -d "vendor/bliss/config/signing" ]; then
@@ -603,6 +610,7 @@ echo "DesktopModeOnSecondaryDisplays: ${USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY}";
 echo "GrubCmdlineOptions: ${GRUB_CMDLINE_OPTIONS}";
 echo "IncludeAgPrivApps: ${INCLUDE_AGPRIVAPPS}";
 echo "BassDoNotClean: ${BASS_DO_NOT_CLEAN}";
+echo "BassCheckProjectStatus: ${BASS_CHECK_PROJECT_STATUS}";
 jcores=$(nproc --all --ignore=4);
 lunch bliss_x86_64-userdebug && make ${BUILD_EXTRA_PACKAGES} blissify iso_img -j$jcores;
 
@@ -659,6 +667,13 @@ else
     echo " - packages/apps/Blissify"
     echo " - kernel"
     echo " - frameworks/base"
+fi
+
+if [ "$BASS_CHECK_PROJECT_STATUS" = "true" ]; then
+    bass_check_project
+else
+    echo "Skipping checking project status..."
+    echo "You can run (. build/envsetup.sh && bass_check_project) to check project status manually."
 fi
 
 echo -e "build files can be found: iso/$build_filename/"
