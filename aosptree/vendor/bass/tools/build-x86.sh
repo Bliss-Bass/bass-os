@@ -187,7 +187,8 @@ else
         mkdir -p .bbconfig
         touch .bbconfig/build_arg_history
     fi
-    echo "$*" >> .bbconfig/build_arg_history
+    shelldate=$( date +%Y-%m-%d_%H:%M:%S )
+    echo "Date: $shelldate: $*" >> .bbconfig/build_arg_history
 fi
 
 # Parse arguments
