@@ -179,6 +179,15 @@ function clean_configs()
 # if $# -eq 0, exit
 if [ $# -eq 0 ]; then
     displayHelp
+else
+    echo "Starting build..."
+    echo " "
+
+    if [ ! -f .bbconfig/build_arg_history ]; then
+        mkdir -p .bbconfig
+        touch .bbconfig/build_arg_history
+    fi
+    echo "$*" >> .bbconfig/build_arg_history
 fi
 
 # Parse arguments
