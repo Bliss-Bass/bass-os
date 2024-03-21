@@ -28,6 +28,8 @@
   <!-- Android-Generic -->
   <remove-project name="kerNel_common" />
   <project path="kernel" name="Bliss-Bass/kernel_common" remote="sghub" sync-s="true" revision="gloria-20240227-fw" />
+  <remove-project name="vendor_foss" />
+  <project name="vendor_foss" path="vendor/foss" remote="ag-github" revision="1dab914c2db4b04dd991f98fb07435c7a1b0d0c9" upstream="hmchoice" dest-branch="hmchoice"/>
 
   <!-- LineageOS -->
   <remove-project name="android_frameworks_opt_colorpicker" />
