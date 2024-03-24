@@ -1,0 +1,128 @@
+From e1c00520f5ceab13f90f9cb31b0978b4e4e6a09e Mon Sep 17 00:00:00 2001
+From: Erfan Abdi <erfangplus@gmail.com>
+Date: Sat, 25 Nov 2023 03:56:31 +0000
+Subject: [PATCH 25/25] base: Add bliss power manager service
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Example:  platform_packages_apps_BlissPowerManager/app/src/main/java/org/blissos/powermanagerclient/MainActivity.java
+
+1) copy paste “system_libs/bliss-power-framework.jar” from sample app
+
+2) gradle:
+implementation fileTree(dir: 'system_libs/', include: ['*.jar’])
+
+3) java:
+
+import org.blissos.powermanager.BlissPowerManager;
+
+BlissPowerManager blissPowerManager = BlissPowerManager.getInstance(this);
+
+blissPowerManager.reboot()
+blissPowerManager.shutdown()
+---
+ services/core/Android.bp                      |  1 +
+ .../powermanager/BlissPowerService.java       | 54 +++++++++++++++++++
+ .../java/com/android/server/SystemServer.java |  5 ++
+ 3 files changed, 60 insertions(+)
+ create mode 100644 services/core/java/org/blissos/server/powermanager/BlissPowerService.java
+
+diff --git a/services/core/Android.bp b/services/core/Android.bp
+index 80e73ed91ff6..434ad5c2516f 100644
+--- a/services/core/Android.bp
++++ b/services/core/Android.bp
+@@ -170,6 +170,7 @@ java_library_static {
+         "kotlinx-coroutines-core",
+         "faceunlock_framework",
+         "bliss-ethernet-framework",
++        "bliss-power-framework",
+     ],
+     javac_shard_size: 50,
+ }
+diff --git a/services/core/java/org/blissos/server/powermanager/BlissPowerService.java b/services/core/java/org/blissos/server/powermanager/BlissPowerService.java
+new file mode 100644
+index 000000000000..47b2df91a5d9
+--- /dev/null
++++ b/services/core/java/org/blissos/server/powermanager/BlissPowerService.java
+@@ -0,0 +1,54 @@
++package org.blissos.server.powermanager;
++
++import android.content.Context;
++import android.os.PowerManager;
++import android.os.RemoteException;
++import android.os.SystemClock;
++import android.util.Log;
++
++import com.android.server.SystemService;
++import org.blissos.powermanager.BlissPowerManager;
++import org.blissos.powermanager.IBlissPower;
++
++public class BlissPowerService extends SystemService {
++    private static final String TAG = "BlissPowerService";
++
++    private final Context mContext;
++    private PowerManager mPowerManager;
++
++    public BlissPowerService(Context context) {
++        super(context);
++        mContext = context;
++    }
++
++    @Override
++    public void onStart() {
++        mPowerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
++
++        publishBinderService(BlissPowerManager.SERVICE_NAME, mService);
++    }
++
++    private final IBlissPower.Stub mService = new IBlissPower.Stub() {
++        @Override
++        public void shutdown() throws RemoteException {
++            long token = clearCallingIdentity();
++            mPowerManager.shutdown(false, TAG, false);
++            restoreCallingIdentity(token);
++        }
++
++        @Override
++        public void reboot() throws RemoteException {
++            long token = clearCallingIdentity();
++            mPowerManager.reboot(TAG);
++            restoreCallingIdentity(token);
++        }
++
++        @Override
++        public void sleep() throws RemoteException {
++            long token = clearCallingIdentity();
++            mPowerManager.goToSleep(SystemClock.uptimeMillis());
++            restoreCallingIdentity(token);
++        }
++    };
++}
++
+diff --git a/services/java/com/android/server/SystemServer.java b/services/java/com/android/server/SystemServer.java
+index e85a611740eb..5d54d5686286 100644
+--- a/services/java/com/android/server/SystemServer.java
++++ b/services/java/com/android/server/SystemServer.java
+@@ -232,6 +232,7 @@ import com.android.server.custom.LineageHardwareService;
+ import com.android.server.custom.display.LiveDisplayService;
+ 
+ import org.blissos.server.ethernet.BlissEthernetService;
++import org.blissos.server.powermanager.BlissPowerService;
+ 
+ /**
+  * Entry point to {@code system_server}.
+@@ -2713,6 +2714,10 @@ public final class SystemServer implements Dumpable {
+         mSystemServiceManager.startService(BlissEthernetService.class);
+         t.traceEnd();
+ 
++        t.traceBegin("BlissPowerService");
++        mSystemServiceManager.startService(BlissPowerService.class);
++        t.traceEnd();
++
+         // These are needed to propagate to the runnable below.
+         final NetworkManagementService networkManagementF = networkManagement;
+         final NetworkStatsService networkStatsF = networkStats;
+-- 
+2.34.1
+

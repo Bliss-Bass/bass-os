@@ -1,7 +1,7 @@
-From fc250f221160892b9c2cd0cac0cff532e6754803 Mon Sep 17 00:00:00 2001
+From a3636f7a80a7f6fef23cde8beaa4e27be72736bc Mon Sep 17 00:00:00 2001
 From: Jon West <electrikjesus@gmail.com>
 Date: Tue, 16 Jan 2024 15:05:43 -0500
-Subject: [PATCH 07/16] DisplayWindowSettings: Only use freeform if conditions
+Subject: [PATCH 06/25] DisplayWindowSettings: Only use freeform if conditions
  are met
 
 Check for two features that override windowing mode:

@@ -1,7 +1,7 @@
 From 93bcfb9caaecf0937a0599e6aa596376c0871e40 Mon Sep 17 00:00:00 2001
 From: electrikjesus <electrikjesus@gmail.com>
 Date: Tue, 19 Mar 2024 21:20:07 -0400
-Subject: [PATCH] DisplayLayout: Allow overriding navbar height through
+Subject: [PATCH 15/25] DisplayLayout: Allow overriding navbar height through
  properties
 
 Use ro.boot.force.navbar_height_override=(integer)

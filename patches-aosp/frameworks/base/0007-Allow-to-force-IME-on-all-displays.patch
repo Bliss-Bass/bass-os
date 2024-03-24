@@ -1,7 +1,7 @@
-From 2605cf9046dc8de5f9b5985e845c93eaebb671ab Mon Sep 17 00:00:00 2001
+From f0662b8884f4ce1980e002f4e5d351aa21402bf6 Mon Sep 17 00:00:00 2001
 From: electrikjesus <electrikjesus@gmail.com>
 Date: Fri, 19 Jan 2024 13:37:10 -0500
-Subject: [PATCH 08/16] Allow to force IME on all displays
+Subject: [PATCH 07/25] Allow to force IME on all displays
 
 Uses "ro.boot.bliss.force_ime_on_all_displays" property (true,false)
 

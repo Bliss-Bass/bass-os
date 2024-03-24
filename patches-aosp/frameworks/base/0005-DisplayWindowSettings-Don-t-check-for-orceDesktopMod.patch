@@ -1,7 +1,7 @@
-From 2fafbdc74a72241dde27d24f75915ed5588b40e5 Mon Sep 17 00:00:00 2001
+From 317f397bd14a2b780a18814f22dbd131a968f1a1 Mon Sep 17 00:00:00 2001
 From: Erfan Abdi <erfangplus@gmail.com>
 Date: Thu, 5 Jan 2023 02:49:41 +0330
-Subject: [PATCH 06/16] =?UTF-8?q?DisplayWindowSettings:=20Don=E2=80=99t=20?=
+Subject: [PATCH 05/25] =?UTF-8?q?DisplayWindowSettings:=20Don=E2=80=99t=20?=
  =?UTF-8?q?check=20for=20orceDesktopMode=20for=20freeform?=
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
