@@ -1,7 +1,7 @@
-From 8a000fd6ecae40f18c45cd6d34ddbadbfb4f345b Mon Sep 17 00:00:00 2001
+From 8dbe114bbfc764d62909262c9d24be5be64c15e3 Mon Sep 17 00:00:00 2001
 From: Adam Bookatz <bookatz@google.com>
 Date: Thu, 27 Jan 2022 11:03:30 -0800
-Subject: [PATCH 13/16] Include all apps when getting Recents
+Subject: [PATCH 12/25] Include all apps when getting Recents
 
 The current RecentTasks fetches the recents app (based on
 config_recentsComponentName). However, it does so for user 0. In some

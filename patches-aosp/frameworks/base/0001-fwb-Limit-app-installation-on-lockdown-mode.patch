@@ -1,7 +1,7 @@
-From 7afb28eb871c1761b712aef0f71b6ab0bc32a738 Mon Sep 17 00:00:00 2001
+From c90b2dcd54dfe99826dc132637add8a230b0f107 Mon Sep 17 00:00:00 2001
 From: Erfan Abdi <erfangplus@gmail.com>
 Date: Sun, 20 Feb 2022 10:02:50 +0100
-Subject: [PATCH] fwb: Limit app installation on lockdown mode
+Subject: [PATCH 01/25] fwb: Limit app installation on lockdown mode
 
 Change-Id: I2b8a791a25d47b127f54b48df4a07d8a5ec94a7c
 ---
@@ -32,5 +32,5 @@ index 9c6113ce4b47..d73a75b03d2f 100644
          final int installAppsRestrictionSource = mUserManager.getUserRestrictionSource(
                  UserManager.DISALLOW_INSTALL_APPS, Process.myUserHandle());
 -- 
-2.29.2
+2.34.1
 

@@ -170,6 +170,10 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.adb.secure=1
 endif
 
+ifeq ($(INCLUDE_AGPRIVAPPS), true)
+include vendor/ag_privapp/ag_privapp.mk
+endif
+
 # Copy any Permissions files, overriding anything if needed
 $(foreach f,$(wildcard $(LOCAL_PATH)/permissions/*.xml),\
     $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/$(notdir $f)))

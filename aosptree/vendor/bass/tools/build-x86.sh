@@ -56,6 +56,9 @@ export BLISS_DISABLE_DEVICE_SEARCH=false
 export BLISS_BUILD_SECURE_ADB=false
 export USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS=false
 export GRUB_CMDLINE_OPTIONS=""
+export INCLUDE_AGPRIVAPPS=false
+export BASS_DO_NOT_CLEAN=false
+export BASS_CHECK_PROJECT_STATUS=false
 
 # Help dialog
 function displayHelp() {
@@ -63,6 +66,7 @@ function displayHelp() {
     echo "Options:"
     echo "-h, --help             Display this help dialog"
     echo "-c, --clean            Clean the project"
+    echo "--nocleanconf          Do not clean the project configs that are changed in source"
     echo "-d, --dirty            Run in dirty mode"
     echo "-t, --title (title)    Set the release title"
     echo "-b, --blissbuildvariant (variant)   Set the Bliss build variant"
@@ -70,6 +74,7 @@ function displayHelp() {
     echo "-v, --specialvariant (variant)      Set the special variant"
     echo '--grubcmdline "option1=1 option2=1" Set the grub cmdline options'
     echo "--production           Disable Test Build watermark and sign builds (requires release/product signature keys)"
+    echo "--checkproject         Check the project status"
     echo ""
     echo "Launcher Options:"
     echo "--clearhotseat         Enable clear hotseat favorites for Launcher3 Quickstep"
@@ -108,6 +113,7 @@ function displayHelp() {
     echo "--buildextra           Build extra packages"
     echo "--updatefossapps       Update fossapps"
     echo "--usepos               Enable TabShop pos terminal app"
+    echo "-p, --privateapp       Enable privateapps **requires private git access**"
     echo ""
     echo "Input Options:"
     echo "--showkeyboard         Enable show keyboard"
@@ -133,9 +139,56 @@ function displayHelp() {
     exit 0
 }
 
+function clean_configs()
+{    
+    cd bootable/newinstaller
+    git checkout -- boot/isolinux/isolinux.cfg
+    git checkout -- install/grub2/efi/boot/android.cfg
+    cd ../..
+    cd device/generic/common/
+    git checkout -- overlay/frameworks/base/core/res/res/values/config.xml
+    git checkout -- overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+    cd ../../..
+    cd vendor/$vendor_name
+    git checkout -- overlay/common/frameworks/base/core/res/res/values/config.xml
+    git checkout -- overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+    cd ../..
+    cd packages/apps/Launcher3
+    if [ "$BLISS_CLEAR_HOTSEAT_FAVORITES" = "true" ]; then
+        WORKSPACE_LIST=$(find res/xml/ -type f -name "default_workspace*.xml")
+        for file in $WORKSPACE_LIST
+        do
+            git checkout -- $file
+        done
+    fi
+    git checkout -- src/com/android/launcher3/config/FeatureFlags.java
+    cd ../../..
+    cd packages/apps/Blissify
+    git checkout -- res/xml/blissify_button.xml
+    cd ../../..
+    cd kernel
+    git checkout -- arch/x86/configs/android-x86_64_defconfig
+    cd ..
+    cd frameworks/base 
+    git checkout -- core/java/android/util/FeatureFlagUtils.java
+    git checkout -- core/res/res/values/config.xml
+    cd ../..
+    
+}
+
 # if $# -eq 0, exit
 if [ $# -eq 0 ]; then
     displayHelp
+else
+    echo "Starting build..."
+    echo " "
+
+    if [ ! -f .bbconfig/build_arg_history ]; then
+        mkdir -p .bbconfig
+        touch .bbconfig/build_arg_history
+    fi
+    shelldate=$( date +%Y-%m-%d_%H:%M:%S )
+    echo "Date: $shelldate: $*" >> .bbconfig/build_arg_history
 fi
 
 # Parse arguments
@@ -383,6 +436,18 @@ while [[ $# -gt 0 ]]; do
             done
             echo "GRUB_CMDLINE_OPTIONS=$GRUB_CMDLINE_OPTIONS"
             ;;
+        -p |--privateapp)
+            INCLUDE_AGPRIVAPPS=true
+            shift
+            ;;
+        --nocleanconf)
+            BASS_DO_NOT_CLEAN=true
+            shift
+            ;;
+        --checkproject)
+            BASS_CHECK_PROJECT_STATUS=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             displayHelp
@@ -484,6 +549,22 @@ export BLISS_DISABLE_DEVICE_SEARCH=${BLISS_DISABLE_DEVICE_SEARCH:-false};
 export BLISS_BUILD_SECURE_ADB=${BLISS_BUILD_SECURE_ADB:-false};
 export USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS=${USE_DESKTOP_MODE_ON_SECONDARY_DISPLAYS:-false};
 export GRUB_CMDLINE_OPTIONS=${GRUB_CMDLINE_OPTIONS:-""};
+export INCLUDE_AGPRIVAPPS=${INCLUDE_AGPRIVAPPS:-false};
+export BASS_DO_NOT_CLEAN=${BASS_DO_NOT_CLEAN:-false};
+export BASS_CHECK_PROJECT_STATUS=${BASS_CHECK_PROJECT_STATUS:-false};
+
+if [ "$BLISS_PRODUCTION_BUILD" = "true" ]; then
+    if [ ! -d "vendor/bliss/config/signing" ]; then
+        echo " Missing signing keys. Would you like to generate them? (y/n)" && read ANSWER
+        if [ "$ANSWER" = "y" ]; then
+            echo "Generating signing keys..."
+            bash vendor/bass/tools/tool-generate-keys.sh
+        else
+            echo "Please verify your keys are located in vendor/bliss/config/signing or do not build with --production flag. Exiting..."
+            exit 1
+        fi
+    fi
+fi
 
 echo "Title: ${RELEASE_OS_TITLE}";
 echo "SmartDock: ${USE_SMARTDOCK}";
@@ -537,6 +618,9 @@ echo "DisableDeviceSearch: ${BLISS_DISABLE_DEVICE_SEARCH}";
 echo "BuildSecureADB: ${BLISS_BUILD_SECURE_ADB}";
 echo "DesktopModeOnSecondaryDisplays: ${USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY}";
 echo "GrubCmdlineOptions: ${GRUB_CMDLINE_OPTIONS}";
+echo "IncludeAgPrivApps: ${INCLUDE_AGPRIVAPPS}";
+echo "BassDoNotClean: ${BASS_DO_NOT_CLEAN}";
+echo "BassCheckProjectStatus: ${BASS_CHECK_PROJECT_STATUS}";
 jcores=$(nproc --all --ignore=4);
 lunch bliss_x86_64-userdebug && make ${BUILD_EXTRA_PACKAGES} blissify iso_img -j$jcores;
 
@@ -576,6 +660,30 @@ fi
 if [[ "$GENERATE_MANIFEST" != "false" ]]; then
     mkdir -p iso/$build_filename/manifest/
     repo manifest -o iso/$build_filename/manifest/$build_filename-manifest.xml -r
+fi
+
+# Clean up dynamic configs
+if [ "$BASS_DO_NOT_CLEAN" != "true" ]; then
+    echo "Cleaning up dynamic configs..."
+    clean_configs
+else
+    echo "Skipping cleaning up dynamic configs..."
+    echo ""
+    echo "Uncommitted changes may be found in the following locations:"
+    echo " - bootable/newinstaller"
+    echo " - device/generic/common"
+    echo " - vendor/$vendor_name"
+    echo " - packages/apps/Launcher3"
+    echo " - packages/apps/Blissify"
+    echo " - kernel"
+    echo " - frameworks/base"
+fi
+
+if [ "$BASS_CHECK_PROJECT_STATUS" = "true" ]; then
+    bass_check_project
+else
+    echo "Skipping checking project status..."
+    echo "You can run (. build/envsetup.sh && bass_check_project) to check project status manually."
 fi
 
 echo -e "build files can be found: iso/$build_filename/"

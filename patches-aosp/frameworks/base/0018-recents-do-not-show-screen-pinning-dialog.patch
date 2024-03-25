@@ -1,0 +1,25 @@
+From b5103f7142c6bc06b79f6b23be69fa749c1b0c72 Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 30 Oct 2023 15:44:08 -0400
+Subject: [PATCH 18/25] recents: do not show screen pinning dialog
+
+---
+ .../src/com/android/systemui/recents/ScreenPinningRequest.java  | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/recents/ScreenPinningRequest.java b/packages/SystemUI/src/com/android/systemui/recents/ScreenPinningRequest.java
+index c481ae59faa5..558b02034eb8 100644
+--- a/packages/SystemUI/src/com/android/systemui/recents/ScreenPinningRequest.java
++++ b/packages/SystemUI/src/com/android/systemui/recents/ScreenPinningRequest.java
+@@ -117,7 +117,7 @@ public class ScreenPinningRequest implements View.OnClickListener,
+ 
+         // show the confirmation
+         WindowManager.LayoutParams lp = getWindowLayoutParams();
+-        mWindowManager.addView(mRequestWindow, lp);
++        // mWindowManager.addView(mRequestWindow, lp);
+     }
+ 
+     @Override
+-- 
+2.34.1
+

@@ -1,0 +1,40 @@
+From aa03668f4aa575bed7af969bcce35eb9f19a4804 Mon Sep 17 00:00:00 2001
+From: Alessandro Astone <ales.astone@gmail.com>
+Date: Mon, 29 Aug 2022 01:50:24 +0200
+Subject: [PATCH 19/25] Revert "Render shadows in the client by default"
+
+This reverts commit ba6f8909a4f42674b326390c38ad8c69f5f817ac.
+---
+ core/java/com/android/internal/policy/PhoneWindow.java          | 2 +-
+ .../core/java/com/android/server/wm/WindowManagerService.java   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/com/android/internal/policy/PhoneWindow.java b/core/java/com/android/internal/policy/PhoneWindow.java
+index 0b8ef1812fd7..f06d3676b96a 100644
+--- a/core/java/com/android/internal/policy/PhoneWindow.java
++++ b/core/java/com/android/internal/policy/PhoneWindow.java
+@@ -353,7 +353,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
+         super(context);
+         mLayoutInflater = LayoutInflater.from(context);
+         mRenderShadowsInCompositor = Settings.Global.getInt(context.getContentResolver(),
+-                DEVELOPMENT_RENDER_SHADOWS_IN_COMPOSITOR, 0) != 0;
++                DEVELOPMENT_RENDER_SHADOWS_IN_COMPOSITOR, 1) != 0;
+     }
+ 
+     /**
+diff --git a/services/core/java/com/android/server/wm/WindowManagerService.java b/services/core/java/com/android/server/wm/WindowManagerService.java
+index 768eb9f99ea1..048fadd5a93b 100644
+--- a/services/core/java/com/android/server/wm/WindowManagerService.java
++++ b/services/core/java/com/android/server/wm/WindowManagerService.java
+@@ -1006,7 +1006,7 @@ public class WindowManagerService extends IWindowManager.Stub
+ 
+     private void setShadowRenderer() {
+         mRenderShadowsInCompositor = Settings.Global.getInt(mContext.getContentResolver(),
+-                DEVELOPMENT_RENDER_SHADOWS_IN_COMPOSITOR, 0) != 0;
++                DEVELOPMENT_RENDER_SHADOWS_IN_COMPOSITOR, 1) != 0;
+     }
+ 
+     PowerManager mPowerManager;
+-- 
+2.34.1
+

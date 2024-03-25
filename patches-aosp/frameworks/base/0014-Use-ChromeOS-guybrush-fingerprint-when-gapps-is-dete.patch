@@ -1,7 +1,7 @@
-From 0da67beb4988c9ddf07cc6200bcc043ab4109c6a Mon Sep 17 00:00:00 2001
+From 7ef463045ff85c5f5696dee974191dc21331b569 Mon Sep 17 00:00:00 2001
 From: electrikjesus <electrikjesus@gmail.com>
 Date: Mon, 4 Mar 2024 15:09:45 -0500
-Subject: [PATCH 16/16] Use ChromeOS guybrush fingerprint when gapps is
+Subject: [PATCH 14/25] Use ChromeOS guybrush fingerprint when gapps is
  detected
 
 This is not for SafetyNet, but so that Google Play Store reports the device as a valid x86_64 device

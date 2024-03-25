@@ -1,0 +1,277 @@
+From a4453a841995c7cf8670e436e7596fdfa4fc5d11 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Wed, 15 Nov 2023 13:35:54 -0500
+Subject: [PATCH 22/25] Rename Tablet to Device in all system dialogs
+
+---
+ core/res/res/values/strings.xml | 68 ++++++++++++++++-----------------
+ 1 file changed, 34 insertions(+), 34 deletions(-)
+
+diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
+index 7d085c3d63ec..6bfd8152eda1 100644
+--- a/core/res/res/values/strings.xml
++++ b/core/res/res/values/strings.xml
+@@ -377,7 +377,7 @@
+     <string name="contentServiceTooManyDeletesNotificationDesc">Attempted to delete too many <xliff:g id="content_type">%s</xliff:g>.</string>
+ 
+     <!-- If MMS discovers there isn't much space left on the device, it will show a toast with this message. [CHAR LIMIT=TOAST] -->
+-    <string name="low_memory" product="tablet">Tablet storage is full. Delete some files to free space.</string>
++    <string name="low_memory" product="tablet">Device storage is full. Delete some files to free space.</string>
+     <!-- If MMS discovers there isn't much space left on the device, it will show a toast with this message. [CHAR LIMIT=TOAST] -->
+     <string name="low_memory" product="watch">Watch storage is full. Delete some files to free space.</string>
+     <!-- If MMS discovers there isn't much space left on the device, it will show a toast with this message. [CHAR LIMIT=TOAST] -->
+@@ -488,7 +488,7 @@
+ 
+     <!-- Power Dialog --> <skip />
+     <!-- Title for the Phone Options dialog to lock the screen, turn off the phone etc. -->
+-    <string name="power_dialog" product="tablet">Tablet options</string>
++    <string name="power_dialog" product="tablet">Device options</string>
+     <!-- Title for the Phone Options dialog to lock the screen, turn off the phone etc. -->
+     <string name="power_dialog" product="tv">Android TV options</string>
+     <!-- Title for the Phone Options dialog to lock the screen, turn off the phone etc. -->
+@@ -525,7 +525,7 @@
+ 
+     <!-- Shutdown Confirmation Dialog.  When the user chooses to power off the phone, there will
+          be a confirmation dialog.  This is the message. -->
+-    <string name="shutdown_confirm" product="tablet">Your tablet will shut down.</string>
++    <string name="shutdown_confirm" product="tablet">Your device will shut down.</string>
+     <!-- Shutdown Confirmation Dialog.  When the user chooses to power off the TV, there will
+          be a confirmation dialog.  This is the message. -->
+     <string name="shutdown_confirm" product="tv">Your Android TV device will shut down.</string>
+@@ -563,7 +563,7 @@
+     <string name="no_recent_tasks">No recent apps.</string>
+ 
+     <!-- Title of the Global Actions Dialog -->
+-    <string name="global_actions" product="tablet">Tablet options</string>
++    <string name="global_actions" product="tablet">Device options</string>
+     <!-- Title of the Global Actions Dialog -->
+     <string name="global_actions" product="tv">Android TV options</string>
+     <!-- Title of the Global Actions Dialog -->
+@@ -1100,8 +1100,8 @@
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permdesc_receiveBootCompleted" product="tablet">Allows the app to
+         have itself started as soon as the system has finished booting.
+-        This can make it take longer to start the tablet and allow the
+-        app to slow down the overall tablet by always running.</string>
++        This can make it take longer to start the device and allow the
++        app to slow down the overall device by always running.</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permdesc_receiveBootCompleted" product="tv">Allows the app to
+         have itself started as soon as the system has finished booting.
+@@ -1118,7 +1118,7 @@
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permdesc_broadcastSticky" product="tablet">Allows the app to
+     send sticky broadcasts, which remain after the broadcast ends. Excessive use
+-    may make the tablet slow or unstable by causing it to use too much memory.
++    may make the device slow or unstable by causing it to use too much memory.
+     </string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permdesc_broadcastSticky" product="tv">Allows the app to
+@@ -1135,7 +1135,7 @@
+     <string name="permlab_readContacts">read your contacts</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permdesc_readContacts" product="tablet">Allows the app to read data about your contacts stored on your tablet.
+-      Apps will also have access to the accounts on your tablet that have created contacts.
++      Apps will also have access to the accounts on your device that have created contacts.
+       This may include accounts created by apps you have installed.
+       This permission allows apps to save your contact data, and malicious apps may share contact data without your knowledge.</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+@@ -1195,7 +1195,7 @@
+     <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permlab_readCalendar">Read calendar events and details</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+-    <string name="permdesc_readCalendar" product="tablet">This app can read all calendar events stored on your tablet and share or save your calendar data.</string>
++    <string name="permdesc_readCalendar" product="tablet">This app can read all calendar events stored on your device and share or save your calendar data.</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permdesc_readCalendar" product="tv">This app can read all calendar events stored on your Android TV device and share or save your calendar data.</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+@@ -1351,7 +1351,7 @@
+     <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permlab_wakeLock" product="automotive">keep car screen turned on</string>
+     <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+-    <string name="permlab_wakeLock" product="tablet">prevent tablet from sleeping</string>
++    <string name="permlab_wakeLock" product="tablet">prevent device from sleeping</string>
+     <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permlab_wakeLock" product="tv">prevent your Android TV device from sleeping</string>
+     <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+@@ -1359,7 +1359,7 @@
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permdesc_wakeLock" product="automotive">Allows the app to keep the car screen turned on.</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+-    <string name="permdesc_wakeLock" product="tablet">Allows the app to prevent the tablet from going to sleep.</string>
++    <string name="permdesc_wakeLock" product="tablet">Allows the app to prevent the device from going to sleep.</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permdesc_wakeLock" product="tv">Allows the app to prevent your Android TV device from going to sleep.</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+@@ -1368,7 +1368,7 @@
+     <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permlab_transmitIr">transmit infrared</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+-    <string name="permdesc_transmitIr" product="tablet">Allows the app to use the tablet\'s infrared transmitter.</string>
++    <string name="permdesc_transmitIr" product="tablet">Allows the app to use the devices infrared transmitter.</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permdesc_transmitIr" product="tv">Allows the app to use your Android TV device\'s infrared transmitter.</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+@@ -1387,7 +1387,7 @@
+     <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permlab_setTimeZone">set time zone</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+-    <string name="permdesc_setTimeZone" product="tablet">Allows the app to change the tablet\'s time zone.</string>
++    <string name="permdesc_setTimeZone" product="tablet">Allows the app to change the devices time zone.</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+     <string name="permdesc_setTimeZone" product="tv">Allows the app to change your Android TV device\'s time zone.</string>
+     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+@@ -1482,7 +1482,7 @@
+ 
+     <string name="permlab_changeWimaxState">change WiMAX state</string>
+     <string name="permdesc_changeWimaxState" product="tablet">Allows the app to
+-      connect the tablet to and disconnect the tablet from WiMAX networks.</string>
++      connect the device to and disconnect the device from WiMAX networks.</string>
+     <string name="permdesc_changeWimaxState" product="tv">Allows the app to
+       connect your Android TV device to and disconnect your Android TV device from WiMAX networks.</string>
+     <string name="permdesc_changeWimaxState" product="default">Allows the app to
+@@ -1960,7 +1960,7 @@
+     <string name="policylab_watchLogin">Monitor screen unlock attempts</string>
+     <!-- Description of policy access to watch user login attempts -->
+     <string name="policydesc_watchLogin" product="tablet">Monitor the number of incorrect passwords
+-    typed when unlocking the screen, and lock the tablet or erase all the tablet\'s
++    typed when unlocking the screen, and lock the device or erase all the tablet\'s
+     data if too many incorrect passwords are typed.</string>
+     <!-- Description of policy access to watch user login attempts -->
+     <string name="policydesc_watchLogin" product="tv">Monitor the number of incorrect passwords
+@@ -1975,7 +1975,7 @@
+     typed. when unlocking the screen, and lock the phone or erase all the phone\'s
+     data if too many incorrect passwords are typed.</string>
+     <string name="policydesc_watchLogin_secondaryUser" product="tablet">Monitor the number of incorrect passwords
+-    typed when unlocking the screen, and lock the tablet or erase all this user\'s data
++    typed when unlocking the screen, and lock the device or erase all this user\'s data
+     if too many incorrect passwords are typed.</string>
+     <string name="policydesc_watchLogin_secondaryUser" product="tv">Monitor the number of incorrect passwords
+     typed when unlocking the screen, and lock your Android TV device or erase all this user\'s data
+@@ -2009,7 +2009,7 @@
+     <!-- Title of policy access to wipe secondary user's data -->
+     <string name="policylab_wipeData_secondaryUser" product="default">Erase user data</string>
+     <!-- Description of policy access to wipe the user's data -->
+-    <string name="policydesc_wipeData_secondaryUser" product="tablet">Erase this user\'s data on this tablet without warning.</string>
++    <string name="policydesc_wipeData_secondaryUser" product="tablet">Erase this user\'s data on this device without warning.</string>
+     <!-- Description of policy access to wipe the user's data -->
+     <string name="policydesc_wipeData_secondaryUser" product="tv">Erase this user\'s data on this Android TV device without warning.</string>
+     <!-- Description of policy access to wipe the user's data -->
+@@ -2402,7 +2402,7 @@
+     <string name="lockscreen_failed_attempts_almost_glogin" product="tablet">
+         You have incorrectly drawn your unlock pattern <xliff:g id="number">%1$d</xliff:g> times.
+        After <xliff:g id="number">%2$d</xliff:g> more unsuccessful attempts,
+-       you will be asked to unlock your tablet using your Google signin.\n\n
++       you will be asked to unlock your device using your Google signin.\n\n
+        Try again in <xliff:g id="number">%3$d</xliff:g> seconds.
+     </string>
+ 
+@@ -2427,9 +2427,9 @@
+     <!-- For the unlock screen, informational message shown in dialog when user is almost at the limit
+          where the device will be wiped. -->
+     <string name="lockscreen_failed_attempts_almost_at_wipe" product="tablet">
+-       You have incorrectly attempted to unlock the tablet <xliff:g id="number">%1$d</xliff:g> times.
++       You have incorrectly attempted to unlock the device <xliff:g id="number">%1$d</xliff:g> times.
+        After <xliff:g id="number">%2$d</xliff:g> more unsuccessful attempts,
+-       the tablet will be reset to factory default and all user data will be lost.
++       the device will be reset to factory default and all user data will be lost.
+     </string>
+ 
+     <!-- For the unlock screen, informational message shown in dialog when user is almost at the limit
+@@ -2451,8 +2451,8 @@
+     <!-- For the unlock screen, informational message shown in dialog when user has exceeded the
+         maximum attempts and the device will now be wiped -->
+     <string name="lockscreen_failed_attempts_now_wiping" product="tablet">
+-       You have incorrectly attempted to unlock the tablet <xliff:g id="number">%d</xliff:g> times.
+-       The tablet will now be reset to factory default.
++       You have incorrectly attempted to unlock the device <xliff:g id="number">%d</xliff:g> times.
++       The device will now be reset to factory default.
+     </string>
+ 
+     <!-- For the unlock screen, informational message shown in dialog when user has exceeded the
+@@ -3404,7 +3404,7 @@
+     <!-- [CHAR LIMIT=40] Title of dialog that is shown when performing a system update. -->
+     <string name="android_upgrading_title" product="default">Phone is updating\u2026</string>
+     <!-- [CHAR LIMIT=40] Title of dialog that is shown when performing a system update. -->
+-    <string name="android_upgrading_title" product="tablet">Tablet is updating\u2026</string>
++    <string name="android_upgrading_title" product="tablet">Device is updating\u2026</string>
+     <!-- [CHAR LIMIT=40] Title of dialog that is shown when performing a system update. -->
+     <string name="android_upgrading_title" product="device">Device is updating\u2026</string>
+ 
+@@ -3413,7 +3413,7 @@
+     <!-- [CHAR LIMIT=40] Title of dialog that is shown when system is starting. -->
+     <string name="android_start_title" product="automotive">Android is starting\u2026</string>
+     <!-- [CHAR LIMIT=40] Title of dialog that is shown when system is starting. -->
+-    <string name="android_start_title" product="tablet">Tablet is starting\u2026</string>
++    <string name="android_start_title" product="tablet">Device is starting\u2026</string>
+     <!-- [CHAR LIMIT=40] Title of dialog that is shown when system is starting. -->
+     <string name="android_start_title" product="device">Device is starting\u2026</string>
+ 
+@@ -4234,7 +4234,7 @@
+     <!-- Description of the sliding handle in the Slide unlock screen. [CHAR LIMIT=NONE] -->
+     <string name="content_description_sliding_handle">"Sliding handle. Touch &amp; hold."</string>
+ 
+-    <!-- Description of the unlock handle in the Slide unlock screen for tablets. [CHAR LIMIT=NONE] -->
++    <!-- Description of the unlock handle in the Slide unlock screen for devices. [CHAR LIMIT=NONE] -->
+     <string name="description_target_unlock_tablet">Swipe to unlock.</string>
+ 
+     <!-- Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] -->
+@@ -4369,11 +4369,11 @@
+          doesn't support the work profile. [CHAR LIMIT=100] -->
+     <string name="activity_resolver_work_profiles_support">%1$s doesn\'t support work profile</string>
+ 
+-    <!-- Name of the default audio route for tablets when nothing
++    <!-- Name of the default audio route for devices when nothing
+          is connected to a headphone or other wired audio output jack. [CHAR LIMIT=50] -->
+-    <string name="default_audio_route_name" product="tablet">Tablet</string>
++    <string name="default_audio_route_name" product="tablet">Device</string>
+ 
+-    <!-- Name of the default audio route for tablets when nothing
++    <!-- Name of the default audio route for devices when nothing
+          is connected to a headphone or other wired audio output jack. [CHAR LIMIT=50] -->
+     <string name="default_audio_route_name" product="tv">TV</string>
+ 
+@@ -4526,9 +4526,9 @@
+     </string>
+     <!-- Message shown when user is almost at the limit of password attempts where the device will be wiped. -->
+     <string name="kg_failed_attempts_almost_at_wipe" product="tablet">
+-       You have incorrectly attempted to unlock the tablet <xliff:g id="number">%1$d</xliff:g> times.
++       You have incorrectly attempted to unlock the device <xliff:g id="number">%1$d</xliff:g> times.
+        After <xliff:g id="number">%2$d</xliff:g> more unsuccessful attempts,
+-       the tablet will be reset to factory default and all user data will be lost.
++       the device will be reset to factory default and all user data will be lost.
+     </string>
+     <!-- Message shown when user is almost at the limit of password attempts where the device will be wiped. -->
+     <string name="kg_failed_attempts_almost_at_wipe" product="tv">
+@@ -4544,8 +4544,8 @@
+     </string>
+     <!-- Message shown in dialog when user has exceeded the maximum attempts and the device will now be wiped -->
+     <string name="kg_failed_attempts_now_wiping" product="tablet">
+-       You have incorrectly attempted to unlock the tablet <xliff:g id="number">%d</xliff:g> times.
+-       The tablet will now be reset to factory default.
++       You have incorrectly attempted to unlock the device <xliff:g id="number">%d</xliff:g> times.
++       The device will now be reset to factory default.
+     </string>
+     <!-- Message shown in dialog when user has exceeded the maximum attempts and the device will now be wiped -->
+     <string name="kg_failed_attempts_now_wiping" product="tv">
+@@ -4562,7 +4562,7 @@
+     <string name="kg_failed_attempts_almost_at_login" product="tablet">
+        You have incorrectly drawn your unlock pattern <xliff:g id="number">%1$d</xliff:g> times.
+        After <xliff:g id="number">%2$d</xliff:g> more unsuccessful attempts,
+-       you will be asked to unlock your tablet using an email account.\n\n
++       you will be asked to unlock your device using an email account.\n\n
+        Try again in <xliff:g id="number">%3$d</xliff:g> seconds.
+     </string>
+     <!-- Message shown in dialog when user is almost at the limit where they will be
+@@ -5659,7 +5659,7 @@
+     <!-- Title of notification letting users know the battery level at the time the notification was posted [CHAR_LIMIT=80] -->
+     <string name="battery_saver_charged_notification_summary" product="default">Phone has enough charge. Features no longer restricted.</string>
+     <!-- Title of notification letting users know the battery level at the time the notification was posted [CHAR_LIMIT=80] -->
+-    <string name="battery_saver_charged_notification_summary" product="tablet">Tablet has enough charge. Features no longer restricted.</string>
++    <string name="battery_saver_charged_notification_summary" product="tablet">Device has enough charge. Features no longer restricted.</string>
+     <!-- Title of notification letting users know the battery level at the time the notification was posted [CHAR_LIMIT=80] -->
+     <string name="battery_saver_charged_notification_summary" product="device">Device has enough charge. Features no longer restricted.</string>
+ 
+-- 
+2.34.1
+

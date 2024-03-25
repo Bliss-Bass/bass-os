@@ -9,6 +9,7 @@
 
 # save the official lunch command to aosp_lunch() and source it
 tmp_lunch=`mktemp`
+TEMP_PATH=$(mktemp -d)
 
 #setup colors
 red=`tput setaf 1`
@@ -58,6 +59,176 @@ fi
 sed '/ lunch()/,/^}/!d'  build/envsetup.sh | sed 's/function lunch/function aosp_lunch/' > ${tmp_lunch}
 source ${tmp_lunch}
 rm -f ${tmp_lunch}
+
+function checkProjectStatus() {
+    TARGET_PROJECT_PATH=$1
+    cd $TARGET_PROJECT_PATH
+    echo -e "${purple}target_project_path:${reset} $TARGET_PROJECT_PATH"
+    # Get the list of all repos
+    echo "Getting list of repos..."
+    repos=$(find -L $TARGET_PROJECT_PATH -type d -name ".git" -o -type l -name ".git" -not -path "$TARGET_PROJECT_PATH/out/*")
+    # repos=$(find $TARGET_PROJECT_PATH -type d -name ".git")
+
+    # Create a variable to store repos that need to be pushed
+    repos_to_push=""
+    repos_array=()
+
+    # Get the current projects manifest file and save it to a temp folder
+    echo "Getting current projects manifest..."
+    manifest=$(repo manifest -o $TEMP_PATH/manifest.xml)
+
+    # Also get a revisional manifest for top commit ID
+    echo "Generating revisional manifest. Please wait..."
+    revisional_manifest=$(repo manifest -o $TEMP_PATH/revisional_manifest.xml -r)
+    
+    # Get the current date and time
+    current_date=$(date +"%Y%m%d%H%M%S")
+    # Save $repos_to_push to a file and show the user using alert_dialog
+    echo "$TARGET_PROJECT_PATH" >$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+    # For each repo
+    for repo in $repos; do
+
+        # Change directory to the repo
+        cd $repo
+
+        # Get the current remote and branch
+        current_remote=$(git remote show -n 1)
+        current_branch=$(git branch | sed -n '1p')
+
+        # get the path of $repo relative to $TARGET_PROJECT_PATH
+        prefix="$TARGET_PROJECT_PATH/"
+        suffix="/.git"
+        string="$repo"
+        repo_path=${string#"$prefix"}
+        repo_path=${repo_path%"$suffix"}
+
+        # check the $TEMP_PATH/manifest.xml for the line containing $repo_path
+        # and if it does not exist, add it to $repos_to_push
+        isInFile=$(echo "$manifest" | grep -c "$repo_path")
+
+        if [ $isInFile -ne 0 ]; then
+            echo -e "${ltred}Project not found in manifest.xml:${reset} $repo_path"
+            # repos_to_push="$repos_to_push $repo"
+            echo "NOT IN MANIFEST: $repo_path" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+            # Get current revision using git branch --show-current
+            revision=$(git --work-tree=$repo branch --show-current)
+            # echo "revision: $revision"
+        else
+            # echo "repo_path already exists in manifest.xml"
+
+            # check for uncommitted changes
+            base_repo_path=${repo%"$suffix"}
+            if [[ "$base_repo_path" != "$TARGET_PROJECT_PATH" ]] || [[ "$base_repo_path" != "$TARGET_PROJECT_PATH/vendor/bass" ]]; then
+                uncommitted_changes=$(git --work-tree=$base_repo_path status --porcelain | grep -c "M ")
+                if [[ "$uncommitted_changes" != "" ]] && [[ "$uncommitted_changes" -ne 0 ]] && [[ "$uncommitted_changes" != "nothing to commit, working tree clean" ]]; then 
+                    echo -e "${ltred}repo_path:${reset} $repo_path"
+                    echo -e "${ltyellow}repo has uncommitted changes${reset}"
+                    echo -e "${purple}base_repo_path:${reset} $base_repo_path"
+                    echo "UNCOMMITTED CHANGES: $uncommitted_changes : $repo_path" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+                    open_git_changes=$(git --work-tree=$base_repo_path status)
+                    echo "      $open_git_changes" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+                    echo "" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+                    echo "" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+                fi
+
+                # use git log to get the top commit ID
+                top_commit_id=$(git --work-tree=$base_repo_path log -n 1 --pretty=format:%H)
+                # echo "top_commit_id: $top_commit_id"
+                short_commit_id=$(echo ${top_commit_id:0:10})
+                
+                # Check if the top commit ID matches up with the revisional_manifest for this repo
+                rv_revision_pre=$(cat $TEMP_PATH/revisional_manifest.xml | grep "$repo_path")
+                rv_revision_post=$(echo "$rv_revision_pre" | grep -o -P '(?<=revision=")[^"]+')
+                short_rev_post=$(echo ${rv_revision_post:0:10})
+                
+
+                if [[ "$short_commit_id" != "$short_rev_post" ]] && [[ ! ${#top_commit_id} -gt 25 ]] && [[ "$short_commit_id" != "" ]] && [[ "$short_rev_post" != "" ]] ; then
+                    echo -e "${ltyellow}repo_path:${reset} $repo_path"
+                    echo "short_commit_id: $short_commit_id"
+                    echo "short_rev_post: $short_rev_post"
+                    echo "Repo is checked out at a different place than in the manifest: $repo_path"
+                    echo "REVISION ID MISMATCH: $repo_path" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+                    echo "" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+                    echo "" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+                fi
+                
+                # Check if the top commit ID matches up with the revisional_manifest for this repo
+                m_branch_pre=$(cat $TEMP_PATH/manifest.xml | grep "$repo_path")
+                m_branch_post=$(echo "$m_branch_pre" | grep -o -P '(?<=revision=")[^"]+')
+                # echo "m_branch_pre: $m_branch_pre"
+                # echo "m_branch_post: $m_branch_post"
+
+                # Get the repo remote URL using git remote show
+                repo_remote=$(git --work-tree=$base_repo_path remote show)
+                if [ "$DEBUG" == "true" ]; then
+                    if [ "$repo_remote" == "" ]; then
+                        echo "repo_remote: $repo_remote"
+                    fi
+                fi
+                
+                if [ -n "$repo_remote" ]; then
+                    git_remote_url=$(git --work-tree=$base_repo_path remote get-url "$repo_remote")
+                    if [ "$git_remote_url" == "" ]; then
+                        echo -e "${ltyellow}Path is currently checked out at a different branch with no remote URL:${reset} $repo_path"
+                        echo "REPO CHECKED OUT AT DIFFERENT BRANCH: $repo_path" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+                        echo "" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+                        echo "" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+                    fi
+                fi
+
+                # Get the repo branch name from git branch --show-current
+                repo_branch=$(git --work-tree=$base_repo_path branch --show-current)
+                # echo "repo_branch: $repo_branch"
+
+                # # Check the upstream remote has the current branched checked out at the same top_commit_id
+                # upstream_remote=$(git --work-tree=$base_repo_path ls-remote --heads $git_remote_url)
+                # upstream_commit_id=$(echo "$upstream_remote" | grep "refs/heads/$m_branch_post" | cut -f1)
+                # # echo "upstream_commit_id: $upstream_commit_id"
+
+                # if ! echo "$upstream_commit_id" | grep -q "$top_commit_id"; then
+                #     echo "top_commit_id does not match upstream_commit_id"
+                #     echo "repo_path: $repo_path"
+                #     echo "TOP COMMIT ID DOES NOT MATCH UPSTREAM: $repo_path" >>$TARGET_PROJECT_PATH/repos_to_push-$current_date.txt
+                # fi
+
+            fi
+
+        fi
+
+        cd $TARGET_PROJECT_PATH
+        
+    done
+
+    # If there are any repos that need to be pushed, display them and ask the user if they would like to push them
+    if [[ $(cat $TARGET_PROJECT_PATH/repos_to_push-$current_date.txt | wc -l) -gt 0 ]]; then
+        echo "The following repos need to be pushed:"
+        cat $TARGET_PROJECT_PATH/repos_to_push-$current_date.txt | text
+
+        # Ask the user if they would like to push the repos
+        input 1 "Would you like to push the repos? (y/n) " "n"
+        push_repos=$(0<"${dir_tmp}/${file_tmp}")
+
+        # If the user says yes, push the repos
+        if [[ $push_repos == "y" ]]; then
+            for repo in $(cat $TARGET_PROJECT_PATH/repos_to_push-$current_date.txt); do
+            cd $repo
+            git push $current_remote $current_branch
+            done
+        fi
+    fi
+
+    # If the user wants to generate a manifest, generate it
+    if [[ $push_repos == "y" ]]; then
+        input 1 "Would you like to generate a manifest now? (y/n) " "n"
+        generate_manifest=$(0<"${dir_tmp}/${file_tmp}")
+
+        # If the user says yes, generate the manifest
+        if [[ $generate_manifest == "y" ]]; then
+            repo manifest -o $TARGET_PROJECT_PATH/manifest-$current_date.xml -r
+        fi
+    fi
+
+}
 
 # Override lunch function to filter lunch targets
 function lunch
@@ -228,24 +399,16 @@ function copy_configs()
         
         echo -e "Grub configs updated"
     fi
-    if [ "$USE_SMARTDOCK" = "true" ]; then
+    if [[ "$USE_SMARTDOCK_B" = "true" ]] || [[ "$USE_SMARTDOCK" = "true" ]] || [[ "$USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY" = "true" ]]; then
         echo -e "Desktop launcher selected. Copying configs now..."
-        echo ""
-        if [ "$USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY" = "true" ]; then
-            cp -r vendor/$vendor_name/configs/grub_configs/desktop-ext/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
-            cp -r vendor/$vendor_name/configs/grub_configs/desktop-ext/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
-            # cp -r vendor/$vendor_name/configs/config_defaults/desktop/overlay/* vendor/$vendor_name/overlay/
-            cp -r vendor/$vendor_name/configs/config_defaults/desktop-ext/dgc/* device/generic/common/
-            sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-            sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-        else
-            cp -r vendor/$vendor_name/configs/grub_configs/desktop/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
-            cp -r vendor/$vendor_name/configs/grub_configs/desktop/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
-            # cp -r vendor/$vendor_name/configs/config_defaults/desktop/overlay/* vendor/$vendor_name/overlay/
-            cp -r vendor/$vendor_name/configs/config_defaults/desktop/dgc/* device/generic/common/
-            sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-            sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-        fi
+        echo ""    
+        cp -r vendor/$vendor_name/configs/grub_configs/desktop/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
+        cp -r vendor/$vendor_name/configs/grub_configs/desktop/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
+        # cp -r vendor/$vendor_name/configs/config_defaults/desktop/overlay/* vendor/$vendor_name/overlay/
+        cp -r vendor/$vendor_name/configs/config_defaults/desktop/dgc/* device/generic/common/
+        sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        
         echo -e "Grub configs updated"
     fi
     if [ "$USE_ALWAYS_ON_SETTINGS" = "true" ]; then
@@ -298,7 +461,7 @@ function copy_configs()
 
         echo -e "Configs updated"
     fi
-    if [[ "$USE_BLISS_TV_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_KIOSK_LAUNCHER" = "false" ]] && [[ "$BLISS_SECURE_LOCKDOWN_BUILD" = "false" ]] && [[ "$USE_SMARTDOCK" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "false" ]] && [[ "$USE_BLISS_GARLIC_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_GAME_MODE_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_CROSS_LAUNCHER" = "false" ]]; then
+    if [[ "$USE_BLISS_TV_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_KIOSK_LAUNCHER" = "false" ]] && [[ "$BLISS_SECURE_LOCKDOWN_BUILD" = "false" ]] && [[ "$USE_SMARTDOCK_B" = "false" ]] && [[ "$USE_SMARTDOCK" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "false" ]] && [[ "$USE_BLISS_GARLIC_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_GAME_MODE_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_CROSS_LAUNCHER" = "false" ]]; then
         echo -e "Defaulting to Tablet launcher. Copying configs now..."
         echo ""
         cp -r vendor/$vendor_name/configs/grub_configs/tablet/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
@@ -377,6 +540,13 @@ function copy_configs()
         sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' frameworks/base/core/res/res/values/config.xml
         sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
         sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
+    fi
+
+    if [ "$INCLUDE_AGPRIVAPPS" = "true" ]; then
+        if [ ! -f vendor/ag_privapp/ag_privapp.mk ]; then
+            echo -e "${ltred}ag_privapp source not found. Please make sure you have licensed access. Aborting...${reset}"
+            exit 1
+        fi
     fi
 }
 
@@ -476,3 +646,13 @@ function build-x86()
     bash vendor/$vendor_name/tools/build-x86.sh "${args[@]}"
 
 }
+
+function bass_check_project()
+{
+    echo -e "${ltblue}Checking project status...${reset}"
+    echo ""
+    echo ""
+
+    checkProjectStatus $PWD
+}
+

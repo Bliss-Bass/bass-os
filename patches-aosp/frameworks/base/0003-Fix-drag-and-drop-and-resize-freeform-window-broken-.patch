@@ -1,7 +1,7 @@
-From 86972b2d2e8f01ada7106997bc9f79bb018bbed8 Mon Sep 17 00:00:00 2001
+From 1b219f4d6742ec5ff0efd9c55d451b420d2d78db Mon Sep 17 00:00:00 2001
 From: Arthur Hung <arthurhung@google.com>
 Date: Tue, 31 May 2022 07:43:44 +0000
-Subject: [PATCH 04/16] Fix drag and drop and resize freeform window broken on
+Subject: [PATCH 03/25] Fix drag and drop and resize freeform window broken on
  secondary display
 
 Set the input surface's parent to the display overlay so it could set

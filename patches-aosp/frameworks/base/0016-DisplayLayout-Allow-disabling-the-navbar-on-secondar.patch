@@ -1,0 +1,26 @@
+From 986727fb1f07b913999c9d8c2dbd8a0325363aeb Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Wed, 20 Mar 2024 20:05:49 -0400
+Subject: [PATCH 16/25] DisplayLayout: Allow disabling the navbar on secondary
+ displays
+
+---
+ .../Shell/src/com/android/wm/shell/common/DisplayLayout.java    | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java b/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java
+index 224956ef30ad..05f4a5eb29cc 100644
+--- a/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java
++++ b/libs/WindowManager/Shell/src/com/android/wm/shell/common/DisplayLayout.java
+@@ -509,6 +509,8 @@ public class DisplayLayout {
+             final String navBarOnSecondaryDisplaysOverride = SystemProperties.get("ro.boot.force.navbar_on_secondary_displays");
+             if ("1".equals(navBarOnSecondaryDisplaysOverride)) {
+                 return true;
++            } else if ("0".equals(navBarOnSecondaryDisplaysOverride)) {
++                return false;
+             } else {
+                 boolean isUntrustedVirtualDisplay = info.type == Display.TYPE_VIRTUAL
+                         && info.ownerUid != SYSTEM_UID;
+-- 
+2.34.1
+
