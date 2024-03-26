@@ -174,6 +174,18 @@ ifeq ($(INCLUDE_AGPRIVAPPS), true)
 include vendor/ag_privapp/ag_privapp.mk
 endif
 
+# Bliss Power Manager
+ifeq ($(USE_CALYX_MICROG), true)
+PRODUCT_PACKAGES += \
+    GmsCore \
+    FakeStore \
+    GsfProxy \
+    privapp-permissions-microg.xml \
+    whitelist-microg.xml \
+    microg.xml
+
+endif
+
 # Copy any Permissions files, overriding anything if needed
 $(foreach f,$(wildcard $(LOCAL_PATH)/permissions/*.xml),\
     $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/$(notdir $f)))

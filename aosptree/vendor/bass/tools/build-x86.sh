@@ -59,6 +59,8 @@ export GRUB_CMDLINE_OPTIONS=""
 export INCLUDE_AGPRIVAPPS=false
 export BASS_DO_NOT_CLEAN=false
 export BASS_CHECK_PROJECT_STATUS=false
+export USE_MINIMAL_FOSS_APPS_WITH_MICROG=false
+export USE_CALYX_MICROG=false
 
 # Help dialog
 function displayHelp() {
@@ -103,6 +105,8 @@ function displayHelp() {
     echo "--noksu                Disable KernelSU"
     echo "-f, --fossapps         Enable fossapps"
     echo "--minfossapps          Enable minimal fossapps"
+    echo "--minfossmicrog        Enable minimal fossapps with microg"
+    echo "--usecalyxmicrog       Enable Calyx microg"
     echo "-e, --supervanilla     Enable supervanilla"
     echo "-m, --minimal          Enable minimal packages"
     echo "-r, --removeusertools  Enable removeusertools"
@@ -448,6 +452,16 @@ while [[ $# -gt 0 ]]; do
             BASS_CHECK_PROJECT_STATUS=true
             shift
             ;;
+        --minfossmicrog)
+            USE_FOSSAPPS=true
+            USE_MINIMAL_FOSS_APPS=true
+            USE_MINIMAL_FOSS_APPS_WITH_MICROG=true
+            shift
+            ;;
+        --usecalyxmicrog)
+            USE_CALYX_MICROG=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             displayHelp
@@ -552,6 +566,8 @@ export GRUB_CMDLINE_OPTIONS=${GRUB_CMDLINE_OPTIONS:-""};
 export INCLUDE_AGPRIVAPPS=${INCLUDE_AGPRIVAPPS:-false};
 export BASS_DO_NOT_CLEAN=${BASS_DO_NOT_CLEAN:-false};
 export BASS_CHECK_PROJECT_STATUS=${BASS_CHECK_PROJECT_STATUS:-false};
+export USE_MINIMAL_FOSS_APPS_WITH_MICROG=${USE_MINIMAL_FOSS_APPS_WITH_MICROG:-false};
+export USE_CALYX_MICROG=${USE_CALYX_MICROG:-false};
 
 if [ "$BLISS_PRODUCTION_BUILD" = "true" ]; then
     if [ ! -d "vendor/bliss/config/signing" ]; then
@@ -621,6 +637,8 @@ echo "GrubCmdlineOptions: ${GRUB_CMDLINE_OPTIONS}";
 echo "IncludeAgPrivApps: ${INCLUDE_AGPRIVAPPS}";
 echo "BassDoNotClean: ${BASS_DO_NOT_CLEAN}";
 echo "BassCheckProjectStatus: ${BASS_CHECK_PROJECT_STATUS}";
+echo "UseMinFossAppsWithMicroG: ${USE_MINIMAL_FOSS_APPS_WITH_MICROG}";
+echo "UseCalyxMicroG: ${USE_CALYX_MICROG}";
 jcores=$(nproc --all --ignore=4);
 lunch bliss_x86_64-userdebug && make ${BUILD_EXTRA_PACKAGES} blissify iso_img -j$jcores;
 

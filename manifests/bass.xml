@@ -36,5 +36,8 @@
   <project path="frameworks/opt/colorpicker" name="LineageOS/android_frameworks_opt_colorpicker" remote="ghub" revision="lineage-19.1"/>
   <remove-project name="android_packages_apps_Etar" />
   <project path="packages/apps/Etar" name="LineageOS/android_packages_apps_Etar" sync-s="true" remote="sghub" revision="lineage-19.1" />
+
+  <!-- CalyxOS -->
+  <project path="prebuilts/calyx/microg" name="platform_prebuilts_calyx_microg" sync-s="true" remote="hcglab" revision="android14" />
   
 </manifest>
