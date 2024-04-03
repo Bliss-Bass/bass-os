@@ -513,6 +513,34 @@ function copy_configs()
         sed -i 's/android:key="enable_taskbar" android:defaultValue="true"/android:key="enable_taskbar" android:defaultValue="false"/' packages/apps/Blissify/res/xml/blissify_button.xml || sed -i 's/android:key="enable_taskbar"/android:key="enable_taskbar" android:defaultValue="false"/' packages/apps/Blissify/res/xml/blissify_button.xml
     fi
 
+    if [ "$USE_AX86_STARTMENU" = "true" ]; then
+        # enable Launcher3 Taskbar
+        sed -i 's/"ENABLE_TASKBAR", false,/"ENABLE_TASKBAR", true,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
+        sed -i 's/android:key="enable_taskbar" android:defaultValue="false"/android:key="enable_taskbar" android:defaultValue="true"/' packages/apps/Blissify/res/xml/blissify_button.xml || sed -i 's/android:key="enable_taskbar"/android:key="enable_taskbar" android:defaultValue="true"/' packages/apps/Blissify/res/xml/blissify_button.xml
+    
+        # Add an entry to packages/apps/Launcher3/res/xml/default_workspace*.xml files for the ax86 startmenu
+        WORKSPACE_LIST=$(find packages/apps/Launcher3/res/xml/ -type f -name "default_workspace*.xml")
+        # loop through the files in WORKSPACE_LIST and remove all lines between <favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3"> and </favorites>
+        for file in $WORKSPACE_LIST
+        do
+            # remove all hotseat icons
+            sed -i '/<resolve/,/<\/resolve>/d' $file
+            # Add ax86 startmenu to bottom row
+            echo <<EOF >> $file
+
+<!-- Startmenu Button -->
+<resolve
+    launcher:screen="0"
+    launcher:x="0"
+    launcher:y="-1" >
+    launcher:packageName="com.ax86.startmenu"
+</resolve>
+
+EOF
+        done
+
+    fi
+
     if [ "$BLISS_REMOVE_KSU" = "true" ]; then
         echo "Removing KSU config from kernel"
         sed -i 's/CONFIG_KSU=y/\# CONFIG_KSU is not set/' kernel/arch/x86/configs/android-x86_64_defconfig

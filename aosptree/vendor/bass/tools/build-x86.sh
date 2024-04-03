@@ -61,6 +61,8 @@ export BASS_DO_NOT_CLEAN=false
 export BASS_CHECK_PROJECT_STATUS=false
 export USE_MINIMAL_FOSS_APPS_WITH_MICROG=false
 export USE_CALYX_MICROG=false
+export USE_AURORA_STORE=false
+export USE_AX86_STARTMENU=false
 
 # Help dialog
 function displayHelp() {
@@ -107,6 +109,7 @@ function displayHelp() {
     echo "--minfossapps          Enable minimal fossapps"
     echo "--minfossmicrog        Enable minimal fossapps with microg"
     echo "--usecalyxmicrog       Enable Calyx microg"
+    echo "--aurorastore          Enable Aurora store"
     echo "-e, --supervanilla     Enable supervanilla"
     echo "-m, --minimal          Enable minimal packages"
     echo "-r, --removeusertools  Enable removeusertools"
@@ -118,6 +121,7 @@ function displayHelp() {
     echo "--updatefossapps       Update fossapps"
     echo "--usepos               Enable TabShop pos terminal app"
     echo "-p, --privateapp       Enable privateapps **requires private git access**"
+    echo "--ax86startmenu        Enable ax86 startmenu"
     echo ""
     echo "Input Options:"
     echo "--showkeyboard         Enable show keyboard"
@@ -158,7 +162,7 @@ function clean_configs()
     git checkout -- overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
     cd ../..
     cd packages/apps/Launcher3
-    if [ "$BLISS_CLEAR_HOTSEAT_FAVORITES" = "true" ]; then
+    if [[ "$BLISS_CLEAR_HOTSEAT_FAVORITES" = "true" ]] || [[ "$USE_AX86_STARTMENU" = "true" ]]; then
         WORKSPACE_LIST=$(find res/xml/ -type f -name "default_workspace*.xml")
         for file in $WORKSPACE_LIST
         do
@@ -462,6 +466,14 @@ while [[ $# -gt 0 ]]; do
             USE_CALYX_MICROG=true
             shift
             ;;
+        --aurorastore)
+            USE_AURORA_STORE=true
+            shift
+            ;;
+        --ax86startmenu)
+            USE_AX86_STARTMENU=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             displayHelp
@@ -568,6 +580,8 @@ export BASS_DO_NOT_CLEAN=${BASS_DO_NOT_CLEAN:-false};
 export BASS_CHECK_PROJECT_STATUS=${BASS_CHECK_PROJECT_STATUS:-false};
 export USE_MINIMAL_FOSS_APPS_WITH_MICROG=${USE_MINIMAL_FOSS_APPS_WITH_MICROG:-false};
 export USE_CALYX_MICROG=${USE_CALYX_MICROG:-false};
+export USE_AURORA_STORE=${USE_AURORA_STORE:-false};
+export USE_AX86_STARTMENU=${USE_AX86_STARTMENU:-false};
 
 if [ "$BLISS_PRODUCTION_BUILD" = "true" ]; then
     if [ ! -d "vendor/bliss/config/signing" ]; then
@@ -639,6 +653,8 @@ echo "BassDoNotClean: ${BASS_DO_NOT_CLEAN}";
 echo "BassCheckProjectStatus: ${BASS_CHECK_PROJECT_STATUS}";
 echo "UseMinFossAppsWithMicroG: ${USE_MINIMAL_FOSS_APPS_WITH_MICROG}";
 echo "UseCalyxMicroG: ${USE_CALYX_MICROG}";
+echo "UseAuroraStore: ${USE_AURORA_STORE}";
+echo "Ax86StartMenu: ${USE_AX86_STARTMENU}";
 jcores=$(nproc --all --ignore=4);
 lunch bliss_x86_64-userdebug && make ${BUILD_EXTRA_PACKAGES} blissify iso_img -j$jcores;
 
