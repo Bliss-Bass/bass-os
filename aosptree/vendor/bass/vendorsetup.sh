@@ -569,6 +569,14 @@ function copy_configs()
             exit 1
         fi
     fi
+
+    # SystemUI Recents (does not work on Android 12+)
+    if [ "$BLISS_USE_SYSTEMUI_BLUR" = "true" ]; then
+        echo "Enabling SystemUI Blur Options"
+        sed -i 's#config_sf_slowBlur">true#config_sf_slowBlur">false#g' frameworks/base/core/res/res/values/config.xml
+        sed -i 's#config_letterboxBackgroundType">0#config_letterboxBackgroundType">3#g' frameworks/base/core/res/res/values/config.xml
+        sed -i 's#config_letterboxBackgroundType">0#config_letterboxBackgroundType">3#g' frameworks/base/core/res/res/values/config.xml
+    fi
 }
 
 function add_grub_cmdline_options()
