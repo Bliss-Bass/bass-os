@@ -685,3 +685,32 @@ function bass_check_project()
     checkProjectStatus $PWD
 }
 
+# vendor input routing definitions
+function bass_vendor_input()
+{
+    # we want to accept input config as a comma delimited list
+    # Example: bass_vendor_input "0;usb-xhci-hcd.0.auto-1.1/input0,1;usb-xhci-hcd.0.auto-1.2/input0"
+
+    # Then we parse the list and output the config like so:
+    # <ports>
+    #     <port display="0" input="usb-xhci-hcd.0.auto-1.1/input0" />
+    #     <port display="1" input="usb-xhci-hcd.0.auto-1.2/input0" />
+    # </ports>
+
+    echo "Vendor input routing definitions"
+
+    input_config="$1"
+    output_file="vendor/$vendor_name/templates/vendor/etc/input-port-associations.xml"
+
+    echo "<ports>" > "$output_file"
+    for config in $(echo "$input_config" | tr ',' '\n'); do
+        display=$(echo "$config" | awk -F';' '{print $1}')
+        input=$(echo "$config" | awk -F';' '{print $2}')
+        echo "    <port display=\"$display\" input=\"$input\" />" >> "$output_file"
+    done
+    echo "</ports>" >> "$output_file"
+}
+
+
+
+
