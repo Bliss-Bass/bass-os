@@ -1,0 +1,35 @@
+From a91130434bedc2a87fb22f22b809025dfab07a9f Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Thu, 11 Apr 2024 10:36:35 -0400
+Subject: [PATCH] Ignore permissive errors as we run selinux as permissive.
+
+Change-Id: I8dcf942493706ccf866bb808426b2a24426c64aa
+---
+ payload_consumer/postinstall_runner_action.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/payload_consumer/postinstall_runner_action.cc b/payload_consumer/postinstall_runner_action.cc
+index 28e4515e..2e8875ae 100644
+--- a/payload_consumer/postinstall_runner_action.cc
++++ b/payload_consumer/postinstall_runner_action.cc
+@@ -229,7 +229,7 @@ void PostinstallRunnerAction::PerformPartitionPostinstall() {
+     // Switch to a permissive domain
+     if (setexeccon("u:r:backuptool:s0")) {
+       LOG(ERROR) << "Failed to set backuptool context";
+-      return CompletePostinstall(ErrorCode::kPostinstallRunnerError);
++      // return CompletePostinstall(ErrorCode::kPostinstallRunnerError);
+     }
+ 
+     // Run backuptool script
+@@ -241,7 +241,7 @@ void PostinstallRunnerAction::PerformPartitionPostinstall() {
+     // Switch back to update_engine domain
+     if (setexeccon(nullptr)) {
+       LOG(ERROR) << "Failed to set update_engine context";
+-      return CompletePostinstall(ErrorCode::kPostinstallRunnerError);
++      // return CompletePostinstall(ErrorCode::kPostinstallRunnerError);
+     }
+   } else {
+     LOG(INFO) << "Skipping backuptool scripts";
+-- 
+2.34.1
+
