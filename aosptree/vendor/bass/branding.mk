@@ -122,8 +122,7 @@ PRODUCT_PACKAGES += \
 endif
 
 # Bliss Restricted Launcher
-ifeq ($(USE_BLISS_RESTRICTED_LAUNCHER), true)
-
+ifeq ($(USE_BLISS_RLT),true)
 PRODUCT_PACKAGES += \
     BlissRestrictedLauncher
 
