@@ -513,6 +513,27 @@ function copy_configs()
         sed -i 's/android:key="enable_taskbar" android:defaultValue="true"/android:key="enable_taskbar" android:defaultValue="false"/' packages/apps/Blissify/res/xml/blissify_button.xml || sed -i 's/android:key="enable_taskbar"/android:key="enable_taskbar" android:defaultValue="false"/' packages/apps/Blissify/res/xml/blissify_button.xml
     fi
 
+    if [ "$USE_AX86_STARTMENU" = "true" ]; then
+        echo "ax86 startmenu enabled"
+        # enable Launcher3 Taskbar
+        sed -i 's/"ENABLE_TASKBAR", false,/"ENABLE_TASKBAR", true,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
+        sed -i 's/android:key="enable_taskbar" android:defaultValue="false"/android:key="enable_taskbar" android:defaultValue="true"/' packages/apps/Blissify/res/xml/blissify_button.xml || sed -i 's/android:key="enable_taskbar"/android:key="enable_taskbar" android:defaultValue="true"/' packages/apps/Blissify/res/xml/blissify_button.xml
+    
+        # Add an entry to packages/apps/Launcher3/res/xml/default_workspace*.xml files for the ax86 startmenu
+        WORKSPACE_LIST=$(find packages/apps/Launcher3/res/xml/ -type f -name "default_workspace*.xml")
+        # loop through the files in WORKSPACE_LIST and remove all lines between <favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3"> and </favorites>
+        for file in $WORKSPACE_LIST
+        do
+            # remove all hotseat icons
+            sed -i '/<resolve/,/<\/resolve>/d' $file
+            # Add ax86 startmenu to bottom row
+            sed -i '/<!-- Bottom row -->/a\
+\n\t<!-- Startmenu Button -->\n\t<resolve\n\t\tlauncher:screen="0"\n\t\tlauncher:x="0"\n\t\tlauncher:y="-1" >\n\t\tlauncher:packageName="com.ax86.startmenu"\n\t\tlauncher:className="com.ax86.startmenu.MainActivity"\n\t</resolve>\n' $file
+        done
+
+        echo "ax86 startmenu added to workspace"
+    fi
+
     if [ "$BLISS_REMOVE_KSU" = "true" ]; then
         echo "Removing KSU config from kernel"
         sed -i 's/CONFIG_KSU=y/\# CONFIG_KSU is not set/' kernel/arch/x86/configs/android-x86_64_defconfig
@@ -547,6 +568,14 @@ function copy_configs()
             echo -e "${ltred}ag_privapp source not found. Please make sure you have licensed access. Aborting...${reset}"
             exit 1
         fi
+    fi
+
+    # SystemUI Recents (does not work on Android 12+)
+    if [ "$BLISS_USE_SYSTEMUI_BLUR" = "true" ]; then
+        echo "Enabling SystemUI Blur Options"
+        sed -i 's#config_sf_slowBlur">true#config_sf_slowBlur">false#g' frameworks/base/core/res/res/values/config.xml
+        sed -i 's#config_letterboxBackgroundType">0#config_letterboxBackgroundType">3#g' frameworks/base/core/res/res/values/config.xml
+        sed -i 's#config_letterboxBackgroundType">0#config_letterboxBackgroundType">3#g' frameworks/base/core/res/res/values/config.xml
     fi
 }
 

@@ -122,8 +122,7 @@ PRODUCT_PACKAGES += \
 endif
 
 # Bliss Restricted Launcher
-ifeq ($(USE_BLISS_RESTRICTED_LAUNCHER), true)
-
+ifeq ($(USE_BLISS_RLT),true)
 PRODUCT_PACKAGES += \
     BlissRestrictedLauncher
 
@@ -172,6 +171,18 @@ endif
 
 ifeq ($(INCLUDE_AGPRIVAPPS), true)
 include vendor/ag_privapp/ag_privapp.mk
+endif
+
+# Bliss Power Manager
+ifeq ($(USE_CALYX_MICROG), true)
+PRODUCT_PACKAGES += \
+    GmsCore \
+    FakeStore \
+    GsfProxy \
+    privapp-permissions-microg.xml \
+    whitelist-microg.xml \
+    microg.xml
+
 endif
 
 # Copy any Permissions files, overriding anything if needed

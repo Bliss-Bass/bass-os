@@ -1,0 +1,31 @@
+From b7b433ac92edceb96932017ce2721409be87234a Mon Sep 17 00:00:00 2001
+From: electrikjesus <electrikjesus@gmail.com>
+Date: Mon, 1 Apr 2024 22:04:41 -0400
+Subject: [PATCH] allow vendor/bass to handle ADB secure configuration
+
+---
+ config/common.mk | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index e51a9c90..dfbb172d 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -13,14 +13,6 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+     ro.com.google.clientidbase=$(PRODUCT_GMS_CLIENTID_BASE)
+ endif
+ 
+-ifneq ($(TARGET_BUILD_VARIANT),user)
+-# Disable ADB authentication
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=0
+-else
+-# Enable ADB authentication
+-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=1
+-endif
+-
+ # Backup Tool
+ PRODUCT_COPY_FILES += \
+     vendor/bliss/prebuilt/common/bin/backuptool.sh:install/bin/backuptool.sh \
+-- 
+2.34.1
+
