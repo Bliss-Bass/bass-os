@@ -53,7 +53,7 @@ chmod a+x ~/bin/repo
 
 ### Setting up SSH Keys
 
-This source uses SSH based repo links, and this requires you to have setup SSH keys forr your build serrver and registered those keys on your GitHub & GitLab accounts. 
+This source uses SSH based repo links, and this requires you to have setup SSH keys for your build serrver and registered those keys on your GitHub & GitLab accounts. 
 
 [GitHub - Generating SSH Keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 
