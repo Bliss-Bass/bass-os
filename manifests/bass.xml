@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <remote name="bb" fetch="ssh://git@github.com/Bliss-Bass/" />
-  <remote name="sghub" fetch="ssh://git@github.com/" />
-  <remote name="bb-gl" fetch="ssh://git@gitlab.com/Bliss-Bass/" />
-  <remote name="sglab" fetch="ssh://git@gitlab.com/" />
+
+  <remote name="bb" fetch="https://github.com/Bliss-Bass/" />
+  <remote name="hghub" fetch="https://github.com/" />
+  <remote name="bb-gl" fetch="https://gitlab.com/Bliss-Bass/" />
   <remote name="hglab" fetch="https://gitlab.com/" />
 
   <!-- Public Projects -->
@@ -27,7 +27,7 @@
 
   <!-- Android-Generic -->
   <remove-project name="kerNel_common" />
-  <project path="kernel" name="Bliss-Bass/kernel_common" remote="sghub" sync-s="true" revision="gloria-20240227-fw" />
+  <project path="kernel" name="Bliss-Bass/kernel_common" remote="hghub" sync-s="true" revision="gloria-20240227-fw" />
   <remove-project name="vendor_foss" />
   <project name="vendor_foss" path="vendor/foss" remote="ag-github" revision="1dab914c2db4b04dd991f98fb07435c7a1b0d0c9" upstream="hmchoice" dest-branch="hmchoice"/>
 
@@ -35,7 +35,7 @@
   <remove-project name="android_frameworks_opt_colorpicker" />
   <project path="frameworks/opt/colorpicker" name="LineageOS/android_frameworks_opt_colorpicker" remote="ghub" revision="lineage-19.1"/>
   <remove-project name="android_packages_apps_Etar" />
-  <project path="packages/apps/Etar" name="LineageOS/android_packages_apps_Etar" sync-s="true" remote="sghub" revision="lineage-19.1" />
+  <project path="packages/apps/Etar" name="LineageOS/android_packages_apps_Etar" sync-s="true" remote="hghub" revision="lineage-19.1" />
 
   <!-- CalyxOS -->
   <project path="prebuilts/calyx/microg" name="CalyxOS/platform_prebuilts_calyx_microg" sync-s="true" remote="hglab" revision="android14" />
