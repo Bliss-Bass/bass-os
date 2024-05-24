@@ -1,7 +1,7 @@
-From f07a1f46135fb290d37c5f1ea7052782ba175997 Mon Sep 17 00:00:00 2001
+From 7bc6ea7fd495a10b45b77f20e976a224bf70e6c8 Mon Sep 17 00:00:00 2001
 From: electrikjesus <electrikjesus@gmail.com>
 Date: Wed, 6 Mar 2024 19:09:55 -0500
-Subject: [PATCH 2/2] inputflinger: Move to letting us override win key with a
+Subject: [PATCH 2/6] inputflinger: Move to letting us override win key with a
  property
 
 This requires a commit in frameworks/base to be removed: 5bc2c3d520e958493c9b4d5624457403267c9689

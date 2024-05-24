@@ -1,7 +1,7 @@
-From 74fad596c7e869950b26184dd279d06db7b89f8f Mon Sep 17 00:00:00 2001
+From c4422a4fb1e286aee548e4b29b770df01260843c Mon Sep 17 00:00:00 2001
 From: electrikjesus <electrikjesus@gmail.com>
 Date: Fri, 23 Feb 2024 12:48:15 -0500
-Subject: [PATCH 1/2] inputflinger: Allow setting right mouse as back
+Subject: [PATCH 1/6] inputflinger: Allow setting right mouse as back
 
 Allows overriding AMOTION_EVENT_BUTTON_SECONDARY with AMOTION_EVENT_BUTTON_BACK, using a property trigger.
 

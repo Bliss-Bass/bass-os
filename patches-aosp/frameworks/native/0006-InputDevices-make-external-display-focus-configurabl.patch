@@ -1,7 +1,7 @@
-From a94f54704dfa5e68f08d1bbc1251bed0f97c2db5 Mon Sep 17 00:00:00 2001
+From 3b3bf80853eb3f1714bf11fb9aa34cf64e78daf9 Mon Sep 17 00:00:00 2001
 From: electrikjesus <electrikjesus@gmail.com>
 Date: Thu, 2 May 2024 12:44:23 -0400
-Subject: [PATCH 5/5] InputDevices: make external display focus configurable
+Subject: [PATCH 6/6] InputDevices: make external display focus configurable
 
 ro.boot.force.disable_external_display_focus=1
 ---
@@ -9,7 +9,7 @@ ro.boot.force.disable_external_display_focus=1
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/services/inputflinger/reader/InputDevice.cpp b/services/inputflinger/reader/InputDevice.cpp
-index c37088384a..156d9639b1 100644
+index 0e5ab6ea9e..4908ee5242 100644
 --- a/services/inputflinger/reader/InputDevice.cpp
 +++ b/services/inputflinger/reader/InputDevice.cpp
 @@ -20,6 +20,7 @@

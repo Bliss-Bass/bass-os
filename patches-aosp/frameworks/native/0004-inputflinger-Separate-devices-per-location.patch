@@ -1,0 +1,51 @@
+From 44bb6d05d1c171d7416a5661b3e5ef61045d1b60 Mon Sep 17 00:00:00 2001
+From: Erfan Abdi <erfangplus@gmail.com>
+Date: Fri, 17 May 2024 06:09:28 +0330
+Subject: [PATCH 4/6] inputflinger: Separate devices per location
+
+Change-Id: I2242bf26e71ec0d94e49e06e45151691c622032f
+---
+ services/inputflinger/reader/InputReader.cpp       | 6 ++++--
+ services/inputflinger/reader/include/InputDevice.h | 2 ++
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/services/inputflinger/reader/InputReader.cpp b/services/inputflinger/reader/InputReader.cpp
+index f552aea1b8..df38742644 100644
+--- a/services/inputflinger/reader/InputReader.cpp
++++ b/services/inputflinger/reader/InputReader.cpp
+@@ -277,8 +277,10 @@ void InputReader::removeDeviceLocked(nsecs_t when, int32_t eventHubId) {
+ std::shared_ptr<InputDevice> InputReader::createDeviceLocked(
+         int32_t eventHubId, const InputDeviceIdentifier& identifier) {
+     auto deviceIt = std::find_if(mDevices.begin(), mDevices.end(), [identifier](auto& devicePair) {
+-        return devicePair.second->getDescriptor().size() && identifier.descriptor.size() &&
+-                devicePair.second->getDescriptor() == identifier.descriptor;
++        return (devicePair.second->getDescriptor().size() && identifier.descriptor.size() &&
++                devicePair.second->getDescriptor() == identifier.descriptor) &&
++               (devicePair.second->getLocation().size() && identifier.location.size() &&
++                devicePair.second->getLocation() == identifier.location);
+     });
+ 
+     std::shared_ptr<InputDevice> device;
+diff --git a/services/inputflinger/reader/include/InputDevice.h b/services/inputflinger/reader/include/InputDevice.h
+index f32472d37b..5ba7bf7ce7 100644
+--- a/services/inputflinger/reader/include/InputDevice.h
++++ b/services/inputflinger/reader/include/InputDevice.h
+@@ -53,6 +53,7 @@ public:
+     inline int32_t getGeneration() const { return mGeneration; }
+     inline const std::string getName() const { return mIdentifier.name; }
+     inline const std::string getDescriptor() { return mIdentifier.descriptor; }
++    inline const std::string getLocation() { return mIdentifier.location; }
+     inline Flags<InputDeviceClass> getClasses() const { return mClasses; }
+     inline uint32_t getSources() const { return mSources; }
+     inline bool hasEventHubDevices() const { return !mDevices.empty(); }
+@@ -376,6 +377,7 @@ public:
+ 
+     inline const std::string getName() { return mDevice.getName(); }
+     inline const std::string getDescriptor() { return mDevice.getDescriptor(); }
++    inline const std::string getLocation() { return mDevice.getLocation(); }
+     inline bool isExternal() { return mDevice.isExternal(); }
+     inline std::optional<uint8_t> getAssociatedDisplayPort() const {
+         return mDevice.getAssociatedDisplayPort();
+-- 
+2.34.1
+
