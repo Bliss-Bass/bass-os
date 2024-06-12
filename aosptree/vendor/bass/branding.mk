@@ -173,6 +173,12 @@ ifeq ($(INCLUDE_AGPRIVAPPS), true)
 include vendor/ag_privapp/ag_privapp.mk
 endif
 
+# Bass unique build identifier
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.bliss.device.vendor.id=BASS.SP01.DEMO-001 \
+    ro.boot.hardware.sku=BASS.SP01.DEMO-001 \
+    ro.boot.product.hardware.sku=BASS.SP01.DEMO-001
+
 # Bliss Power Manager
 ifeq ($(USE_CALYX_MICROG), true)
 PRODUCT_PACKAGES += \
