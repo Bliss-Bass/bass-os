@@ -153,6 +153,13 @@ ifeq ($(BLISS_BUILD_SECURE_ADB), true)
 
 endif
 
+
+ifeq ($(BLISS_PER_WINDOW_INPUT_ROTATION), true)
+    PRODUCT_PROPERTY_OVERRIDES += \
+        persist.debug.per_window_input_rotation=true
+
+endif
+
 ifneq ($(TARGET_BUILD_VARIANT),user)
     ifneq ($(BLISS_BUILD_SECURE_ADB),true)
         # Disable ADB authentication
