@@ -208,3 +208,8 @@ endif
 $(foreach f,$(wildcard $(LOCAL_PATH)/templates/product/media/*),\
     $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_PRODUCT)/media/$(notdir $f)))
 
+# Vendor unique build identifier
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.bliss.device.vendor.id=BASS.DEMO.A01-001 \
+    ro.boot.hardware.sku=BASS.DEMO.A01-001 \
+    ro.boot.product.hardware.sku=BASS.DEMO.A01-001
