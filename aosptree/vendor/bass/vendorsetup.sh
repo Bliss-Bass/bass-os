@@ -248,6 +248,7 @@ function lunch
         echo -e "${yellow}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without grub customization...\n${reset}"
     fi
     
+    build_config
     copy_configs
     add_grub_cmdline_options
     update_apps
@@ -569,6 +570,71 @@ function copy_configs()
         sed -i 's#config_letterboxBackgroundType">0#config_letterboxBackgroundType">3#g' frameworks/base/core/res/res/values/config.xml
         sed -i 's#config_letterboxBackgroundType">0#config_letterboxBackgroundType">3#g' frameworks/base/core/res/res/values/config.xml
     fi
+}
+
+function build_config()
+{
+    # Read $SCRIPT_PATH/../../.config/brand_name.cfg
+    while read -r brand_name; do
+        BRAND_NAME="$brand_name"
+    done < $PWD/.config/brand_name.cfg
+
+    if [ "$BRAND_NAME" == "" -o "$BRAND_NAME" == "BlissBass" -o "$BRAND_NAME" == "BassOS" ]; then
+        # set config defaults
+        echo -e "${ltblue}Setting config defaults${reset}"
+        # Vendor unique build identifier
+        BASS_VENDOR="Bliss Co-Labs"
+        BASS_VENDOR_ID="BASS.DEMO.A01-001"
+        BASS_HARDWARE_SKU="BASS.DEMO.A01-001"
+        BASS_PRODUCT_HARDWARE_SKU="BASS.DEMO.A01-001"
+
+    else
+        echo -e "${ltblue}Setting custom config defaults${reset}"
+        # See if the user has a build_config already
+        if [ -f $SCRIPT_PATH/../tmp/build_config ]; then
+            read -r BASS_VENDOR BASS_VENDOR_ID BASS_HARDWARE_SKU BASS_PRODUCT_HARDWARE_SKU < $SCRIPT_PATH/../tmp/build_config
+        else
+            input 1 "We need to define some initial information. What is the name of your company? " "$BRAND_NAME"
+            REFACTOR_TO_NAME=$(0<"${dir_tmp}/${file_tmp}")
+            # Make variable all caps
+            BASS_VENDOR=${REFACTOR_TO_NAME^^}
+
+            # Set BASS_VENDOR_NAME to BASS_VENDOR with no spaces, dashes, underscores or periods
+            BASS_VENDOR_NAME=${BASS_VENDOR//[^[:alnum:]]/}
+
+            input 1 "What is your vendor ID? " "A01-001"
+            REFACTOR_TO_ID=$(0<"${dir_tmp}/${file_tmp}")
+            BASS_VENDOR_ID_PREFIX="BASS.$BASS_VENDOR_NAME."
+            BASS_VENDOR_ID_SUFFIX=${REFACTOR_TO_ID^^}
+
+            BASS_VENDOR_ID=${BASS_VENDOR_ID_PREFIX}${BASS_VENDOR_ID_SUFFIX}
+
+            BASS_HARDWARE_SKU=${BASS_VENDOR_ID}
+            BASS_PRODUCT_HARDWARE_SKU=${BASS_VENDOR_ID}
+
+        fi
+
+    fi
+
+    # Write config defaults to file ($SCRIPT_PATH/../tmp/build_config)
+    touch $SCRIPT_PATH/../tmp/build_config
+    echo "$BASS_VENDOR,$BASS_VENDOR_ID,$BASS_HARDWARE_SKU,$BASS_PRODUCT_HARDWARE_SKU" > $SCRIPT_PATH/../tmp/build_config
+
+    # Create $SCRIPT_PATH/../tmp/bass_build_config.mk with parsed details
+    touch $SCRIPT_PATH/../tmp/bass_build_config.mk
+    echo "PRODUCT_PROPERTY_OVERRIDES += \\" > $SCRIPT_PATH/../tmp/bass_build_config.mk
+    echo "    ro.bliss.device.vendor.name=$BASS_VENDOR \\" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
+    echo "    ro.bliss.device.vendor.id=$BASS_VENDOR_ID \\" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
+    echo "    ro.boot.hardware.sku=$BASS_HARDWARE_SKU \\" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
+    echo "    ro.boot.product.hardware.sku=$BASS_PRODUCT_HARDWARE_SKU \\" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
+    echo "    ro.bliss.device.is.licensed=false" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
+    echo " " >> $SCRIPT_PATH/../tmp/bass_build_config.mk
+    echo "PRODUCT_COPY_FILES += \\" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
+    echo '    $(LOCAL_PATH)/tmp/build_config:system/etc/build_config' >> $SCRIPT_PATH/../tmp/bass_build_config.mk
+    echo " " >> $SCRIPT_PATH/../tmp/bass_build_config.mk
+
+    # copy $SCRIPT_PATH/../tmp/build_config and encrypt the file
+
 }
 
 function add_grub_cmdline_options()
