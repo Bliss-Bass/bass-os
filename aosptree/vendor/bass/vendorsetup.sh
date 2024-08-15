@@ -617,6 +617,7 @@ function build_config()
     fi
 
     # Write config defaults to file ($SCRIPT_PATH/../tmp/build_config)
+    mkdir -p $SCRIPT_PATH/../tmp
     touch $SCRIPT_PATH/../tmp/build_config
     echo "$BASS_VENDOR,$BASS_VENDOR_ID,$BASS_HARDWARE_SKU,$BASS_PRODUCT_HARDWARE_SKU" > $SCRIPT_PATH/../tmp/build_config
 
