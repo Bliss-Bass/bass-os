@@ -252,6 +252,7 @@ function lunch
     copy_configs
     add_grub_cmdline_options
     update_apps
+    agp_sign_apk
     fi
     aosp_lunch $*
 
@@ -770,6 +771,41 @@ function bass_vendor_input()
     echo "</ports>" >> "$output_file"
 }
 
+function agp_sign_apk() 
+{
+    # On Android 13+ we have tighter restrictions with using presigned apk's 
+    # so we must now enforce the apps we want installed as system apps to be
+    # signed with platform keys. 
+    #
+    # Since we generate these keys, we know where they can be found. Allowing 
+    # us to automate this process per-build
+    
+    # check build/make to see what API version Android is on
+    CURRENT_PLATFORM_SDK_VERSION=`get_build_var PLATFORM_SDK_VERSION`
+    if [ "$CURRENT_PLATFORM_SDK_VERSION" -ge "33" ]; then
+        # Find all Android.mk files and grep for "LOCAL_PRIVILEGED_MODULE := true"
+        for afile in $(find vendor/adp-apps -name "Android.mk" -execdir grep -nH --color=auto "LOCAL_PRIVILEGED_MODULE := true" {} ';'); do
+            unsigned_prebuilt_priv_api_apps_folder=$(dirname $afile)
 
+            for apk in $(find $unsigned_prebuilt_priv_api_apps_folder -type f -name '*.apk'); do
+                apkexists=true
+                package=$(basename $apk)
+                # packageName=`echo "$package" | cut -d'.' -f1`
+                packageName="${package%.*}"
+                echo -e "VS: Package name: $packageName"
+                echo -e "${yellow}VS: # signing private-api-app: $apk ${CL_RST}"
+                if [ -f ~/Android/Sdk/build-tools/34.0.0-rc3/apksigner ]; then
+                    ~/Android/Sdk/build-tools/34.0.0-rc3/apksigner sign --key "$SCRIPT_PATH/../../vendor/bliss/config/signing/platform.pk8" --cert "$SCRIPT_PATH/../../vendor/bliss/config/signing/platform.x509.pem" "$apk" | exit
+                    echo -e "${green}VS: # Signing Complete - priv-app: $apk ${CL_RST}"
+                else
+                    echo -e "${red}VS: apksigner not found at ~/Android/Sdk/build-tools/34.0.0-rc3/ ${CL_RST}"
+                    exit
+                fi
+            done
+        done
+
+    fi
+
+}
 
 
