@@ -180,7 +180,7 @@ ifeq ($(INCLUDE_AGPRIVAPPS), true)
 include vendor/ag_privapp/ag_privapp.mk
 endif
 
-# Bliss Power Manager
+# Calyx MicroG
 ifeq ($(USE_CALYX_MICROG), true)
 PRODUCT_PACKAGES += \
     GmsCore \
