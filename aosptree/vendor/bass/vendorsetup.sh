@@ -249,6 +249,7 @@ function lunch
     fi
     
     build_config
+    alternate_signature_prep
     copy_configs
     add_grub_cmdline_options
     update_apps
@@ -808,4 +809,14 @@ function agp_sign_apk()
 
 }
 
+function alternate_signature_prep()
+{
+    # if vendor/bliss is not part of this BSP, then create our own place to house the signatures
+    if [ ! -d vendor/bliss ]; then
+        mkdir -p vendor/bliss
+        if [ ! -d vendor/bliss/config ]; then
+            mkdir -p vendor/bliss/config
+        fi
+    fi
+}
 
