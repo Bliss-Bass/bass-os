@@ -579,7 +579,7 @@ function build_config()
     # Read $SCRIPT_PATH/../../.config/brand_name.cfg
     while read -r brand_name; do
         BRAND_NAME="$brand_name"
-    done < $PWD/.config/brand_name.cfg
+    done < $PWD/../.config/brand_name.cfg
 
     if [ "$BRAND_NAME" == "" -o "$BRAND_NAME" == "BlissBass" -o "$BRAND_NAME" == "BassOS" ]; then
         # set config defaults
@@ -593,8 +593,8 @@ function build_config()
     else
         echo -e "${ltblue}Setting custom config defaults${reset}"
         # See if the user has a build_config already
-        if [ -f $SCRIPT_PATH/../tmp/build_config ]; then
-            read -r BASS_VENDOR BASS_VENDOR_ID BASS_HARDWARE_SKU BASS_PRODUCT_HARDWARE_SKU < $SCRIPT_PATH/../tmp/build_config
+        if [ -f $PWD/../bass/tmp/build_config ]; then
+            read -r BASS_VENDOR BASS_VENDOR_ID BASS_HARDWARE_SKU BASS_PRODUCT_HARDWARE_SKU < $PWD/../bass/tmp/build_config
         else
             input 1 "We need to define some initial information. What is the name of your company? " "$BRAND_NAME"
             REFACTOR_TO_NAME=$(0<"${dir_tmp}/${file_tmp}")
@@ -618,25 +618,25 @@ function build_config()
 
     fi
 
-    # Write config defaults to file ($SCRIPT_PATH/../tmp/build_config)
-    mkdir -p $SCRIPT_PATH/../tmp
-    touch $SCRIPT_PATH/../tmp/build_config
-    echo "$BASS_VENDOR,$BASS_VENDOR_ID,$BASS_HARDWARE_SKU,$BASS_PRODUCT_HARDWARE_SKU" > $SCRIPT_PATH/../tmp/build_config
+    # Write config defaults to file ($PWD/../bass/tmp/build_config)
+    mkdir -p $PWD/../bass/tmp
+    touch $PWD/../bass/tmp/build_config
+    echo "$BASS_VENDOR,$BASS_VENDOR_ID,$BASS_HARDWARE_SKU,$BASS_PRODUCT_HARDWARE_SKU" > $PWD/../bass/tmp/build_config
 
-    # Create $SCRIPT_PATH/../tmp/bass_build_config.mk with parsed details
-    touch $SCRIPT_PATH/../tmp/bass_build_config.mk
-    echo "PRODUCT_PROPERTY_OVERRIDES += \\" > $SCRIPT_PATH/../tmp/bass_build_config.mk
-    echo "    ro.bliss.device.vendor.name=$BASS_VENDOR \\" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
-    echo "    ro.bliss.device.vendor.id=$BASS_VENDOR_ID \\" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
-    echo "    ro.boot.hardware.sku=$BASS_HARDWARE_SKU \\" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
-    echo "    ro.boot.product.hardware.sku=$BASS_PRODUCT_HARDWARE_SKU \\" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
-    echo "    ro.bliss.device.is.licensed=false" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
-    echo " " >> $SCRIPT_PATH/../tmp/bass_build_config.mk
-    echo "PRODUCT_COPY_FILES += \\" >> $SCRIPT_PATH/../tmp/bass_build_config.mk
-    echo '    $(LOCAL_PATH)/tmp/build_config:system/etc/build_config' >> $SCRIPT_PATH/../tmp/bass_build_config.mk
-    echo " " >> $SCRIPT_PATH/../tmp/bass_build_config.mk
+    # Create $PWD/../bass/tmp/bass_build_config.mk with parsed details
+    touch $PWD/../bass/tmp/bass_build_config.mk
+    echo "PRODUCT_PROPERTY_OVERRIDES += \\" > $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.bliss.device.vendor.name=$BASS_VENDOR \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.bliss.device.vendor.id=$BASS_VENDOR_ID \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.boot.hardware.sku=$BASS_HARDWARE_SKU \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.boot.product.hardware.sku=$BASS_PRODUCT_HARDWARE_SKU \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.bliss.device.is.licensed=false" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo " " >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "PRODUCT_COPY_FILES += \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo '    $(LOCAL_PATH)/tmp/build_config:system/etc/build_config' >> $PWD/../bass/tmp/bass_build_config.mk
+    echo " " >> $PWD/../bass/tmp/bass_build_config.mk
 
-    # copy $SCRIPT_PATH/../tmp/build_config and encrypt the file
+    # copy $PWD/../bass/tmp/build_config and encrypt the file
 
 }
 
@@ -796,7 +796,7 @@ function agp_sign_apk()
                 echo -e "VS: Package name: $packageName"
                 echo -e "${yellow}VS: # signing private-api-app: $apk ${CL_RST}"
                 if [ -f ~/Android/Sdk/build-tools/34.0.0-rc3/apksigner ]; then
-                    ~/Android/Sdk/build-tools/34.0.0-rc3/apksigner sign --key "$SCRIPT_PATH/../../vendor/bliss/config/signing/platform.pk8" --cert "$SCRIPT_PATH/../../vendor/bliss/config/signing/platform.x509.pem" "$apk" | exit
+                    ~/Android/Sdk/build-tools/34.0.0-rc3/apksigner sign --key "$PWD/../aosptree/vendor/bliss/config/signing/platform.pk8" --cert "$PWD/../aosptree/vendor/bliss/config/signing/platform.x509.pem" "$apk" | exit
                     echo -e "${green}VS: # Signing Complete - priv-app: $apk ${CL_RST}"
                 else
                     echo -e "${red}VS: apksigner not found at ~/Android/Sdk/build-tools/34.0.0-rc3/ ${CL_RST}"
