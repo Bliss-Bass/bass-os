@@ -10,9 +10,9 @@
   <remove-project name="platform_packages_apps_SetupWizard" />
   <project path="packages/apps/SetupWizard" name="platform_packages_apps_SetupWizard" remote="bb" revision="bass-12.1" />
   <remove-project name="bootable_newinstaller" />
-  <project name="platform_bootable_newinstaller" path="bootable/newinstaller" remote="bb" revision="bac66e69ecf7716668eaeb569e1b584319bbb5a6" />
+  <project name="platform_bootable_newinstaller" path="bootable/newinstaller" remote="bb" revision="9f56aaed13a87f6055b15f863db9efbeef6832c1" />
   <remove-project name="device_generic_common" />
-  <project name="device_generic_common" path="device/generic/common" remote="bb" revision="5dc9f6136405a03f6e8764b5219b65d7cda7996f" sync-s="true"/>
+  <project name="device_generic_common" path="device/generic/common" remote="bb" revision="a13cfcbc708b1ecb29fd1dee622c3c5a5b3b7976" sync-s="true"/>
   <project path="packages/apps/Seedvault" name="LineageOS/android_packages_apps_Seedvault" remote="ghub" revision="lineage-19.1" />
   <remove-project name="platform/packages/apps/Gallery2" />
   <project path="packages/apps/Gallery2" name="platform_packages_apps_Gallery2" remote="bb" revision="bass-12.1" />
