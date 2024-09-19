@@ -34,14 +34,6 @@ SCRIPT_PATH=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 # define vendor_name as the top directory name
 vendor_name=$(basename "$SCRIPT_PATH")
 
-# replace "vendor/branding" with "vendor/$vendor_name" in vendor/$vendor_name/branding/menus/branding-menu/branding-menu.json
-sed -i "s/branding/$vendor_name/g" vendor/$vendor_name/branding/menus/branding-menu/branding-menu.json
-if sed -i "s/vendor\/branding/vendor\/$vendor_name/g" vendor/$vendor_name/bootanimation/Android.mk; then
-    echo -e "${green}Setting vendor name\n${reset}"
-else
-    echo -e "${yellow}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without menu...\n${reset}"
-fi
-
 sed -i "s/vendor\/branding/vendor\/$vendor_name/g" vendor/$vendor_name/branding.mk
 
 echo "SCRIPT_PATH: $SCRIPT_PATH"
@@ -256,9 +248,12 @@ function lunch
         echo -e "${yellow}Vendor Customization functions not found. Check license and verify all instructions have been followed, continuing without grub customization...\n${reset}"
     fi
     
+    build_config
+    alternate_signature_prep
     copy_configs
     add_grub_cmdline_options
     update_apps
+    agp_sign_apk
     fi
     aosp_lunch $*
 
@@ -579,6 +574,72 @@ function copy_configs()
     fi
 }
 
+function build_config()
+{
+    # Read $SCRIPT_PATH/../../.config/brand_name.cfg
+    while read -r brand_name; do
+        BRAND_NAME="$brand_name"
+    done < $PWD/../.config/brand_name.cfg
+
+    if [ "$BRAND_NAME" == "" -o "$BRAND_NAME" == "BlissBass" -o "$BRAND_NAME" == "BassOS" ]; then
+        # set config defaults
+        echo -e "${ltblue}Setting config defaults${reset}"
+        # Vendor unique build identifier
+        BASS_VENDOR="Bliss Co-Labs"
+        BASS_VENDOR_ID="BASS.DEMO.A01-001"
+        BASS_HARDWARE_SKU="BASS.DEMO.A01-001"
+        BASS_PRODUCT_HARDWARE_SKU="BASS.DEMO.A01-001"
+
+    else
+        echo -e "${ltblue}Setting custom config defaults${reset}"
+        # See if the user has a build_config already
+        if [ -f $PWD/../bass/tmp/build_config ]; then
+            read -r BASS_VENDOR BASS_VENDOR_ID BASS_HARDWARE_SKU BASS_PRODUCT_HARDWARE_SKU < $PWD/../bass/tmp/build_config
+        else
+            input 1 "We need to define some initial information. What is the name of your company? " "$BRAND_NAME"
+            REFACTOR_TO_NAME=$(0<"${dir_tmp}/${file_tmp}")
+            # Make variable all caps
+            BASS_VENDOR=${REFACTOR_TO_NAME^^}
+
+            # Set BASS_VENDOR_NAME to BASS_VENDOR with no spaces, dashes, underscores or periods
+            BASS_VENDOR_NAME=${BASS_VENDOR//[^[:alnum:]]/}
+
+            input 1 "What is your vendor ID? " "A01-001"
+            REFACTOR_TO_ID=$(0<"${dir_tmp}/${file_tmp}")
+            BASS_VENDOR_ID_PREFIX="BASS.$BASS_VENDOR_NAME."
+            BASS_VENDOR_ID_SUFFIX=${REFACTOR_TO_ID^^}
+
+            BASS_VENDOR_ID=${BASS_VENDOR_ID_PREFIX}${BASS_VENDOR_ID_SUFFIX}
+
+            BASS_HARDWARE_SKU=${BASS_VENDOR_ID}
+            BASS_PRODUCT_HARDWARE_SKU=${BASS_VENDOR_ID}
+
+        fi
+
+    fi
+
+    # Write config defaults to file ($PWD/../bass/tmp/build_config)
+    mkdir -p $PWD/../bass/tmp
+    touch $PWD/../bass/tmp/build_config
+    echo "$BASS_VENDOR,$BASS_VENDOR_ID,$BASS_HARDWARE_SKU,$BASS_PRODUCT_HARDWARE_SKU" > $PWD/../bass/tmp/build_config
+
+    # Create $PWD/../bass/tmp/bass_build_config.mk with parsed details
+    touch $PWD/../bass/tmp/bass_build_config.mk
+    echo "PRODUCT_PROPERTY_OVERRIDES += \\" > $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.bliss.device.vendor.name=$BASS_VENDOR \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.bliss.device.vendor.id=$BASS_VENDOR_ID \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.boot.hardware.sku=$BASS_HARDWARE_SKU \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.boot.product.hardware.sku=$BASS_PRODUCT_HARDWARE_SKU \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.bliss.device.is.licensed=false" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo " " >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "PRODUCT_COPY_FILES += \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo '    $(LOCAL_PATH)/tmp/build_config:system/etc/build_config' >> $PWD/../bass/tmp/bass_build_config.mk
+    echo " " >> $PWD/../bass/tmp/bass_build_config.mk
+
+    # copy $PWD/../bass/tmp/build_config and encrypt the file
+
+}
+
 function add_grub_cmdline_options()
 {
     # add "$GRUB_CMDLINE_OPTIONS" to the the specified grub config files, replacing the word "logo":
@@ -683,5 +744,79 @@ function bass_check_project()
     echo ""
 
     checkProjectStatus $PWD
+}
+
+# vendor input routing definitions
+function bass_vendor_input()
+{
+    # we want to accept input config as a comma delimited list
+    # Example: bass_vendor_input "0;usb-xhci-hcd.0.auto-1.1/input0,1;usb-xhci-hcd.0.auto-1.2/input0"
+
+    # Then we parse the list and output the config like so:
+    # <ports>
+    #     <port display="0" input="usb-xhci-hcd.0.auto-1.1/input0" />
+    #     <port display="1" input="usb-xhci-hcd.0.auto-1.2/input0" />
+    # </ports>
+
+    echo "Vendor input routing definitions"
+
+    input_config="$1"
+    output_file="vendor/$vendor_name/templates/vendor/etc/input-port-associations.xml"
+
+    echo "<ports>" > "$output_file"
+    for config in $(echo "$input_config" | tr ',' '\n'); do
+        display=$(echo "$config" | awk -F';' '{print $1}')
+        input=$(echo "$config" | awk -F';' '{print $2}')
+        echo "    <port display=\"$display\" input=\"$input\" />" >> "$output_file"
+    done
+    echo "</ports>" >> "$output_file"
+}
+
+function agp_sign_apk() 
+{
+    # On Android 13+ we have tighter restrictions with using presigned apk's 
+    # so we must now enforce the apps we want installed as system apps to be
+    # signed with platform keys. 
+    #
+    # Since we generate these keys, we know where they can be found. Allowing 
+    # us to automate this process per-build
+    
+    # check build/make to see what API version Android is on
+    CURRENT_PLATFORM_SDK_VERSION=`get_build_var PLATFORM_SDK_VERSION`
+    if [ "$CURRENT_PLATFORM_SDK_VERSION" -ge "33" ]; then
+        # Find all Android.mk files and grep for "LOCAL_PRIVILEGED_MODULE := true"
+        for afile in $(find vendor/adp-apps -name "Android.mk" -execdir grep -nH --color=auto "LOCAL_PRIVILEGED_MODULE := true" {} ';'); do
+            unsigned_prebuilt_priv_api_apps_folder=$(dirname $afile)
+
+            for apk in $(find $unsigned_prebuilt_priv_api_apps_folder -type f -name '*.apk'); do
+                apkexists=true
+                package=$(basename $apk)
+                # packageName=`echo "$package" | cut -d'.' -f1`
+                packageName="${package%.*}"
+                echo -e "VS: Package name: $packageName"
+                echo -e "${yellow}VS: # signing private-api-app: $apk ${CL_RST}"
+                if [ -f ~/Android/Sdk/build-tools/34.0.0-rc3/apksigner ]; then
+                    ~/Android/Sdk/build-tools/34.0.0-rc3/apksigner sign --key "$PWD/../aosptree/vendor/bliss/config/signing/platform.pk8" --cert "$PWD/../aosptree/vendor/bliss/config/signing/platform.x509.pem" "$apk" | exit
+                    echo -e "${green}VS: # Signing Complete - priv-app: $apk ${CL_RST}"
+                else
+                    echo -e "${red}VS: apksigner not found at ~/Android/Sdk/build-tools/34.0.0-rc3/ ${CL_RST}"
+                    exit
+                fi
+            done
+        done
+
+    fi
+
+}
+
+function alternate_signature_prep()
+{
+    # if vendor/bliss is not part of this BSP, then create our own place to house the signatures
+    if [ ! -d vendor/bliss ]; then
+        mkdir -p vendor/bliss
+        if [ ! -d vendor/bliss/config ]; then
+            mkdir -p vendor/bliss/config
+        fi
+    fi
 }
 

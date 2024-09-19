@@ -1,0 +1,3 @@
+Licensees holding valid commercial Bass OS licenses may use this software in accordance with the the terms contained in a written agreement between you and Navotpala Tech (Bliss Co-Labs). Alternatively, the terms and conditions that were accepted by the licensee when buying and/or downloading the software do apply.
+For the latest licensing terms and conditions, see https://bliss-bass.blisscolabs.dev/licensing.html.
+For further information use the contact form at https://bliss-bass.blisscolabs.dev/#contact .

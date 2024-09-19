@@ -13,16 +13,16 @@
 
 <resources>
     <!-- BlissRoms Version -->
-    <string name="bliss_version">BlissBass version</string>
+    <string name="bliss_version">BassOS version</string>
     <string name="bliss_version_default">Unknown</string>
-    <string name="keywords_bliss_version">BlissBass version, BlissBass</string>
+    <string name="keywords_bliss_version">BassOS version, BassOS</string>
     <string name="bliss_build_date">Build date</string>
     <string name="bliss_build_default">Unknown</string>
     <string name="bliss_build_type">Build status</string>
-    <string name="bliss_device">BlissBass device</string>
-    <string name="bliss_codename">BlissBass Codename</string>
+    <string name="bliss_device">BassOS device</string>
+    <string name="bliss_codename">BassOS Codename</string>
     <!-- Blissify -->
-    <string name="blissify_settings_title">BlissBass Options</string>
+    <string name="blissify_settings_title">BassOS Options</string>
     <string name="blissify_settings_summary">Customization options</string>
     <!-- Maintainer -->
     <string name="bliss_maintainer">"HMTheBoy154/electrikjesus"</string>

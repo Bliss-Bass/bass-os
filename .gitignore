@@ -4,6 +4,9 @@ aosptree/**
 !aosptree/vendor/bass/**
 aosptree/vendor/bass/branding
 aosptree/vendor/bass/addons
+aosptree/vendor/bass/tmp
+!aosptree/vendor/bass/tmp/build_config
+logs/*
 manifests/private*.xml
 private/manifests/*
 private/addons/*

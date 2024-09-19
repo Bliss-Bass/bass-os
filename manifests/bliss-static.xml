@@ -1231,7 +1231,7 @@
   <project name="platform_system_bpf" path="system/bpf" remote="BlissRoms" revision="860fa57e5ad47e1be73061834e96b8331166bde1" upstream="arcadia-next" dest-branch="arcadia-next" groups="pdk"/>
   <project name="platform_system_bt" path="system/bt" remote="BR-x86" revision="0ea5245fbf18246d3395164b446b0386f7348266" upstream="arcadia-x86" dest-branch="arcadia-x86"/>
   <project name="platform_system_ca-certificates" path="system/ca-certificates" remote="BlissRoms" revision="fc15d3d618d84e9797df0f23e667263230f57a16" upstream="arcadia-next" dest-branch="arcadia-next"/>
-  <project name="platform_system_core" path="system/core" remote="BR-x86" revision="70f5b85c5fb5a36027ec988f79f2ececae007060" upstream="arcadia-x86" dest-branch="arcadia-x86"/>
+  <project name="platform_system_core" path="system/core" remote="BR-x86" revision="13b2154df73a084e2ba166f1bbd7d134db83036c" upstream="arcadia-x86" dest-branch="arcadia-x86"/>
   <project name="platform_system_hardware_interfaces" path="system/hardware/interfaces" remote="BR-x86" revision="08dd259e6812f1585364f4be4fa10aea35896aaa" upstream="arcadia-x86" dest-branch="arcadia-x86"/>
   <project name="platform_system_libhwbinder" path="system/libhwbinder" remote="BlissRoms" revision="7d855b13ae77578c6e261964fc9eed1ef4261a7b" upstream="arcadia-next" dest-branch="arcadia-next"/>
   <project name="platform_system_netd" path="system/netd" remote="BlissRoms" revision="f27d10dd3dc9c450ad4c086df21b16a94e589cdc" upstream="arcadia-next" dest-branch="arcadia-next" groups="pdk"/>

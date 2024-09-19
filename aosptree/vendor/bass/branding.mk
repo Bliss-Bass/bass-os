@@ -153,6 +153,13 @@ ifeq ($(BLISS_BUILD_SECURE_ADB), true)
 
 endif
 
+
+ifeq ($(BLISS_PER_WINDOW_INPUT_ROTATION), true)
+    PRODUCT_PROPERTY_OVERRIDES += \
+        persist.debug.per_window_input_rotation=true
+
+endif
+
 ifneq ($(TARGET_BUILD_VARIANT),user)
     ifneq ($(BLISS_BUILD_SECURE_ADB),true)
         # Disable ADB authentication
@@ -173,7 +180,7 @@ ifeq ($(INCLUDE_AGPRIVAPPS), true)
 include vendor/ag_privapp/ag_privapp.mk
 endif
 
-# Bliss Power Manager
+# Calyx MicroG
 ifeq ($(USE_CALYX_MICROG), true)
 PRODUCT_PACKAGES += \
     GmsCore \
@@ -188,3 +195,18 @@ endif
 # Copy any Permissions files, overriding anything if needed
 $(foreach f,$(wildcard $(LOCAL_PATH)/permissions/*.xml),\
     $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/$(notdir $f)))
+
+ifeq ($(INCLUDE_VENDOR_INPUT), true)
+
+# Copy any vendor specific input configs if found
+$(foreach f,$(wildcard $(LOCAL_PATH)/templates/vendor/etc/*.xml),\
+    $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_VENDOR)/etc/$(notdir $f)))
+
+endif
+
+# Copy any product specific input configs if found
+$(foreach f,$(wildcard $(LOCAL_PATH)/templates/product/media/*),\
+    $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_PRODUCT)/media/$(notdir $f)))
+
+
+include $(LOCAL_PATH)/tmp/bass_build_config.mk
