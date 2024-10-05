@@ -1,0 +1,1 @@
+-include vendor/bass/prebuilts/bootsight/apps.mk

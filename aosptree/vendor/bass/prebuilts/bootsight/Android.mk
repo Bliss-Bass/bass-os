@@ -1,0 +1,18 @@
+LOCAL_PATH := $(my-dir)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := BootSight
+LOCAL_MODULE_TAGS := optional
+LOCAL_SRC_FILES := prebuilts/unsigned-priv-api-apps/BootSight.apk
+LOCAL_MODULE_CLASS := APPS
+LOCAL_CERTIFICATE := platform
+LOCAL_OVERRIDES_PACKAGES := 
+LOCAL_PRIVILEGED_MODULE := true
+LOCAL_PRIVATE_PLATFORM_APIS := true
+LOCAL_DEX_PREOPT := false
+
+LOCAL_PREBUILT_JNI_LIBS := \
+
+			
+include $(BUILD_PREBUILT)
+
