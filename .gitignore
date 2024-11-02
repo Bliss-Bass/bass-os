@@ -6,6 +6,7 @@ aosptree/vendor/bass/branding
 aosptree/vendor/bass/addons
 aosptree/vendor/bass/tmp
 !aosptree/vendor/bass/tmp/build_config
+aosptree/vendor/bass/configs/watermark/create_watermark/**
 logs/*
 manifests/private*.xml
 private/manifests/*

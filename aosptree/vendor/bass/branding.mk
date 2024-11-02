@@ -200,6 +200,18 @@ PRODUCT_PACKAGES += \
 
 endif
 
+ifeq ($(ADD_WATERMARK),true)
+# Watermark for Bliss Bass test builds
+# Fields are:
+# text%fontsize%deltax%deltay%shadowcolor%color%shadowradius%shadowdx%shadowdy
+# For more info, see:
+# frameworks/base/services/core/java/com/android/server/wm/Watermark.java
+# and to configure the watermark, see:
+# vendor/bass/configs/watermark/create_watermark/README.md (access required)
+PRODUCT_COPY_FILES += \
+    vendor/bass/configs/watermark/watermark.conf:system/etc/setup.conf
+endif
+
 # Copy any Permissions files, overriding anything if needed
 $(foreach f,$(wildcard $(LOCAL_PATH)/permissions/*.xml),\
     $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/$(notdir $f)))
