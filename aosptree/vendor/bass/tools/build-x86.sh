@@ -768,6 +768,8 @@ if [[ "$GENERATE_MANIFEST" != "false" ]]; then
     repo manifest -o iso/$build_filename/manifest/$build_filename-manifest.xml -r
 fi
 
+cp .bbconfig/last_command iso/$build_filename/build_command
+
 # Clean up dynamic configs
 if [ "$BASS_DO_NOT_CLEAN" != "true" ]; then
     echo "Cleaning up dynamic configs..."
