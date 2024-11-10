@@ -212,6 +212,14 @@ PRODUCT_COPY_FILES += \
     vendor/bass/configs/watermark/watermark.conf:system/etc/setup.conf
 endif
 
+
+ifeq ($(ADD_VNCFLINGER),true)
+PRODUCT_PACKAGES += \
+    DesktopMode \
+    VncFlinger
+
+endif
+
 # Copy any Permissions files, overriding anything if needed
 $(foreach f,$(wildcard $(LOCAL_PATH)/permissions/*.xml),\
     $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/$(notdir $f)))
