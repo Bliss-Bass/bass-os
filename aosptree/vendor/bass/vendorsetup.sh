@@ -456,7 +456,7 @@ function copy_configs()
 
         echo -e "Configs updated"
     fi
-    if [[ "$USE_BLISS_TV_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_KIOSK_LAUNCHER" = "false" ]] && [[ "$BLISS_SECURE_LOCKDOWN_BUILD" = "false" ]] && [[ "$USE_SMARTDOCK_B" = "false" ]] && [[ "$USE_SMARTDOCK" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "false" ]] && [[ "$USE_BLISS_GARLIC_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_GAME_MODE_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_CROSS_LAUNCHER" = "false" ]]; then
+    if [[ "$USE_BLISS_TV_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_KIOSK_LAUNCHER" = "false" ]] && [[ "$BLISS_SECURE_LOCKDOWN_BUILD" = "false" ]] && [[ "$USE_SMARTDOCK_B" = "false" ]] && [[ "$USE_SMARTDOCK" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "false" ]] && [[ "$USE_BLISS_GAME_MODE_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_CROSS_LAUNCHER" = "false" ]]; then
         echo -e "Defaulting to Tablet launcher. Copying configs now..."
         echo ""
         cp -r vendor/$vendor_name/configs/grub_configs/tablet/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
@@ -581,14 +581,24 @@ function build_config()
         BRAND_NAME="$brand_name"
     done < $PWD/../.config/brand_name.cfg
 
+    if [ "$AD_SIGNAGE" == "true" ]; then
+        if [ "$BASS_ID_TITLE" == "" -o "$BASS_ID_TITLE" == "DEMO" -o "$BASS_ID_TITLE" == "demo" ]; then
+            BASS_ID_TITLE="AD.DEMO"
+        fi
+    fi
+
+    if [ -z "$BASS_ID_TITLE" ]; then
+        BASS_ID_TITLE="DEMO"
+    fi
+
     if [ "$BRAND_NAME" == "" -o "$BRAND_NAME" == "BlissBass" -o "$BRAND_NAME" == "BassOS" ]; then
         # set config defaults
         echo -e "${ltblue}Setting config defaults${reset}"
         # Vendor unique build identifier
         BASS_VENDOR="Bliss Co-Labs"
-        BASS_VENDOR_ID="BASS.DEMO."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
-        BASS_HARDWARE_SKU="BASS.DEMO."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
-        BASS_PRODUCT_HARDWARE_SKU="BASS.DEMO."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
+        BASS_VENDOR_ID="BASS."${BASS_ID_TITLE}"."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
+        BASS_HARDWARE_SKU="BASS."${BASS_ID_TITLE}"."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
+        BASS_PRODUCT_HARDWARE_SKU="BASS."${BASS_ID_TITLE}"."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
 
     else
         echo -e "${ltblue}Setting custom config defaults${reset}"
