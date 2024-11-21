@@ -188,6 +188,10 @@ ifeq ($(INCLUDE_AGPRIVAPPS), true)
 include vendor/ag_privapp/ag_privapp.mk
 endif
 
+ifeq ($(INCLUDE_GENERIC_MDM), true)
+include vendor/genericmdm/ag_privapp.mk
+endif
+
 # Calyx MicroG
 ifeq ($(USE_CALYX_MICROG), true)
 PRODUCT_PACKAGES += \
