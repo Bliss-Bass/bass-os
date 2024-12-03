@@ -7,6 +7,7 @@
 		<permission name="android.permission.RECEIVE_BOOT_COMPLETED" fixed="true"/>
 		<permission name="android.permission.SYSTEM_ALERT_WINDOW" fixed="true"/>
 		<permission name="com.bliss.bootsight.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" fixed="true"/>
+		<permission name="android.permission.READ_PRIVILEGED_PHONE_STATE" fixed="true"/>
     </exception>
 
 </exceptions>
