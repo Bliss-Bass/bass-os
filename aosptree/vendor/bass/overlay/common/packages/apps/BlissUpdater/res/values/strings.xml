@@ -31,7 +31,7 @@
           {device} - Device name
           {variant} - Bliss variant gapps/vanilla
     -->
-    <string name="updater_server_url" translatable="false">https://blissbass.blissos.org/api/v1/updater/los/{device}/{variant}/</string>
+    <string name="updater_server_url" translatable="false">https://ota.navotpala.tech/api/v1/updater/los/{device}/{variant}/</string>
 
     <string name="verification_failed_notification">Verification failed</string>
     <string name="verifying_download_notification">Verifying update</string>
