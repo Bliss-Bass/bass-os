@@ -10,16 +10,16 @@
   <remove-project name="platform_packages_apps_SetupWizard" />
   <project path="packages/apps/SetupWizard" name="platform_packages_apps_SetupWizard" remote="bb" revision="bass-12.1" />
   <remove-project name="bootable_newinstaller" />
-  <project name="platform_bootable_newinstaller" path="bootable/newinstaller" remote="bb" revision="9f56aaed13a87f6055b15f863db9efbeef6832c1" />
+  <project name="platform_bootable_newinstaller" path="bootable/newinstaller" remote="bb" revision="b23a7873c12d9b1aa3ae6bc824dd1ed54e54b853" />
   <remove-project name="device_generic_common" />
-  <project name="device_generic_common" path="device/generic/common" remote="bb" revision="a13cfcbc708b1ecb29fd1dee622c3c5a5b3b7976" sync-s="true"/>
+  <project name="device_generic_common" path="device/generic/common" remote="bb" revision="5e949adb9b0cc1b511fcc9c17c1fca31fd72ed10" sync-s="true"/>
   <project path="packages/apps/Seedvault" name="LineageOS/android_packages_apps_Seedvault" remote="ghub" revision="lineage-19.1" />
   <remove-project name="platform/packages/apps/Gallery2" />
   <project path="packages/apps/Gallery2" name="platform_packages_apps_Gallery2" remote="bb" revision="bass-12.1" />
   <remove-project name="platform_frameworks_base" />
-  <project name="platform_frameworks_base" path="frameworks/base" remote="bb" revision="bass-12.1-20240919" upstream="bass-12.1-20240919" dest-branch="bass-12.1-20240919"/>
+  <project name="platform_frameworks_base" path="frameworks/base" remote="bb" revision="bass-12.1-20241231" upstream="bass-12.1-20241231" dest-branch="bass-12.1-20241231"/>
   <remove-project name="frameworks_native" />
-  <project name="platform_frameworks_native" path="frameworks/native" remote="bb" revision="bass-12.1-20240919" upstream="bass-12.1-20240919" dest-branch="bass-12.1-20240919"/>
+  <project name="platform_frameworks_native" path="frameworks/native" remote="bb" revision="bass-12.1-20241111-t4" upstream="bass-12.1-20241111-t4" dest-branch="bass-12.1-20241111-t4"/>
   <remove-project name="platform_system_update_engine" />
   <project path="system/update_engine" name="platform_system_update_engine" groups="pdk" remote="bb" revision="arcadia-bass" />
   <project path="external/updatersdk" name="platform_external_updatersdk" remote="bb" revision="arcadia-next" />
@@ -33,13 +33,13 @@
   <remove-project name="android_external_libxml2" />
   <project path="external/libxml2" name="platform_external_libxml2" remote="bb" revision="bass-12.1" />
   <remove-project name="android-generic/vendor_prebuilts_agp-apps" />
-  <project name="Bliss-Bass/public_vendor_prebuilts_agp-apps" path="vendor/agp-apps" remote="hglab" revision="bass-12.1" />
+  <project name="Bliss-Bass/public_vendor_prebuilts_agp-apps" path="vendor/agp-apps" remote="hglab" revision="bass-14.0" />
 
   <!-- Android-Generic -->
   <remove-project name="kerNel_common" />
   <project path="kernel" name="Bliss-Bass/kernel_common" remote="hghub" sync-s="true" revision="gloria-20240227-fw" />
   <remove-project name="vendor_foss" />
-  <project name="vendor_foss" path="vendor/foss" remote="ag-github" revision="1dab914c2db4b04dd991f98fb07435c7a1b0d0c9" upstream="hmchoice" dest-branch="hmchoice"/>
+  <project name="vendor_foss" path="vendor/foss" remote="ag-github" revision="16071dab08f838d6736204b0b3b27186f44e196b" upstream="hmchoice" dest-branch="hmchoice"/>
 
   <!-- LineageOS -->
   <remove-project name="android_frameworks_opt_colorpicker" />
