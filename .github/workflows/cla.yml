@@ -1,0 +1,49 @@
+# BlissLabs CLA check. Copied to other orgs by setup-cla.sh.
+# Signatures live in a central repo so contributors sign once, not per tree.
+name: CLA Assistant
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened, closed, synchronize]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+  statuses: write
+
+jobs:
+  CLAAssistant:
+    runs-on: ubuntu-latest
+    steps:
+      - name: CLA Assistant
+        if: (github.event.comment.body == 'recheck') || (github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request_target'
+        uses: contributor-assistant/github-action@v2.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.CLA_ASSISTANT_TOKEN }}
+        with:
+          path-to-signatures: signatures/version1/cla.json
+          path-to-document: https://github.com/BlissRoms-x86/website/blob/master/CLA.md
+          branch: main
+          allowlist: bot,dependabot,renovate,github-actions
+          remote-organization-name: BlissRoms-x86
+          remote-repository-name: cla-signatures
+          custom-notsigned-prcomment: |
+            Thank you for your pull request. BlissLabs needs a signed Contributor License Agreement before we can merge original work.
+
+            **Summary of key terms:**
+            1. **Open source guarantee:** Merged code stays public under GPLv3 (or later) in perpetuity.
+            2. **Copyright and commercial sublicensing:** You keep your copyright. You grant BlissLabs a non-exclusive license to distribute under GPLv3 and to sublicense commercial exemptions to hardware OEMs via Bliss Co-Labs Inc. / Navotpala Tech.
+            3. **Patent grant:** You grant a royalty-free patent license for patentable ideas in this pull request.
+
+            Full text: https://github.com/BlissRoms-x86/website/blob/master/CLA.md
+
+            To sign, comment exactly:
+
+            `I have read the CLA Document and I hereby sign the CLA`
+
+            If this work was done as an employee, your company must also send the Corporate CLA to contact@blisslabs.org.
+          custom-allsigned-prcomment: All contributors on this pull request have signed the BlissLabs CLA.
